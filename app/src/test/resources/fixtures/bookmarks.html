@@ -1,0 +1,91 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>bookmarks :: test</title>
+</head>
+<body>
+<!-- Umelá vzorka so štruktúrou stránky /id/19/. Všetky mená, ID a hodnoty sú vymyslené. -->
+<div class="t1">
+<center>
+[
+<a href="/id/1/" name="main" title="Main Page">main</a> |
+<a href="/id/19/" name="bookmarks" title="Bookmarks">bookmarkz</a> |
+<a href="/id/24/" name="mail" title="Mail Inbox">mail</a>
+]
+-- [
+<a name="SELF :: own profile :: x" title="SELF :: own profile :: x" href="/id/4242">x</a>|<a name="user profile configuration" title="user profile configuration" href="/id/4242/777">cfg</a>
+]
+<form enctype="multipart/form-data" action="/id/19/" method="post" style="display: inline;">
+  <button type="submit" name="event" value="logout" title="Logout">out</button>
+<input type="hidden" name="anticsrf" value="test-token" />
+</form>
+</center>
+</div>
+
+<form method="post">
+<input type="hidden" name="anticsrf" value="test-token" />
+<a href="/id/19/111">customize bookmarks</a>
+<table width="100%">
+    <tr>
+        <td width="15%" valign="top" class="books_left">
+            <h3>Friends</h3><div></div>
+            <table class="module_k_wallet" cellspacing="0" cellpadding="1" align="center"><tr><td><b>K_wallet</b></td></tr><tr><td>
+1234</td></tr></table>
+        </td>
+        <td width="40%" valign="top" class="books_center">
+<form method='post' action='/id/19' name="bookmarks_full">
+<br>
+<input style='height: 11px; width: 11px;' type='checkbox' name='bookmarks_chosen[]'
+value='1001'
+ class='empty'
+>
+<a href='/id/1001'>  Tiché fórum</a>
+<br>
+<input style='height: 11px; width: 11px;' type='checkbox' name='bookmarks_chosen[]'
+value='1002'
+ class='mark' >
+<a href='/id/1002'>!!! NOVINKY !!!</a>
+:: <span class='most_important'> 2 NEW Child</span>
+:: <span class='important'>descdnt</span>
+<br>
+<input style='height: 11px; width: 11px;' type='checkbox' name='bookmarks_chosen[]'
+value='1003'
+>
+<a href='/id/1003'>.:.<b><font color="#FF0099">HUDOBNÉ VLÁKNO</font></b>.:.</a>
+:: <span class='important'>descdnt</span>
+<br>
+<input style='height: 11px; width: 11px;' type='checkbox' name='bookmarks_chosen[]'
+value='1004'
+>
+<a href='/id/1004'><b><font color="#FF00FF">*záhradka*</font></b></a>
+:: <span class='important'>changed</span>
+<br>
+<input style='height: 11px; width: 11px;' type='checkbox' name='bookmarks_chosen[]'
+value='1005'
+ class='mark' >
+<a href='/id/1005'><font size="4"> veľké vlákno </font></a>
+:: <span class='most_important'> 256 NEW Child</span>
+:: <span class='important'>descdnt</span>
+:: <span class='important'>changed</span>
+<br>
+<input style='height: 11px; width: 11px;' type='checkbox' name='bookmarks_chosen[]'
+value='1006'
+ class='empty'
+>
+<a href='/id/1006'>Archív NSFW</a>
+<br>
+<br>
+<select name="bookmark_category_id">
+    <option value="">...no category</option>
+</select>
+<input type='submit' name='event' value='set_bookmark_category' />
+<input type='submit' name='event' value='unbook_multi' />
+<input type='submit' name='event' value='set_as_read' /><br />
+<span class="bookcat0"><input type='radio' value='0' name='bookstyl'> all</span>
+<input type='submit' name='event' value='bookstyl' />
+        </td>
+    </tr>
+</table>
+</form>
+</body>
+</html>

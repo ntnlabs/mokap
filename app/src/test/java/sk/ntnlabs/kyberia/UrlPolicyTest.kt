@@ -32,6 +32,13 @@ class UrlPolicyTest {
     }
 
     @Test
+    fun hostCheck() {
+        assertTrue(UrlPolicy.isKyberiaHost("kyberia.sk"))
+        assertTrue(UrlPolicy.isKyberiaHost("WWW.Kyberia.sk"))
+        assertFalse(UrlPolicy.isKyberiaHost("notkyberia.sk"))
+    }
+
+    @Test
     fun normalizeUpgradesOnlyKyberiaHttp() {
         assertEquals("https://kyberia.sk/id/1", UrlPolicy.normalize("http://kyberia.sk/id/1"))
         assertEquals("https://www.kyberia.sk/", UrlPolicy.normalize("http://www.kyberia.sk/"))
@@ -40,10 +47,8 @@ class UrlPolicyTest {
     }
 
     @Test
-    fun startUrlFallsBackForForeignLinks() {
-        val home = "https://kyberia.sk/"
-        assertEquals(home, UrlPolicy.startUrl(null, home))
-        assertEquals(home, UrlPolicy.startUrl("https://example.com/", home))
-        assertEquals("https://kyberia.sk/id/42", UrlPolicy.startUrl("http://kyberia.sk/id/42", home))
+    fun nodeUrls() {
+        assertEquals("https://kyberia.sk/id/19/", KyberiaUrls.BOOKMARKS)
+        assertEquals("https://kyberia.sk/id/42/", KyberiaUrls.node(42))
     }
 }

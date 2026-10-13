@@ -1,18 +1,32 @@
 # mokap
 
-Mobilná aplikácia (Android) pre [kyberia.sk](https://kyberia.sk) – neoficiálny klient,
-ktorý zobrazuje web a pridáva veci, ktoré pasívny web nemá (notifikácie a ďalšie).
+Neoficiálny Android klient pre [kyberia.sk](https://kyberia.sk). Nie je to prehliadač:
+appka sa prihlási, stiahne vybrané stránky, vytiahne z nich dáta a ukáže ich po svojom –
+zoradené, prefiltrované a s lokálnymi notifikáciami.
 
 > Projekt nie je oficiálnou aplikáciou kyberia.sk.
 
-## Čo už vie
+## Stav
 
-- web kyberie vo WebView, prihlásenie cez web (appka heslá neukladá)
-- odkazy mimo kyberie sa otvárajú v prehliadači, `http://` odkazy na kyberiu sa prepnú na `https://`
-- pull-to-refresh, späť cez históriu, chybová obrazovka s „Skúsiť znova“
-- nahrávanie súborov (file input), sťahovanie súborov, video na celú obrazovku
-- otváranie kyberia.sk odkazov priamo v appke (treba zapnúť v systémových nastaveniach)
-- žiadna záloha dát appky (session cookies neodídu do cloudu ani na iný telefón)
+| Časť | Stav |
+|---|---|
+| Prihlásenie (natívne, heslo sa neukladá) | hotové, čaká na overenie na živej kyberii |
+| Bookmarky (`/id/19/`) – zoradené podľa noviniek | hotové |
+| Notifikácie o nových príspevkoch v bookmarkoch | hotové (kontrola každých ~15 min) |
+| K_wallet a vlastné ID (SELF) | parsované z hlavičky |
+| Pošta (`/id/24/`), K (`/id/8340566/`), Friends | čaká na vzorky HTML |
+| Čítanie nodov priamo v appke | neskôr; zatiaľ sa node otvorí na webe |
+
+## Ako to funguje
+
+- **Sieť:** OkHttp, požiadavky idú výhradne na `https://kyberia.sk`. Cookie jar prijíma
+  a posiela cookies iba pre kyberiu.
+- **Parsovanie:** Jsoup. Parsery sú čistý Kotlin (`parse/`) s JVM testami na umelých vzorkách.
+- **Session:** po prihlásení appka drží len session cookies, šifrované kľúčom
+  z Android Keystore. Dáta appky sa nezálohujú ani neprenášajú na iný telefón.
+- **Notifikácie:** WorkManager raz za ~15 minút stiahne bookmarky, porovná ich s naposledy
+  videným stavom a pri novinkách vytvorí lokálnu notifikáciu. Žiadny Firebase, žiadny server.
+- **UI:** Jetpack Compose, Material 3.
 
 ## Build
 
@@ -24,7 +38,7 @@ Požiadavky: JDK 17+, Android SDK (compileSdk 37).
 ./gradlew lintDebug              # lint
 ```
 
-Debug APK zbuildovaný z každého pushu je aj v GitHub Actions → artefakt `mokap-debug-apk`.
+Debug APK z každého pushu je v GitHub Actions ako artefakt `mokap-debug-apk`.
 
 ## Release podpisovanie (secrets mimo gitu)
 
@@ -46,6 +60,7 @@ lokálny kľúč je len *upload key*.
 ## Pravidlá
 
 - žiadne secrets ani súkromné údaje v gite (CI to kontroluje cez gitleaks)
+- testovacie HTML vzorky sú **umelé** – skutočné stránky s menami a príspevkami ľudí do gitu nejdú
 - `applicationId` je `sk.ntnlabs.kyberia` a po prvom vydaní sa nemení
 
 ## Licencia

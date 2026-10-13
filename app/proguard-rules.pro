@@ -1,3 +1,3 @@
-# Projekt zatiaľ nepoužíva JavascriptInterface ani reflexiu, takže netreba
-# žiadne extra keep pravidlá. Ak pribudne @JavascriptInterface, pridaj:
-# -keepclassmembers class * { @android.webkit.JavascriptInterface <methods>; }
+# OkHttp aj Jsoup prinášajú vlastné consumer pravidlá.
+# Jsoup má voliteľnú závislosť na re2j, ktorú nepoužívame.
+-dontwarn com.google.re2j.**

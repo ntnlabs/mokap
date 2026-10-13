@@ -1,9 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="sk">
     <string name="app_name">mokap</string>
+
+    <string name="login_subtitle">neoficiálny klient kyberia.sk</string>
+    <string name="login_username">Nick</string>
+    <string name="login_password">Heslo</string>
+    <string name="login_button">Prihlásiť</string>
+    <string name="login_privacy_note">Heslo ide len na kyberia.sk a appka si ho nikde neukladá.</string>
+    <string name="login_rejected">Prihlásenie nevyšlo. Skontroluj nick a heslo.</string>
+    <string name="login_form_not_found">Nenašla som prihlasovací formulár. Kyberia asi zmenila stránku.</string>
+    <string name="login_network_error">Kyberia neodpovedá. Skús to o chvíľu.</string>
+
+    <string name="logout">Odhlásiť</string>
+    <string name="tab_mail">Pošta</string>
+    <string name="tab_bookmarks">Bookmarky</string>
+    <string name="tab_k">K</string>
+    <string name="tab_friends">Friends</string>
+    <string name="coming_soon">Pripravujem. Potrebujem vzorku HTML tejto stránky.</string>
+
+    <string name="bookmarks_show_all">Zobraziť aj bez noviniek</string>
+    <string name="bookmarks_nothing_new">V bookmarkoch nič nové.</string>
+    <string name="bookmarks_load_error">Bookmarky sa nepodarilo načítať.</string>
+    <string name="bookmark_descendants">hlbšie</string>
+    <string name="bookmark_changed">zmenené</string>
     <string name="retry">Skúsiť znova</string>
-    <string name="error_loading">Stránku sa nepodarilo načítať.\n%1$s</string>
-    <string name="no_app_for_link">Žiadna aplikácia nevie otvoriť tento odkaz.</string>
-    <string name="download_started">Sťahujem…</string>
-    <string name="download_failed">Sťahovanie zlyhalo.</string>
+
+    <string name="channel_bookmarks">Bookmarky</string>
+    <string name="channel_account">Účet</string>
+    <string name="notify_session_expired_title">Odhlásilo ťa z kyberie</string>
+    <string name="notify_session_expired_text">Prihlás sa znova, inak neprídu notifikácie.</string>
+    <plurals name="notify_bookmarks_title">
+        <item quantity="one">%d nový príspevok v bookmarkoch</item>
+        <item quantity="few">%d nové príspevky v bookmarkoch</item>
+        <item quantity="many">%d nového príspevku v bookmarkoch</item>
+        <item quantity="other">%d nových príspevkov v bookmarkoch</item>
+    </plurals>
 </resources>

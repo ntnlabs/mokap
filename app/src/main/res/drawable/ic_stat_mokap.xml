@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Malá ikona notifikácie: biele K na priehľadnom pozadí. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M7,4 L7,20 M8,13.5 L17,4 M10.5,11 L18,20"
+        android:strokeWidth="2.8"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="square" />
+</vector>
