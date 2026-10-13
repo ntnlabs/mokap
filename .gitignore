@@ -1,0 +1,46 @@
+# ---------------------------------------------------------------
+# SECRETS – nikdy do gitu
+# ---------------------------------------------------------------
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.pem
+*.key
+keystore.properties
+signing.properties
+secrets.properties
+google-services.json
+play-service-account*.json
+service-account*.json
+.env
+.env.*
+
+# ---------------------------------------------------------------
+# Lokálne / strojovo-špecifické
+# ---------------------------------------------------------------
+local.properties
+.gradle/
+.kotlin/
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+*.ap_
+*.dex
+output-metadata.json
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.fleet/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logy
+*.log

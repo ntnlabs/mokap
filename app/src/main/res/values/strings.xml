@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">mokap</string>
+    <string name="retry">Skúsiť znova</string>
+    <string name="error_loading">Stránku sa nepodarilo načítať.\n%1$s</string>
+    <string name="no_app_for_link">Žiadna aplikácia nevie otvoriť tento odkaz.</string>
+    <string name="download_started">Sťahujem…</string>
+    <string name="download_failed">Sťahovanie zlyhalo.</string>
+</resources>
