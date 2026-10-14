@@ -41,7 +41,7 @@ object BookmarksParser {
                 el = el.nextElementSibling()
             }
             Bookmark(id, link.text().trim(), newChildren, descendants, changed)
-        }
+        }.distinctBy { it.id }
 
     /** Najprv najviac nových odpovedí, potom novinky hlbšie, potom zmenené, nakoniec zvyšok. */
     fun sortByNews(bookmarks: List<Bookmark>): List<Bookmark> =

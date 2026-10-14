@@ -1,6 +1,7 @@
 package sk.ntnlabs.kyberia.data
 
 import sk.ntnlabs.kyberia.parse.Bookmark
+import sk.ntnlabs.kyberia.parse.Reply
 
 data class Increase(val bookmark: Bookmark, val added: Int)
 
@@ -27,4 +28,16 @@ object BookmarkNews {
             val count = parts.getOrNull(1)?.toIntOrNull()
             if (parts.size == 2 && id != null && count != null) id to count else null
         }.toMap()
+}
+
+/** Nové odpovede na tvoje príspevky medzi dvoma kontrolami. */
+object ReplyNews {
+
+    /** Odpovede, ktoré v minulom zozname neboli; vlastné odpovede (od [selfId]) sa nehlásia. */
+    fun fresh(previousKeys: Set<String>, current: List<Reply>, selfId: Long?): List<Reply> =
+        current.filter { it.key !in previousKeys && (selfId == null || it.authorId != selfId) }
+
+    fun encode(keys: Collection<String>): String = keys.joinToString("\n")
+
+    fun decode(value: String): Set<String> = value.lineSequence().filter { it.isNotBlank() }.toSet()
 }

@@ -25,10 +25,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import sk.ntnlabs.kyberia.R
 import sk.ntnlabs.kyberia.parse.Bookmark
+import sk.ntnlabs.kyberia.parse.Reply
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BookmarksScreen(viewModel: BookmarksViewModel, onOpen: (Bookmark) -> Unit) {
+fun BookmarksScreen(viewModel: BookmarksViewModel, onOpenNode: (Long) -> Unit) {
     val state = viewModel.state
     PullToRefreshBox(
         isRefreshing = state.loading,
@@ -36,6 +37,13 @@ fun BookmarksScreen(viewModel: BookmarksViewModel, onOpen: (Bookmark) -> Unit) {
         modifier = Modifier.fillMaxSize(),
     ) {
         LazyColumn(Modifier.fillMaxSize()) {
+            if (state.replies.isNotEmpty()) {
+                item { SectionHeader(stringResource(R.string.replies_title)) }
+                items(state.replies) { reply ->
+                    ReplyRow(reply, onClick = { onOpenNode(reply.nodeId) })
+                }
+                item { HorizontalDivider() }
+            }
             item {
                 Row(
                     modifier = Modifier
@@ -54,12 +62,34 @@ fun BookmarksScreen(viewModel: BookmarksViewModel, onOpen: (Bookmark) -> Unit) {
                     Text(stringResource(R.string.bookmarks_nothing_new), Modifier.padding(16.dp))
                 }
             }
-            items(state.visible, key = { it.id }) { bookmark ->
-                BookmarkRow(bookmark, onClick = { onOpen(bookmark) })
+            items(state.visible, key = { "bookmark:${it.id}" }) { bookmark ->
+                BookmarkRow(bookmark, onClick = { onOpenNode(bookmark.id) })
                 HorizontalDivider()
             }
         }
     }
+}
+
+@Composable
+private fun SectionHeader(text: String) {
+    Text(
+        text,
+        style = MaterialTheme.typography.titleSmall,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp),
+    )
+}
+
+@Composable
+private fun ReplyRow(reply: Reply, onClick: () -> Unit) {
+    ListItem(
+        overlineContent = { Text(reply.author, color = MaterialTheme.colorScheme.secondary) },
+        headlineContent = { Text(reply.snippet, maxLines = 2, overflow = TextOverflow.Ellipsis) },
+        supportingContent = {
+            Text(stringResource(R.string.replies_on, reply.nodeTitle), maxLines = 1, overflow = TextOverflow.Ellipsis)
+        },
+        modifier = Modifier.clickable(onClick = onClick),
+    )
 }
 
 @Composable

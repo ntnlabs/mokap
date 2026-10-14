@@ -11,16 +11,18 @@ import java.io.IOException
 import kotlinx.coroutines.launch
 import sk.ntnlabs.kyberia.AppContainer
 import sk.ntnlabs.kyberia.data.AuthRepository
-import sk.ntnlabs.kyberia.data.BookmarkTracker
+import sk.ntnlabs.kyberia.data.NewsTracker
 import sk.ntnlabs.kyberia.data.BookmarksRepository
 import sk.ntnlabs.kyberia.data.SessionExpiredException
 import sk.ntnlabs.kyberia.parse.Bookmark
 import sk.ntnlabs.kyberia.parse.BookmarksParser
+import sk.ntnlabs.kyberia.parse.Reply
 import sk.ntnlabs.kyberia.parse.UserInfo
 
 data class BookmarksUiState(
     val loading: Boolean = false,
     val bookmarks: List<Bookmark> = emptyList(),
+    val replies: List<Reply> = emptyList(),
     val user: UserInfo? = null,
     val showAll: Boolean = false,
     val error: Boolean = false,
@@ -30,7 +32,7 @@ data class BookmarksUiState(
 
 class BookmarksViewModel(
     private val repository: BookmarksRepository,
-    private val tracker: BookmarkTracker,
+    private val tracker: NewsTracker,
     private val auth: AuthRepository,
 ) : ViewModel() {
 
@@ -53,10 +55,12 @@ class BookmarksViewModel(
             state = try {
                 val page = repository.load()
                 // Čo používateľ videl v appke, už netreba hlásiť notifikáciou.
-                tracker.update(page.bookmarks)
+                tracker.updateBookmarks(page.bookmarks)
+                tracker.updateReplies(page.replies, page.user.userId)
                 state.copy(
                     loading = false,
                     bookmarks = BookmarksParser.sortByNews(page.bookmarks),
+                    replies = page.replies.filter { it.authorId != page.user.userId },
                     user = page.user,
                 )
             } catch (e: SessionExpiredException) {
@@ -74,7 +78,7 @@ class BookmarksViewModel(
 
     companion object {
         fun factory(container: AppContainer) = viewModelFactory {
-            initializer { BookmarksViewModel(container.bookmarks, container.bookmarkTracker, container.auth) }
+            initializer { BookmarksViewModel(container.bookmarks, container.newsTracker, container.auth) }
         }
     }
 }

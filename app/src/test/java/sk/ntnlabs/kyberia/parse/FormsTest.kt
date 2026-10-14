@@ -30,19 +30,41 @@ class FormsTest {
     @Test
     fun findsLoginFormWithoutKnowingFieldNames() {
         val form = LoginFormParser.find(loginPage)!!
-        assertEquals("https://kyberia.sk/id/1/", form.action)
+        assertEquals("https://kyberia.sk/id/5000/", form.action)
         assertEquals("login", form.usernameField)
         assertEquals("password", form.passwordField)
         assertEquals(StandardCharsets.UTF_8, form.charset)
+        assertTrue(form.multipart)
         assertEquals(
             setOf(
-                "anticsrf" to "test-token",
-                "remember" to "1",
+                "login_type" to "name",
                 "event" to "login",
                 "login" to "nick",
                 "password" to "secret",
             ),
             form.fill("nick", "secret").toSet(),
+        )
+    }
+
+    @Test
+    fun genericLoginFormKeepsHiddenAndCheckedFields() {
+        val doc = Jsoup.parse(
+            """
+            <form method="post" action="/x">
+              <input type="hidden" name="anticsrf" value="t">
+              <input name="user"><input type="password" name="pw">
+              <input type="checkbox" name="remember" value="1" checked>
+              <input type="checkbox" name="ignored" value="1">
+              <button name="event" value="login">go</button>
+            </form>
+            """.trimIndent(),
+            "https://kyberia.sk/",
+        )
+        val form = LoginFormParser.find(doc)!!
+        assertFalse(form.multipart)
+        assertEquals(
+            setOf("anticsrf" to "t", "remember" to "1", "event" to "login", "user" to "u", "pw" to "p"),
+            form.fill("u", "p").toSet(),
         )
     }
 

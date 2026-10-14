@@ -8,7 +8,7 @@ import sk.ntnlabs.kyberia.MokapApp
 import sk.ntnlabs.kyberia.data.SessionExpiredException
 import sk.ntnlabs.kyberia.notify.Notifier
 
-/** Jedna požiadavka na /id/19/ a lokálna notifikácia, ak v bookmarkoch pribudlo niečo nové. */
+/** Jedna požiadavka na /id/19/ a lokálne notifikácie o novinkách v bookmarkoch a odpovediach. */
 class CheckWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
@@ -25,7 +25,10 @@ class CheckWorker(context: Context, params: WorkerParameters) : CoroutineWorker(
             return Result.retry()
         }
 
-        val increases = container.bookmarkTracker.update(page.bookmarks)
+        val tracker = container.newsTracker
+        val replies = tracker.updateReplies(page.replies, page.user.userId)
+        if (replies.isNotEmpty()) Notifier.replies(applicationContext, replies)
+        val increases = tracker.updateBookmarks(page.bookmarks)
         if (increases.isNotEmpty()) Notifier.bookmarks(applicationContext, increases)
         return Result.success()
     }

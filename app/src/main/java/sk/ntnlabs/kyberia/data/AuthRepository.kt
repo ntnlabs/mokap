@@ -17,7 +17,7 @@ class AuthRepository(
     private val context: Context,
     private val client: KyberiaClient,
     private val cookies: KyberiaCookieJar,
-    private val tracker: BookmarkTracker,
+    private val tracker: NewsTracker,
 ) {
     private val _loggedIn = MutableStateFlow(cookies.hasCookies())
     val loggedIn: StateFlow<Boolean> = _loggedIn.asStateFlow()
@@ -25,9 +25,10 @@ class AuthRepository(
     /** Heslo sa použije len v tomto volaní na odoslanie formulára, nikam sa neukladá. */
     suspend fun login(username: String, password: String): LoginResult {
         cookies.clear()
-        val page = client.get(KyberiaUrls.HOME)
+        // Odhlásený /id/19/ ukáže čistý prihlasovací formulár (hlavná stránka je na parsovanie peklo).
+        val page = client.get(KyberiaUrls.BOOKMARKS)
         val form = LoginFormParser.find(page.document) ?: return LoginResult.FormNotFound
-        val response = client.postForm(form.action, form.fill(username, password), form.charset)
+        val response = client.postForm(form.action, form.fill(username, password), form.charset, form.multipart)
         val ok = Session.isLoggedIn(response.document) ||
             Session.isLoggedIn(client.get(KyberiaUrls.BOOKMARKS).document)
         if (!ok) {
@@ -46,7 +47,12 @@ class AuthRepository(
             val form = Forms.find(page.document) { Forms.submitButton(it, LOGOUT) != null }
             if (form != null) {
                 val fields = Forms.fields(form) + listOfNotNull(Forms.submitButton(form, LOGOUT))
-                client.postForm(Forms.action(form, page.document), fields, page.document.charset())
+                client.postForm(
+                    Forms.action(form, page.document),
+                    fields,
+                    page.document.charset(),
+                    Forms.isMultipart(form),
+                )
             }
         } catch (e: IOException) {
             // Bez siete stačí zahodiť cookies lokálne.

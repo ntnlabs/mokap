@@ -25,10 +25,21 @@
     <string name="bookmark_changed">zmenené</string>
     <string name="retry">Skúsiť znova</string>
 
+    <string name="replies_title">Odpovede na tvoje príspevky</string>
+    <string name="replies_on">na „%1$s“</string>
+
+    <string name="channel_replies">Odpovede</string>
     <string name="channel_bookmarks">Bookmarky</string>
     <string name="channel_account">Účet</string>
     <string name="notify_session_expired_title">Odhlásilo ťa z kyberie</string>
     <string name="notify_session_expired_text">Prihlás sa znova, inak neprídu notifikácie.</string>
+    <string name="notify_reply_from">Odpoveď od %1$s</string>
+    <plurals name="notify_replies_title">
+        <item quantity="one">%d nová odpoveď</item>
+        <item quantity="few">%d nové odpovede</item>
+        <item quantity="many">%d novej odpovede</item>
+        <item quantity="other">%d nových odpovedí</item>
+    </plurals>
     <plurals name="notify_bookmarks_title">
         <item quantity="one">%d nový príspevok v bookmarkoch</item>
         <item quantity="few">%d nové príspevky v bookmarkoch</item>

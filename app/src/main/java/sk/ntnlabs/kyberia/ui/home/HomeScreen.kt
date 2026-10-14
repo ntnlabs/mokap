@@ -91,7 +91,7 @@ fun HomeScreen(container: AppContainer) {
         Box(Modifier.fillMaxSize().padding(padding)) {
             when (tab) {
                 // Čítanie nodov v appke príde neskôr; dovtedy sa node otvorí na webe.
-                Tab.BOOKMARKS -> BookmarksScreen(bookmarks, onOpen = { uriHandler.openUri(KyberiaUrls.node(it.id)) })
+                Tab.BOOKMARKS -> BookmarksScreen(bookmarks, onOpenNode = { uriHandler.openUri(KyberiaUrls.node(it)) })
                 Tab.MAIL, Tab.K, Tab.FRIENDS -> ComingSoon()
             }
         }

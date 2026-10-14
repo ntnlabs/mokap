@@ -1,16 +1,34 @@
 <html>
 <head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /></head>
 <body>
-<!-- Umelá vzorka prihlasovacieho formulára. Skutočnú štruktúru kyberie zatiaľ nepoznáme,
-     parser preto nepredpokladá názvy polí. -->
-<form method="get" action="/id/25/"><input type="text" name="query"></form>
-<form method="post" action="/id/1/">
-  <input type="hidden" name="anticsrf" value="test-token" />
-  <input type="text" name="login" value="" />
-  <input type="password" name="password" />
-  <input type="checkbox" name="remember" value="1" checked />
-  <input type="checkbox" name="ignored" value="1" />
-  <button type="submit" name="event" value="login">login</button>
+<!-- Umelá vzorka so štruktúrou odhláseného /id/19/ (stránka „nemáš práva“ s loginom).
+     Hodnoty a ID sú vymyslené. -->
+<form enctype="multipart/form-data" action="/id/5000/" method="post">
+
+ you don't have permissions for viewing this data node
+
+<div class="line">
+    <label>login::
+        <input tabindex="1" accesskey="l" type="text" name="login">
+    </label>
+    <label>pass::
+        <input tabindex="2" accesskey="p" type="password" name="password">
+    </label>
+    <input tabindex="3" type="submit" name="event" value="login">
+</div>
+
+<div class="line">
+   <label>name::<input type="radio" accesskey="n" name="login_type" value="name" checked="checked"></label>
+   <label>id::<input type="radio" accesskey=i name="login_type"value="id"></label>
+</div>
+
+<script>
+document.write('<input type="hidden" name="screen_width" value="' + screen.width + '">');
+</script>
+
 </form>
+<center>
+owner_id:: 1&nbsp;&nbsp;owner_name:: <a href='/id/1'>niekto</a>
+</center>
 </body>
 </html>

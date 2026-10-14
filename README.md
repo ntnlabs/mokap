@@ -10,9 +10,10 @@ zoradené, prefiltrované a s lokálnymi notifikáciami.
 
 | Časť | Stav |
 |---|---|
-| Prihlásenie (natívne, heslo sa neukladá) | hotové, čaká na overenie na živej kyberii |
+| Prihlásenie (natívne, heslo sa neukladá) | hotové, parser overený na skutočnej stránke |
 | Bookmarky (`/id/19/`) – zoradené podľa noviniek | hotové |
-| Notifikácie o nových príspevkoch v bookmarkoch | hotové (kontrola každých ~15 min) |
+| Odpovede na tvoje príspevky | hotové (sekcia v bookmarkoch) |
+| Notifikácie: nové odpovede, novinky v bookmarkoch | hotové (kontrola každých ~15 min) |
 | K_wallet a vlastné ID (SELF) | parsované z hlavičky |
 | Pošta (`/id/24/`), K (`/id/8340566/`), Friends | čaká na vzorky HTML |
 | Čítanie nodov priamo v appke | neskôr; zatiaľ sa node otvorí na webe |

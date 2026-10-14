@@ -43,6 +43,9 @@ object Forms {
     fun action(form: FormElement, document: Document): String =
         form.absUrl("action").ifEmpty { document.location() }
 
+    fun isMultipart(form: FormElement): Boolean =
+        form.attr("enctype").equals("multipart/form-data", ignoreCase = true)
+
     private fun Element.isSubmit(): Boolean = when (normalName()) {
         "button" -> attr("type").lowercase().let { it.isEmpty() || it == "submit" }
         "input" -> attr("type").equals("submit", ignoreCase = true)
@@ -62,6 +65,7 @@ class LoginForm(
     val usernameField: String,
     val passwordField: String,
     val charset: Charset,
+    val multipart: Boolean,
 ) {
     fun fill(username: String, password: String): List<Pair<String, String>> =
         fields.filterNot { it.first == usernameField } +
@@ -87,7 +91,14 @@ object LoginFormParser {
                 it.attr("name").isNotEmpty()
         }?.attr("name") ?: return null
         val fields = Forms.fields(form) + listOfNotNull(Forms.submitButton(form))
-        return LoginForm(Forms.action(form, document), fields, usernameField, passwordField, document.charset())
+        return LoginForm(
+            action = Forms.action(form, document),
+            fields = fields,
+            usernameField = usernameField,
+            passwordField = passwordField,
+            charset = document.charset(),
+            multipart = Forms.isMultipart(form),
+        )
     }
 
     private fun Element.isPassword() =

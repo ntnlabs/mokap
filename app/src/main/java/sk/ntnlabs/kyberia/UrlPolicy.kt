@@ -35,7 +35,6 @@ object UrlPolicy {
 /** Pevné stránky kyberie. Všetko je node s ID. */
 object KyberiaUrls {
     const val BASE = "https://kyberia.sk"
-    const val HOME = "$BASE/"
     val BOOKMARKS = node(19)
     val MAIL = node(24)
     val TOP_K = node(8340566)
