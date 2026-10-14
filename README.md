@@ -12,7 +12,7 @@ zoradené, prefiltrované a s lokálnymi notifikáciami.
 |---|---|
 | Prihlásenie (natívne, heslo sa neukladá) | hotové, parser overený na skutočnej stránke |
 | Bookmarky (`/id/19/`) – zoradené podľa noviniek | hotové |
-| Odpovede na tvoje príspevky | hotové (sekcia v bookmarkoch) |
+| Odpovede na tvoje príspevky | hotové (sekcia v bookmarkoch, animované avatary s diskovou cache) |
 | Notifikácie: nové odpovede, novinky v bookmarkoch | hotové (kontrola každých ~15 min) |
 | K_wallet a vlastné ID (SELF) | parsované z hlavičky |
 | Pošta (`/id/24/`), K (`/id/8340566/`), Friends | čaká na vzorky HTML |

@@ -5,6 +5,7 @@ import java.nio.charset.Charset
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.Call
 import okhttp3.CookieJar
 import okhttp3.FormBody
 import okhttp3.MultipartBody
@@ -23,6 +24,15 @@ class KyberiaClient(cookieJar: CookieJar, private val userAgent: String) {
     private val http = OkHttpClient.Builder()
         .cookieJar(cookieJar)
         .callTimeout(30, TimeUnit.SECONDS)
+        .build()
+
+    /** Pre obrázky (avatary): rovnaké cookies a UA, ale aj presmerovania len na kyberiu. */
+    val imageCallFactory: Call.Factory = http.newBuilder()
+        .addNetworkInterceptor { chain ->
+            val request = chain.request()
+            if (!UrlPolicy.isInternal(request.url.toString())) throw IOException("Mimo kyberie: ${request.url.host}")
+            chain.proceed(request.newBuilder().header("User-Agent", userAgent).build())
+        }
         .build()
 
     suspend fun get(url: String): Page = execute(Request.Builder().url(url).get())

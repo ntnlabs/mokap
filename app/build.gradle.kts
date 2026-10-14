@@ -81,6 +81,9 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     implementation(libs.okhttp)
     implementation(libs.jsoup)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.gif)
+    implementation(libs.coil.network.okhttp)
 
     testImplementation(libs.junit)
 }

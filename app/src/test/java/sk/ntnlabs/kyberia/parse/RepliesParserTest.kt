@@ -17,6 +17,11 @@ class RepliesParserTest {
     }
 
     @Test
+    fun avatarIsAbsoluteKyberiaUrl() {
+        assertEquals("https://kyberia.sk/images/nodes/5/0/501.gif", replies[0].avatarUrl)
+    }
+
+    @Test
     fun linkPointsToMyPostWithFullTitle() {
         val first = replies[0]
         assertEquals(2001L, first.nodeId)

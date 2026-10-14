@@ -3,6 +3,7 @@ package sk.ntnlabs.kyberia.parse
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.TextNode
+import sk.ntnlabs.kyberia.UrlPolicy
 
 /** Odpoveď niekoho na tvoj príspevok (blok „Last 10 user submissions children“). */
 data class Reply(
@@ -12,6 +13,8 @@ data class Reply(
     val nodeId: Long,
     val nodeTitle: String,
     val snippet: String,
+    /** Avatar autora (často animovaný GIF), absolútna URL na kyberii. */
+    val avatarUrl: String? = null,
 ) {
     /** Stabilný kľúč na rozpoznanie už videných odpovedí. */
     val key: String get() = "$authorId:$nodeId:${snippet.hashCode()}"
@@ -39,6 +42,7 @@ object RepliesParser {
                 nodeId = nodeId,
                 nodeTitle = node.attr("title").ifEmpty { node.text() },
                 snippet = snippet(item),
+                avatarUrl = image?.absUrl("src")?.takeIf(UrlPolicy::isInternal),
             )
         }
 

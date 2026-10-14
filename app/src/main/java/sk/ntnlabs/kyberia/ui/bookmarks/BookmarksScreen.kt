@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import sk.ntnlabs.kyberia.R
 import sk.ntnlabs.kyberia.parse.Bookmark
 import sk.ntnlabs.kyberia.parse.Reply
+import sk.ntnlabs.kyberia.ui.common.Avatar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -83,6 +84,7 @@ private fun SectionHeader(text: String) {
 @Composable
 private fun ReplyRow(reply: Reply, onClick: () -> Unit) {
     ListItem(
+        leadingContent = { Avatar(reply.avatarUrl) },
         overlineContent = { Text(reply.author, color = MaterialTheme.colorScheme.secondary) },
         headlineContent = { Text(reply.snippet, maxLines = 2, overflow = TextOverflow.Ellipsis) },
         supportingContent = {
