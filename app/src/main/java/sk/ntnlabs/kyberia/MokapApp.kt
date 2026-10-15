@@ -16,7 +16,9 @@ import sk.ntnlabs.kyberia.data.KyberiaClient
 import sk.ntnlabs.kyberia.data.KyberiaCookieJar
 import sk.ntnlabs.kyberia.data.NewsTracker
 import sk.ntnlabs.kyberia.data.SessionStore
+import sk.ntnlabs.kyberia.data.SettingsStore
 import sk.ntnlabs.kyberia.notify.Notifier
+import sk.ntnlabs.kyberia.work.CheckScheduler
 
 class MokapApp : Application(), SingletonImageLoader.Factory {
 
@@ -59,7 +61,9 @@ class AppContainer(context: Context) {
     )
 
     val imageCallFactory = client.imageCallFactory
+    val settings = SettingsStore(context)
+    val scheduler = CheckScheduler(context, settings)
     val newsTracker = NewsTracker(context)
-    val auth = AuthRepository(context, client, cookieJar, newsTracker)
+    val auth = AuthRepository(client, cookieJar, newsTracker, scheduler)
     val bookmarks = BookmarksRepository(client)
 }

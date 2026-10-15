@@ -1,6 +1,7 @@
 package sk.ntnlabs.kyberia.data
 
 import sk.ntnlabs.kyberia.parse.Bookmark
+import sk.ntnlabs.kyberia.parse.Friend
 import sk.ntnlabs.kyberia.parse.Reply
 
 data class Increase(val bookmark: Bookmark, val added: Int)
@@ -40,4 +41,15 @@ object ReplyNews {
     fun encode(keys: Collection<String>): String = keys.joinToString("\n")
 
     fun decode(value: String): Set<String> = value.lineSequence().filter { it.isNotBlank() }.toSet()
+}
+
+/** Priatelia, ktorí sa od minulej kontroly objavili online. */
+object FriendNews {
+
+    fun cameOnline(previousIds: Set<Long>, current: List<Friend>): List<Friend> =
+        current.filter { it.id !in previousIds }
+
+    fun encode(ids: Collection<Long>): String = ids.joinToString(",")
+
+    fun decode(value: String): Set<Long> = value.split(',').mapNotNull { it.trim().toLongOrNull() }.toSet()
 }

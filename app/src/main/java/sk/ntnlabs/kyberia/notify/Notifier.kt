@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat
 import sk.ntnlabs.kyberia.MainActivity
 import sk.ntnlabs.kyberia.R
 import sk.ntnlabs.kyberia.data.Increase
+import sk.ntnlabs.kyberia.parse.Friend
 import sk.ntnlabs.kyberia.parse.Reply
 
 /** Lokálne notifikácie – žiadny Firebase, žiadny server. */
@@ -21,10 +22,12 @@ object Notifier {
 
     private const val CHANNEL_REPLIES = "replies"
     private const val CHANNEL_BOOKMARKS = "bookmarks"
+    private const val CHANNEL_FRIENDS = "friends"
     private const val CHANNEL_ACCOUNT = "account"
     private const val ID_BOOKMARKS = 1
     private const val ID_SESSION = 2
     private const val ID_REPLIES = 3
+    private const val ID_FRIENDS = 4
     private const val MAX_LINES = 6
 
     fun createChannels(context: Context) {
@@ -35,6 +38,9 @@ object Notifier {
                     .build(),
                 NotificationChannelCompat.Builder(CHANNEL_BOOKMARKS, NotificationManagerCompat.IMPORTANCE_DEFAULT)
                     .setName(context.getString(R.string.channel_bookmarks))
+                    .build(),
+                NotificationChannelCompat.Builder(CHANNEL_FRIENDS, NotificationManagerCompat.IMPORTANCE_DEFAULT)
+                    .setName(context.getString(R.string.channel_friends))
                     .build(),
                 NotificationChannelCompat.Builder(CHANNEL_ACCOUNT, NotificationManagerCompat.IMPORTANCE_LOW)
                     .setName(context.getString(R.string.channel_account))
@@ -61,6 +67,15 @@ object Notifier {
         val style = NotificationCompat.InboxStyle().also { style -> lines.take(MAX_LINES).forEach(style::addLine) }
         val text = if (replies.size == 1) replies.single().snippet else lines.first()
         post(context, ID_REPLIES, CHANNEL_REPLIES, title, text, style)
+    }
+
+    fun friendsOnline(context: Context, friends: List<Friend>) {
+        val title = if (friends.size == 1) {
+            context.getString(R.string.notify_friend_online, friends.single().nick)
+        } else {
+            context.resources.getQuantityString(R.plurals.notify_friends_online, friends.size, friends.size)
+        }
+        post(context, ID_FRIENDS, CHANNEL_FRIENDS, title, friends.joinToString(", ") { it.nick }, style = null)
     }
 
     fun sessionExpired(context: Context) {

@@ -17,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import sk.ntnlabs.kyberia.R
+import sk.ntnlabs.kyberia.data.Durations
 import sk.ntnlabs.kyberia.parse.Friend
 import sk.ntnlabs.kyberia.ui.common.Avatar
 import sk.ntnlabs.kyberia.ui.overview.OverviewViewModel
@@ -65,7 +66,10 @@ private fun FriendRow(friend: Friend, onOpenProfile: () -> Unit, onOpenLocation:
         } else {
             null
         },
-        trailingContent = { Text(friend.time, style = MaterialTheme.typography.labelMedium) },
+        trailingContent = {
+            val idle = friend.timeSeconds?.let(Durations::short) ?: friend.time
+            Text(stringResource(R.string.friends_idle, idle), style = MaterialTheme.typography.labelMedium)
+        },
         modifier = Modifier.clickable(onClick = onOpenProfile),
     )
 }

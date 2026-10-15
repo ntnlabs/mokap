@@ -15,7 +15,6 @@ import sk.ntnlabs.kyberia.ui.home.HomeScreen
 import sk.ntnlabs.kyberia.ui.login.LoginScreen
 import sk.ntnlabs.kyberia.ui.login.LoginViewModel
 import sk.ntnlabs.kyberia.ui.theme.MokapTheme
-import sk.ntnlabs.kyberia.work.CheckScheduler
 
 class MainActivity : ComponentActivity() {
 
@@ -30,7 +29,7 @@ class MainActivity : ComponentActivity() {
                     val loggedIn by container.auth.loggedIn.collectAsStateWithLifecycle()
                     if (loggedIn) {
                         // Ak systém plán kontrol zrušil (napr. force stop), obnov ho.
-                        LaunchedEffect(Unit) { CheckScheduler.schedule(applicationContext) }
+                        LaunchedEffect(Unit) { container.scheduler.schedule() }
                         HomeScreen(container)
                     } else {
                         LoginScreen(viewModel(factory = LoginViewModel.factory(container.auth)))

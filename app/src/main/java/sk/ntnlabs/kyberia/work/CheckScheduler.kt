@@ -7,23 +7,30 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import java.util.concurrent.TimeUnit
+import sk.ntnlabs.kyberia.data.SettingsStore
 
-/** Pravidelná kontrola kyberie na pozadí. 15 minút je minimum, ktoré Android dovolí. */
-object CheckScheduler {
+/** Pravidelná kontrola kyberie na pozadí podľa intervalu z nastavení (min. 15 minút). */
+class CheckScheduler(context: Context, private val settings: SettingsStore) {
 
-    private const val WORK_NAME = "kyberia-check"
+    private val workManager = WorkManager.getInstance(context.applicationContext)
 
-    fun schedule(context: Context) {
-        val request = PeriodicWorkRequestBuilder<CheckWorker>(15, TimeUnit.MINUTES)
+    fun schedule() {
+        val request = PeriodicWorkRequestBuilder<CheckWorker>(
+            settings.current.intervalMinutes.toLong(),
+            TimeUnit.MINUTES,
+        )
             .setConstraints(
                 Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build(),
             )
             .build()
-        WorkManager.getInstance(context)
-            .enqueueUniquePeriodicWork(WORK_NAME, ExistingPeriodicWorkPolicy.UPDATE, request)
+        workManager.enqueueUniquePeriodicWork(WORK_NAME, ExistingPeriodicWorkPolicy.UPDATE, request)
     }
 
-    fun cancel(context: Context) {
-        WorkManager.getInstance(context).cancelUniqueWork(WORK_NAME)
+    fun cancel() {
+        workManager.cancelUniqueWork(WORK_NAME)
+    }
+
+    private companion object {
+        const val WORK_NAME = "kyberia-check"
     }
 }

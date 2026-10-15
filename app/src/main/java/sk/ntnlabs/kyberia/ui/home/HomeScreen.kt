@@ -19,13 +19,12 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -38,13 +37,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kotlinx.coroutines.launch
 import sk.ntnlabs.kyberia.AppContainer
 import sk.ntnlabs.kyberia.KyberiaUrls
 import sk.ntnlabs.kyberia.R
 import sk.ntnlabs.kyberia.ui.bookmarks.BookmarksScreen
 import sk.ntnlabs.kyberia.ui.friends.FriendsScreen
 import sk.ntnlabs.kyberia.ui.overview.OverviewViewModel
+import sk.ntnlabs.kyberia.ui.settings.SettingsScreen
 
 private enum class Tab(@StringRes val label: Int, @DrawableRes val icon: Int) {
     BOOKMARKS(R.string.tab_bookmarks, R.drawable.ic_tab_bookmarks),
@@ -57,7 +56,7 @@ private enum class Tab(@StringRes val label: Int, @DrawableRes val icon: Int) {
 @Composable
 fun HomeScreen(container: AppContainer) {
     var tab by rememberSaveable { mutableStateOf(Tab.BOOKMARKS) }
-    val scope = rememberCoroutineScope()
+    var settingsOpen by rememberSaveable { mutableStateOf(false) }
     val uriHandler = LocalUriHandler.current
     val overview: OverviewViewModel = viewModel(factory = OverviewViewModel.factory(container))
     val kWallet = overview.state.user?.kWallet
@@ -67,6 +66,11 @@ fun HomeScreen(container: AppContainer) {
 
     NotificationPermissionRequest()
 
+    if (settingsOpen) {
+        SettingsScreen(container, onBack = { settingsOpen = false })
+        return
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -75,8 +79,8 @@ fun HomeScreen(container: AppContainer) {
                     if (kWallet != null) {
                         Text("K $kWallet", color = MaterialTheme.colorScheme.primary)
                     }
-                    TextButton(onClick = { scope.launch { container.auth.logout() } }) {
-                        Text(stringResource(R.string.logout))
+                    IconButton(onClick = { settingsOpen = true }) {
+                        Icon(painterResource(R.drawable.ic_settings), contentDescription = stringResource(R.string.settings_title))
                     }
                 },
             )

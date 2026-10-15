@@ -1,6 +1,5 @@
 package sk.ntnlabs.kyberia.data
 
-import android.content.Context
 import java.io.IOException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,10 +13,10 @@ import sk.ntnlabs.kyberia.work.CheckScheduler
 enum class LoginResult { Success, Rejected, FormNotFound }
 
 class AuthRepository(
-    private val context: Context,
     private val client: KyberiaClient,
     private val cookies: KyberiaCookieJar,
     private val tracker: NewsTracker,
+    private val scheduler: CheckScheduler,
 ) {
     private val _loggedIn = MutableStateFlow(cookies.hasCookies())
     val loggedIn: StateFlow<Boolean> = _loggedIn.asStateFlow()
@@ -36,7 +35,7 @@ class AuthRepository(
             return LoginResult.Rejected
         }
         _loggedIn.value = true
-        CheckScheduler.schedule(context)
+        scheduler.schedule()
         return LoginResult.Success
     }
 
@@ -64,7 +63,7 @@ class AuthRepository(
     fun sessionEnded() {
         cookies.clear()
         tracker.reset()
-        CheckScheduler.cancel(context)
+        scheduler.cancel()
         _loggedIn.value = false
     }
 

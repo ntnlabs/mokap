@@ -30,5 +30,7 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
 - Verzie v `gradle/libs.versions.toml`. AGP 9 má vstavaný Kotlin – neaplikovať
   `org.jetbrains.kotlin.android`; verzia KGP (root `buildscript`) a Compose compiler pluginu musí byť rovnaká.
 - `parse/` a čistá logika v `data/` nesmú závisieť od Android API – majú JVM unit testy.
-- Notifikácie sú lokálne (WorkManager, min. 15 min), žiadny Firebase.
+- Notifikácie sú lokálne (WorkManager, interval 15–60 min z nastavení – 15 je minimum Androidu),
+  žiadny Firebase. Tichý režim = worker nerobí žiadnu požiadavku. Každý typ má vlastný kanál.
+- Čas pri priateľoch je **nečinnosť** (idle); zoznam je zoradený od najaktívnejšieho.
 - CI: `.github/workflows/android.yml` – gitleaks, lint, unit testy, debug aj release build.

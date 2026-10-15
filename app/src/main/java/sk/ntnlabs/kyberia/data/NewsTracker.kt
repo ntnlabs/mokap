@@ -3,6 +3,7 @@ package sk.ntnlabs.kyberia.data
 import android.content.Context
 import androidx.core.content.edit
 import sk.ntnlabs.kyberia.parse.Bookmark
+import sk.ntnlabs.kyberia.parse.Friend
 import sk.ntnlabs.kyberia.parse.Reply
 
 /**
@@ -27,6 +28,13 @@ class NewsTracker(context: Context) {
         return previous?.let { ReplyNews.fresh(it, replies, selfId) }.orEmpty()
     }
 
+    @Synchronized
+    fun updateFriends(friends: List<Friend>): List<Friend> {
+        val previous = prefs.getString(KEY_FRIENDS, null)?.let(FriendNews::decode)
+        prefs.edit { putString(KEY_FRIENDS, FriendNews.encode(friends.map { it.id })) }
+        return previous?.let { FriendNews.cameOnline(it, friends) }.orEmpty()
+    }
+
     fun reset() {
         prefs.edit { clear() }
     }
@@ -34,5 +42,6 @@ class NewsTracker(context: Context) {
     private companion object {
         const val KEY_BOOKMARKS = "bookmarks_snapshot"
         const val KEY_REPLIES = "replies_seen"
+        const val KEY_FRIENDS = "friends_online"
     }
 }

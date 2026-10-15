@@ -13,8 +13,9 @@ zoradené, prefiltrované a s lokálnymi notifikáciami.
 | Prihlásenie (natívne, heslo sa neukladá) | hotové, parser overený na skutočnej stránke |
 | Bookmarky (`/id/19/`) – zoradené podľa noviniek | hotové |
 | Odpovede na tvoje príspevky | hotové (sekcia v bookmarkoch, animované avatary s diskovou cache) |
-| Notifikácie: nové odpovede, novinky v bookmarkoch | hotové (kontrola každých ~15 min) |
-| Friends online – kde sú a ako dlho, počet na záložke | hotové |
+| Notifikácie: odpovede, novinky v bookmarkoch, priateľ online | hotové, každá s vlastným kanálom a prepínačom |
+| Friends online – kde sú, nečinnosť, počet na záložke | hotové |
+| Nastavenia: interval kontrol 15–60 min, tichý režim, notifikácie, odhlásenie | hotové |
 | K_wallet a vlastné ID (SELF) | parsované z hlavičky |
 | Pošta (`/id/24/`), K (`/id/8340566/`) | čaká na vzorky HTML |
 | Čítanie nodov priamo v appke | neskôr; zatiaľ sa node otvorí na webe |
@@ -26,8 +27,9 @@ zoradené, prefiltrované a s lokálnymi notifikáciami.
 - **Parsovanie:** Jsoup. Parsery sú čistý Kotlin (`parse/`) s JVM testami na umelých vzorkách.
 - **Session:** po prihlásení appka drží len session cookies, šifrované kľúčom
   z Android Keystore. Dáta appky sa nezálohujú ani neprenášajú na iný telefón.
-- **Notifikácie:** WorkManager raz za ~15 minút stiahne bookmarky, porovná ich s naposledy
-  videným stavom a pri novinkách vytvorí lokálnu notifikáciu. Žiadny Firebase, žiadny server.
+- **Notifikácie:** WorkManager podľa nastavenia (15–60 min; 15 je minimum Androidu) stiahne
+  `/id/19/`, porovná ho s naposledy videným stavom a pri novinkách vytvorí lokálnu notifikáciu.
+  V tichom režime sa nekontroluje vôbec. Žiadny Firebase, žiadny server.
 - **UI:** Jetpack Compose, Material 3.
 
 ## Build

@@ -60,11 +60,13 @@ class OverviewViewModel(
                 // Čo používateľ videl v appke, už netreba hlásiť notifikáciou.
                 tracker.updateBookmarks(page.bookmarks)
                 tracker.updateReplies(page.replies, page.user.userId)
+                tracker.updateFriends(page.friends)
                 state.copy(
                     loading = false,
                     bookmarks = BookmarksParser.sortByNews(page.bookmarks),
                     replies = page.replies.filter { it.authorId != page.user.userId },
-                    friends = page.friends,
+                    // Najaktívnejší (najkratšia nečinnosť) hore.
+                    friends = page.friends.sortedBy { it.timeSeconds ?: Long.MAX_VALUE },
                     user = page.user,
                 )
             } catch (e: SessionExpiredException) {
