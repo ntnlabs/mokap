@@ -25,6 +25,9 @@
     <string name="bookmark_changed">zmenené</string>
     <string name="retry">Skúsiť znova</string>
 
+    <string name="friends_nobody">Žiadny priateľ nie je práve online.</string>
+    <string name="friends_location">je v: %1$s</string>
+
     <string name="replies_title">Odpovede na tvoje príspevky</string>
     <string name="replies_on">na „%1$s“</string>
 

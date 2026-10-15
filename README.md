@@ -14,8 +14,9 @@ zoradené, prefiltrované a s lokálnymi notifikáciami.
 | Bookmarky (`/id/19/`) – zoradené podľa noviniek | hotové |
 | Odpovede na tvoje príspevky | hotové (sekcia v bookmarkoch, animované avatary s diskovou cache) |
 | Notifikácie: nové odpovede, novinky v bookmarkoch | hotové (kontrola každých ~15 min) |
+| Friends online – kde sú a ako dlho, počet na záložke | hotové |
 | K_wallet a vlastné ID (SELF) | parsované z hlavičky |
-| Pošta (`/id/24/`), K (`/id/8340566/`), Friends | čaká na vzorky HTML |
+| Pošta (`/id/24/`), K (`/id/8340566/`) | čaká na vzorky HTML |
 | Čítanie nodov priamo v appke | neskôr; zatiaľ sa node otvorí na webe |
 
 ## Ako to funguje

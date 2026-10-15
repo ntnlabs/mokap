@@ -27,10 +27,11 @@ import sk.ntnlabs.kyberia.R
 import sk.ntnlabs.kyberia.parse.Bookmark
 import sk.ntnlabs.kyberia.parse.Reply
 import sk.ntnlabs.kyberia.ui.common.Avatar
+import sk.ntnlabs.kyberia.ui.overview.OverviewViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BookmarksScreen(viewModel: BookmarksViewModel, onOpenNode: (Long) -> Unit) {
+fun BookmarksScreen(viewModel: OverviewViewModel, onOpenNode: (Long) -> Unit) {
     val state = viewModel.state
     PullToRefreshBox(
         isRefreshing = state.loading,

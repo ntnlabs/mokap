@@ -1,4 +1,4 @@
-package sk.ntnlabs.kyberia.ui.bookmarks
+package sk.ntnlabs.kyberia.ui.overview
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,13 +16,15 @@ import sk.ntnlabs.kyberia.data.BookmarksRepository
 import sk.ntnlabs.kyberia.data.SessionExpiredException
 import sk.ntnlabs.kyberia.parse.Bookmark
 import sk.ntnlabs.kyberia.parse.BookmarksParser
+import sk.ntnlabs.kyberia.parse.Friend
 import sk.ntnlabs.kyberia.parse.Reply
 import sk.ntnlabs.kyberia.parse.UserInfo
 
-data class BookmarksUiState(
+data class OverviewUiState(
     val loading: Boolean = false,
     val bookmarks: List<Bookmark> = emptyList(),
     val replies: List<Reply> = emptyList(),
+    val friends: List<Friend> = emptyList(),
     val user: UserInfo? = null,
     val showAll: Boolean = false,
     val error: Boolean = false,
@@ -30,20 +32,21 @@ data class BookmarksUiState(
     val visible: List<Bookmark> get() = if (showAll) bookmarks else bookmarks.filter { it.hasNews }
 }
 
-class BookmarksViewModel(
+/** Dáta z /id/19/ – jedna požiadavka kŕmi bookmarky, odpovede, friends aj K_wallet. */
+class OverviewViewModel(
     private val repository: BookmarksRepository,
     private val tracker: NewsTracker,
     private val auth: AuthRepository,
 ) : ViewModel() {
 
-    var state by mutableStateOf(BookmarksUiState())
+    var state by mutableStateOf(OverviewUiState())
         private set
 
     init {
         // Po prihlásení načítaj, po odhlásení zahoď dáta predchádzajúceho účtu.
         viewModelScope.launch {
             auth.loggedIn.collect { loggedIn ->
-                if (loggedIn) refresh() else state = BookmarksUiState()
+                if (loggedIn) refresh() else state = OverviewUiState()
             }
         }
     }
@@ -61,11 +64,12 @@ class BookmarksViewModel(
                     loading = false,
                     bookmarks = BookmarksParser.sortByNews(page.bookmarks),
                     replies = page.replies.filter { it.authorId != page.user.userId },
+                    friends = page.friends,
                     user = page.user,
                 )
             } catch (e: SessionExpiredException) {
                 auth.sessionEnded()
-                BookmarksUiState()
+                OverviewUiState()
             } catch (e: IOException) {
                 state.copy(loading = false, error = true)
             }
@@ -78,7 +82,7 @@ class BookmarksViewModel(
 
     companion object {
         fun factory(container: AppContainer) = viewModelFactory {
-            initializer { BookmarksViewModel(container.bookmarks, container.newsTracker, container.auth) }
+            initializer { OverviewViewModel(container.bookmarks, container.newsTracker, container.auth) }
         }
     }
 }

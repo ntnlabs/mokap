@@ -3,6 +3,8 @@ package sk.ntnlabs.kyberia.data
 import sk.ntnlabs.kyberia.KyberiaUrls
 import sk.ntnlabs.kyberia.parse.Bookmark
 import sk.ntnlabs.kyberia.parse.BookmarksParser
+import sk.ntnlabs.kyberia.parse.Friend
+import sk.ntnlabs.kyberia.parse.FriendsParser
 import sk.ntnlabs.kyberia.parse.RepliesParser
 import sk.ntnlabs.kyberia.parse.Reply
 import sk.ntnlabs.kyberia.parse.Session
@@ -10,7 +12,12 @@ import sk.ntnlabs.kyberia.parse.UserInfo
 import sk.ntnlabs.kyberia.parse.UserInfoParser
 
 /** Všetko, čo dáva jedna požiadavka na /id/19/. */
-class BookmarksPage(val bookmarks: List<Bookmark>, val replies: List<Reply>, val user: UserInfo)
+class BookmarksPage(
+    val bookmarks: List<Bookmark>,
+    val replies: List<Reply>,
+    val friends: List<Friend>,
+    val user: UserInfo,
+)
 
 class SessionExpiredException : Exception("Session na kyberii vypršala")
 
@@ -23,6 +30,7 @@ class BookmarksRepository(private val client: KyberiaClient) {
         return BookmarksPage(
             bookmarks = BookmarksParser.parse(document),
             replies = RepliesParser.parse(document),
+            friends = FriendsParser.parse(document),
             user = UserInfoParser.parse(document),
         )
     }

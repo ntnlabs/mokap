@@ -22,6 +22,8 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   `login`, `password`, `login_type=name`, `event=login`). Hlavná stránka sa na login nepoužíva.
 - `/id/19/` obsahuje aj blok „Last 10 user submissions children“ (`div.user_sub_child`): avatar
   autora odpovede, odkaz na **tvoj** príspevok (nie na odpoveď) a úryvok textu.
+- `/id/19/` má aj blok „Friends“ (`div.active_friend`): avatar+nick, `[odkaz]` na node, kde
+  priateľ práve je, a čas (napr. `84m39s`). Avatary sú animované GIFy (Coil + disková cache).
 
 ## Technické
 - `applicationId` / `namespace`: `sk.ntnlabs.kyberia` (po vydaní na Play sa nesmie meniť).

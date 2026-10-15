@@ -10,6 +10,8 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -41,7 +43,8 @@ import sk.ntnlabs.kyberia.AppContainer
 import sk.ntnlabs.kyberia.KyberiaUrls
 import sk.ntnlabs.kyberia.R
 import sk.ntnlabs.kyberia.ui.bookmarks.BookmarksScreen
-import sk.ntnlabs.kyberia.ui.bookmarks.BookmarksViewModel
+import sk.ntnlabs.kyberia.ui.friends.FriendsScreen
+import sk.ntnlabs.kyberia.ui.overview.OverviewViewModel
 
 private enum class Tab(@StringRes val label: Int, @DrawableRes val icon: Int) {
     BOOKMARKS(R.string.tab_bookmarks, R.drawable.ic_tab_bookmarks),
@@ -56,8 +59,11 @@ fun HomeScreen(container: AppContainer) {
     var tab by rememberSaveable { mutableStateOf(Tab.BOOKMARKS) }
     val scope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current
-    val bookmarks: BookmarksViewModel = viewModel(factory = BookmarksViewModel.factory(container))
-    val kWallet = bookmarks.state.user?.kWallet
+    val overview: OverviewViewModel = viewModel(factory = OverviewViewModel.factory(container))
+    val kWallet = overview.state.user?.kWallet
+    val friendsOnline = overview.state.friends.size
+    // Čítanie nodov v appke príde neskôr; dovtedy sa node otvorí na webe.
+    val openNode: (Long) -> Unit = { uriHandler.openUri(KyberiaUrls.node(it)) }
 
     NotificationPermissionRequest()
 
@@ -81,7 +87,15 @@ fun HomeScreen(container: AppContainer) {
                     NavigationBarItem(
                         selected = item == tab,
                         onClick = { tab = item },
-                        icon = { Icon(painterResource(item.icon), contentDescription = null) },
+                        icon = {
+                            BadgedBox(
+                                badge = {
+                                    if (item == Tab.FRIENDS && friendsOnline > 0) Badge { Text("$friendsOnline") }
+                                },
+                            ) {
+                                Icon(painterResource(item.icon), contentDescription = null)
+                            }
+                        },
                         label = { Text(stringResource(item.label)) },
                     )
                 }
@@ -90,9 +104,9 @@ fun HomeScreen(container: AppContainer) {
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
             when (tab) {
-                // Čítanie nodov v appke príde neskôr; dovtedy sa node otvorí na webe.
-                Tab.BOOKMARKS -> BookmarksScreen(bookmarks, onOpenNode = { uriHandler.openUri(KyberiaUrls.node(it)) })
-                Tab.MAIL, Tab.K, Tab.FRIENDS -> ComingSoon()
+                Tab.BOOKMARKS -> BookmarksScreen(overview, onOpenNode = openNode)
+                Tab.FRIENDS -> FriendsScreen(overview, onOpenNode = openNode)
+                Tab.MAIL, Tab.K -> ComingSoon()
             }
         }
     }
