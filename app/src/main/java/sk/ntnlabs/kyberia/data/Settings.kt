@@ -1,5 +1,9 @@
 package sk.ntnlabs.kyberia.data
 
+enum class ThemeMode { SYSTEM, LIGHT, DARK, DIM }
+
+enum class BookmarkSort { ALPHABET, NEWS }
+
 /** Používateľské nastavenia. Čistý Kotlin – ukladanie rieši [SettingsStore]. */
 data class Settings(
     val intervalMinutes: Int = DEFAULT_INTERVAL,
@@ -9,6 +13,9 @@ data class Settings(
     val quietEnabled: Boolean = false,
     val quietFromHour: Int = 22,
     val quietToHour: Int = 6,
+    val theme: ThemeMode = ThemeMode.SYSTEM,
+    val bookmarkSort: BookmarkSort = BookmarkSort.ALPHABET,
+    val bookmarksOnlyNews: Boolean = false,
 ) {
     fun isQuiet(hour: Int): Boolean = quietEnabled && QuietHours.contains(quietFromHour, quietToHour, hour)
 

@@ -1,6 +1,8 @@
 package sk.ntnlabs.kyberia.ui.bookmarks
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,91 +10,120 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Badge
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import sk.ntnlabs.kyberia.R
+import sk.ntnlabs.kyberia.data.BookmarkFilter
+import sk.ntnlabs.kyberia.data.BookmarkSort
+import sk.ntnlabs.kyberia.data.SettingsStore
 import sk.ntnlabs.kyberia.parse.Bookmark
-import sk.ntnlabs.kyberia.parse.Reply
-import sk.ntnlabs.kyberia.ui.common.Avatar
 import sk.ntnlabs.kyberia.ui.overview.OverviewViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BookmarksScreen(viewModel: OverviewViewModel, onOpenNode: (Long) -> Unit) {
+fun BookmarksScreen(viewModel: OverviewViewModel, settingsStore: SettingsStore, onOpenNode: (Long) -> Unit) {
     val state = viewModel.state
-    PullToRefreshBox(
-        isRefreshing = state.loading,
-        onRefresh = viewModel::refresh,
-        modifier = Modifier.fillMaxSize(),
-    ) {
-        LazyColumn(Modifier.fillMaxSize()) {
-            if (state.replies.isNotEmpty()) {
-                item { SectionHeader(stringResource(R.string.replies_title)) }
-                items(state.replies) { reply ->
-                    ReplyRow(reply, onClick = { onOpenNode(reply.nodeId) })
+    val settings by settingsStore.settings.collectAsStateWithLifecycle()
+    var query by rememberSaveable { mutableStateOf("") }
+    val shown = remember(state.bookmarks, query, settings.bookmarksOnlyNews, settings.bookmarkSort) {
+        BookmarkFilter.apply(state.bookmarks, query, settings.bookmarksOnlyNews, settings.bookmarkSort)
+    }
+
+    Column(Modifier.fillMaxSize()) {
+        OutlinedTextField(
+            value = query,
+            onValueChange = { query = it },
+            placeholder = { Text(stringResource(R.string.bookmarks_search)) },
+            leadingIcon = { Icon(painterResource(R.drawable.ic_search), contentDescription = null) },
+            trailingIcon = {
+                if (query.isNotEmpty()) {
+                    IconButton(onClick = { query = "" }) {
+                        Icon(
+                            painterResource(R.drawable.ic_close),
+                            contentDescription = stringResource(R.string.bookmarks_search_clear),
+                        )
+                    }
                 }
-                item { HorizontalDivider() }
-            }
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable(onClick = viewModel::toggleShowAll)
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(stringResource(R.string.bookmarks_show_all), Modifier.weight(1f))
-                    Switch(checked = state.showAll, onCheckedChange = { viewModel.toggleShowAll() })
+            },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 16.dp, top = 8.dp),
+        )
+        // Na úzkom displeji sa čipy dajú posúvať do strany.
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier
+                .horizontalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp),
+        ) {
+            FilterChip(
+                selected = settings.bookmarkSort == BookmarkSort.ALPHABET,
+                onClick = { settingsStore.update { it.copy(bookmarkSort = BookmarkSort.ALPHABET) } },
+                label = { Text(stringResource(R.string.bookmarks_sort_alphabet)) },
+            )
+            FilterChip(
+                selected = settings.bookmarkSort == BookmarkSort.NEWS,
+                onClick = { settingsStore.update { it.copy(bookmarkSort = BookmarkSort.NEWS) } },
+                label = { Text(stringResource(R.string.bookmarks_sort_news)) },
+            )
+            FilterChip(
+                selected = settings.bookmarksOnlyNews,
+                onClick = { settingsStore.update { it.copy(bookmarksOnlyNews = !it.bookmarksOnlyNews) } },
+                label = { Text(stringResource(R.string.bookmarks_only_news)) },
+            )
+        }
+
+        PullToRefreshBox(
+            isRefreshing = state.loading,
+            onRefresh = viewModel::refresh,
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            LazyColumn(Modifier.fillMaxSize()) {
+                when {
+                    state.error -> item { LoadError(onRetry = viewModel::refresh) }
+                    !state.loading && shown.isEmpty() -> item {
+                        val empty = if (query.isBlank() && settings.bookmarksOnlyNews) {
+                            R.string.bookmarks_nothing_new
+                        } else {
+                            R.string.bookmarks_nothing_found
+                        }
+                        Text(stringResource(empty), Modifier.padding(16.dp))
+                    }
                 }
-            }
-            when {
-                state.error -> item { LoadError(onRetry = viewModel::refresh) }
-                !state.loading && state.visible.isEmpty() -> item {
-                    Text(stringResource(R.string.bookmarks_nothing_new), Modifier.padding(16.dp))
+                items(shown, key = { "bookmark:${it.id}" }) { bookmark ->
+                    BookmarkRow(bookmark, onClick = { onOpenNode(bookmark.id) })
+                    HorizontalDivider()
                 }
-            }
-            items(state.visible, key = { "bookmark:${it.id}" }) { bookmark ->
-                BookmarkRow(bookmark, onClick = { onOpenNode(bookmark.id) })
-                HorizontalDivider()
             }
         }
     }
-}
-
-@Composable
-private fun SectionHeader(text: String) {
-    Text(
-        text,
-        style = MaterialTheme.typography.titleSmall,
-        color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp),
-    )
-}
-
-@Composable
-private fun ReplyRow(reply: Reply, onClick: () -> Unit) {
-    ListItem(
-        leadingContent = { Avatar(reply.avatarUrl) },
-        overlineContent = { Text(reply.author, color = MaterialTheme.colorScheme.secondary) },
-        headlineContent = { Text(reply.snippet, maxLines = 2, overflow = TextOverflow.Ellipsis) },
-        supportingContent = {
-            Text(stringResource(R.string.replies_on, reply.nodeTitle), maxLines = 1, overflow = TextOverflow.Ellipsis)
-        },
-        modifier = Modifier.clickable(onClick = onClick),
-    )
 }
 
 @Composable

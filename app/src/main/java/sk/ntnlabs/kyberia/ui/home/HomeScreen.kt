@@ -43,10 +43,12 @@ import sk.ntnlabs.kyberia.R
 import sk.ntnlabs.kyberia.ui.bookmarks.BookmarksScreen
 import sk.ntnlabs.kyberia.ui.friends.FriendsScreen
 import sk.ntnlabs.kyberia.ui.overview.OverviewViewModel
+import sk.ntnlabs.kyberia.ui.replies.RepliesScreen
 import sk.ntnlabs.kyberia.ui.settings.SettingsScreen
 
 private enum class Tab(@StringRes val label: Int, @DrawableRes val icon: Int) {
     BOOKMARKS(R.string.tab_bookmarks, R.drawable.ic_tab_bookmarks),
+    REPLIES(R.string.tab_replies, R.drawable.ic_tab_replies),
     MAIL(R.string.tab_mail, R.drawable.ic_tab_mail),
     K(R.string.tab_k, R.drawable.ic_tab_k),
     FRIENDS(R.string.tab_friends, R.drawable.ic_tab_friends),
@@ -108,7 +110,8 @@ fun HomeScreen(container: AppContainer) {
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
             when (tab) {
-                Tab.BOOKMARKS -> BookmarksScreen(overview, onOpenNode = openNode)
+                Tab.BOOKMARKS -> BookmarksScreen(overview, container.settings, onOpenNode = openNode)
+                Tab.REPLIES -> RepliesScreen(overview, onOpenNode = openNode)
                 Tab.FRIENDS -> FriendsScreen(overview, onOpenNode = openNode)
                 Tab.MAIL, Tab.K -> ComingSoon()
             }

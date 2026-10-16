@@ -11,11 +11,10 @@ import java.io.IOException
 import kotlinx.coroutines.launch
 import sk.ntnlabs.kyberia.AppContainer
 import sk.ntnlabs.kyberia.data.AuthRepository
-import sk.ntnlabs.kyberia.data.NewsTracker
 import sk.ntnlabs.kyberia.data.BookmarksRepository
+import sk.ntnlabs.kyberia.data.NewsTracker
 import sk.ntnlabs.kyberia.data.SessionExpiredException
 import sk.ntnlabs.kyberia.parse.Bookmark
-import sk.ntnlabs.kyberia.parse.BookmarksParser
 import sk.ntnlabs.kyberia.parse.Friend
 import sk.ntnlabs.kyberia.parse.Reply
 import sk.ntnlabs.kyberia.parse.UserInfo
@@ -26,11 +25,8 @@ data class OverviewUiState(
     val replies: List<Reply> = emptyList(),
     val friends: List<Friend> = emptyList(),
     val user: UserInfo? = null,
-    val showAll: Boolean = false,
     val error: Boolean = false,
-) {
-    val visible: List<Bookmark> get() = if (showAll) bookmarks else bookmarks.filter { it.hasNews }
-}
+)
 
 /** Dáta z /id/19/ – jedna požiadavka kŕmi bookmarky, odpovede, friends aj K_wallet. */
 class OverviewViewModel(
@@ -63,7 +59,8 @@ class OverviewViewModel(
                 tracker.updateFriends(page.friends)
                 state.copy(
                     loading = false,
-                    bookmarks = BookmarksParser.sortByNews(page.bookmarks),
+                    // Radenie a filter rieši obrazovka podľa nastavení (BookmarkFilter).
+                    bookmarks = page.bookmarks,
                     replies = page.replies.filter { it.authorId != page.user.userId },
                     // Najaktívnejší (najkratšia nečinnosť) hore.
                     friends = page.friends.sortedBy { it.timeSeconds ?: Long.MAX_VALUE },
@@ -76,10 +73,6 @@ class OverviewViewModel(
                 state.copy(loading = false, error = true)
             }
         }
-    }
-
-    fun toggleShowAll() {
-        state = state.copy(showAll = !state.showAll)
     }
 
     companion object {

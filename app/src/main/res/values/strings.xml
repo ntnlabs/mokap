@@ -6,6 +6,8 @@
     <string name="login_username">Nick</string>
     <string name="login_password">Heslo</string>
     <string name="login_button">Prihlásiť</string>
+    <string name="login_show_password">Ukázať heslo</string>
+    <string name="login_hide_password">Skryť heslo</string>
     <string name="login_privacy_note">Heslo ide len na kyberia.sk a appka si ho nikde neukladá.</string>
     <string name="login_rejected">Prihlásenie nevyšlo. Skontroluj nick a heslo.</string>
     <string name="login_form_not_found">Nenašla som prihlasovací formulár. Kyberia asi zmenila stránku.</string>
@@ -14,12 +16,18 @@
     <string name="logout">Odhlásiť</string>
     <string name="tab_mail">Pošta</string>
     <string name="tab_bookmarks">Bookmarky</string>
+    <string name="tab_replies">Odpovede</string>
     <string name="tab_k">K</string>
     <string name="tab_friends">Friends</string>
     <string name="coming_soon">Pripravujem. Potrebujem vzorku HTML tejto stránky.</string>
 
-    <string name="bookmarks_show_all">Zobraziť aj bez noviniek</string>
+    <string name="bookmarks_search">Hľadať v bookmarkoch</string>
+    <string name="bookmarks_search_clear">Vymazať hľadanie</string>
+    <string name="bookmarks_only_news">Len s novinkami</string>
+    <string name="bookmarks_sort_alphabet">A–Z</string>
+    <string name="bookmarks_sort_news">Podľa noviniek</string>
     <string name="bookmarks_nothing_new">V bookmarkoch nič nové.</string>
+    <string name="bookmarks_nothing_found">Nič sa nenašlo.</string>
     <string name="bookmarks_load_error">Bookmarky sa nepodarilo načítať.</string>
     <string name="bookmark_descendants">hlbšie</string>
     <string name="bookmark_changed">zmenené</string>
@@ -46,8 +54,15 @@
     <string name="settings_quiet_from">Od</string>
     <string name="settings_quiet_to">Do</string>
     <string name="settings_section_account">Účet</string>
+    <string name="settings_section_look">Vzhľad</string>
+    <string name="settings_theme">Téma</string>
+    <string name="theme_system">Podľa systému</string>
+    <string name="theme_light">Svetlá</string>
+    <string name="theme_dark">Tmavá</string>
+    <string name="theme_dim">Tlmená (nočná)</string>
+    <string name="theme_dim_note">Tlmená téma: čierne pozadie, sivý text, stlmené farby aj avatary.</string>
 
-    <string name="replies_title">Odpovede na tvoje príspevky</string>
+    <string name="replies_empty">Zatiaľ žiadne odpovede na tvoje príspevky.</string>
     <string name="replies_on">na „%1$s“</string>
 
     <string name="channel_replies">Odpovede</string>

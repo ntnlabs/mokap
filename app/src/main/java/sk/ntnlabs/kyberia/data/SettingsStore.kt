@@ -27,6 +27,9 @@ class SettingsStore(context: Context) {
             putBoolean(QUIET, updated.quietEnabled)
             putInt(QUIET_FROM, updated.quietFromHour)
             putInt(QUIET_TO, updated.quietToHour)
+            putString(THEME, updated.theme.name)
+            putString(BOOKMARK_SORT, updated.bookmarkSort.name)
+            putBoolean(ONLY_NEWS, updated.bookmarksOnlyNews)
         }
         state.value = updated
     }
@@ -41,8 +44,14 @@ class SettingsStore(context: Context) {
             quietEnabled = prefs.getBoolean(QUIET, defaults.quietEnabled),
             quietFromHour = prefs.getInt(QUIET_FROM, defaults.quietFromHour),
             quietToHour = prefs.getInt(QUIET_TO, defaults.quietToHour),
+            theme = enumOrDefault(prefs.getString(THEME, null), defaults.theme),
+            bookmarkSort = enumOrDefault(prefs.getString(BOOKMARK_SORT, null), defaults.bookmarkSort),
+            bookmarksOnlyNews = prefs.getBoolean(ONLY_NEWS, defaults.bookmarksOnlyNews),
         )
     }
+
+    private inline fun <reified T : Enum<T>> enumOrDefault(name: String?, default: T): T =
+        enumValues<T>().firstOrNull { it.name == name } ?: default
 
     private companion object {
         const val INTERVAL = "interval_minutes"
@@ -52,5 +61,8 @@ class SettingsStore(context: Context) {
         const val QUIET = "quiet_enabled"
         const val QUIET_FROM = "quiet_from"
         const val QUIET_TO = "quiet_to"
+        const val THEME = "theme"
+        const val BOOKMARK_SORT = "bookmark_sort"
+        const val ONLY_NEWS = "bookmarks_only_news"
     }
 }

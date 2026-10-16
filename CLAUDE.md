@@ -33,4 +33,7 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
 - Notifikácie sú lokálne (WorkManager, interval 15–60 min z nastavení – 15 je minimum Androidu),
   žiadny Firebase. Tichý režim = worker nerobí žiadnu požiadavku. Každý typ má vlastný kanál.
 - Čas pri priateľoch je **nečinnosť** (idle); zoznam je zoradený od najaktívnejšieho.
+- UI je pre mobil: každá oblasť má vlastnú záložku (Bookmarky, Odpovede, Pošta, K, Friends).
+  Bookmarky predvolene A–Z (slovenský Collator); radenie/filter si appka pamätá v nastaveniach.
+- Téma „Tlmená“ = tmavá s nízkym jasom textu, farieb aj avatarov (`LocalDimImages`).
 - CI: `.github/workflows/android.yml` – gitleaks, lint, unit testy, debug aj release build.

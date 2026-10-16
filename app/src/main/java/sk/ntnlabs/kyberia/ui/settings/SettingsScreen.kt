@@ -39,6 +39,7 @@ import kotlinx.coroutines.launch
 import sk.ntnlabs.kyberia.AppContainer
 import sk.ntnlabs.kyberia.R
 import sk.ntnlabs.kyberia.data.Settings
+import sk.ntnlabs.kyberia.data.ThemeMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,6 +69,16 @@ fun SettingsScreen(container: AppContainer, onBack: () -> Unit) {
                 .padding(padding)
                 .verticalScroll(rememberScrollState()),
         ) {
+            SectionHeader(stringResource(R.string.settings_section_look))
+            ChoiceRow(
+                label = stringResource(R.string.settings_theme),
+                value = themeLabel(settings.theme),
+                options = ThemeMode.entries,
+                optionLabel = { themeLabel(it) },
+                onSelect = { mode -> store.update { it.copy(theme = mode) } },
+            )
+            Note(stringResource(R.string.theme_dim_note))
+
             SectionHeader(stringResource(R.string.settings_section_checks))
             ChoiceRow(
                 label = stringResource(R.string.settings_interval),
@@ -133,6 +144,16 @@ fun SettingsScreen(container: AppContainer, onBack: () -> Unit) {
 }
 
 private val HOURS = (0..23).toList()
+
+@Composable
+private fun themeLabel(mode: ThemeMode): String = stringResource(
+    when (mode) {
+        ThemeMode.SYSTEM -> R.string.theme_system
+        ThemeMode.LIGHT -> R.string.theme_light
+        ThemeMode.DARK -> R.string.theme_dark
+        ThemeMode.DIM -> R.string.theme_dim
+    },
+)
 
 private fun hour(h: Int): String = String.format(Locale.ROOT, "%02d:00", h)
 

@@ -11,11 +11,11 @@ zoradené, prefiltrované a s lokálnymi notifikáciami.
 | Časť | Stav |
 |---|---|
 | Prihlásenie (natívne, heslo sa neukladá) | hotové, parser overený na skutočnej stránke |
-| Bookmarky (`/id/19/`) – zoradené podľa noviniek | hotové |
-| Odpovede na tvoje príspevky | hotové (sekcia v bookmarkoch, animované avatary s diskovou cache) |
+| Bookmarky (`/id/19/`) – A–Z (slovenské radenie) alebo podľa noviniek, filter „len s novinkami“, hľadanie bez diakritiky | hotové |
+| Odpovede na tvoje príspevky – vlastná záložka, animované avatary s diskovou cache | hotové |
 | Notifikácie: odpovede, novinky v bookmarkoch, priateľ online | hotové, každá s vlastným kanálom a prepínačom |
 | Friends online – kde sú, nečinnosť, počet na záložke | hotové |
-| Nastavenia: interval kontrol 15–60 min, tichý režim, notifikácie, odhlásenie | hotové |
+| Nastavenia: téma (systém/svetlá/tmavá/tlmená), interval kontrol 15–60 min, tichý režim, notifikácie, odhlásenie | hotové |
 | K_wallet a vlastné ID (SELF) | parsované z hlavičky |
 | Pošta (`/id/24/`), K (`/id/8340566/`) | čaká na vzorky HTML |
 | Čítanie nodov priamo v appke | neskôr; zatiaľ sa node otvorí na webe |
