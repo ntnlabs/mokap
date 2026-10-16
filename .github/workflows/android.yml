@@ -42,6 +42,15 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       - name: Build
         run: ./gradlew lintDebug testDebugUnitTest assembleDebug assembleRelease
+      - name: Permission audit
+        run: |
+          APK=$(ls app/build/outputs/apk/release/*.apk | head -n1)
+          AAPT2="$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -n1)aapt2"
+          echo "== Oprávnenia vo výslednom APK =="
+          "$AAPT2" dump permissions "$APK"
+          echo "== Odkiaľ prišli (manifest merger) =="
+          REPORT=$(find app/build -name 'manifest-merger-release-report.txt' | head -n1)
+          if [ -n "$REPORT" ]; then grep -A2 -E '^uses-permission' "$REPORT"; else echo "report nenájdený"; fi
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
