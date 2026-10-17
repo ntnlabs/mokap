@@ -119,11 +119,12 @@ object Notifier {
         increases.take(MAX_ITEMS).forEach { increase ->
             val bookmark = increase.bookmark
             val id = ID_BOOKMARK_BASE + bookmark.id.mod(ID_RANGE)
-            val title = context.resources.getQuantityString(R.plurals.notify_bookmark_new, increase.added, increase.added)
+            val added = context.resources.getQuantityString(R.plurals.notify_bookmark_new, increase.added, increase.added)
             post(
                 context,
                 id,
-                builder(context, CHANNEL_BOOKMARKS, title, bookmark.title)
+                // Názov fóra je to hlavné, počet stačí pod ním.
+                builder(context, CHANNEL_BOOKMARKS, bookmark.title, added)
                     .setGroup(GROUP_BOOKMARKS)
                     .setContentIntent(openWeb(context, id, bookmark.id)),
             )
@@ -145,17 +146,21 @@ object Notifier {
     }
 
     fun friendsOnline(context: Context, friends: List<Friend>) {
-        val title = if (friends.size == 1) {
-            context.getString(R.string.notify_friend_online, friends.single().nick)
+        val notification = if (friends.size == 1) {
+            // Nick je už v titulku; text povie len to, kde práve je.
+            val friend = friends.single()
+            builder(
+                context,
+                CHANNEL_FRIENDS,
+                context.getString(R.string.notify_friend_online, friend.nick),
+                friend.locationTitle?.let { context.getString(R.string.friends_location, it) },
+            )
         } else {
-            context.resources.getQuantityString(R.plurals.notify_friends_online, friends.size, friends.size)
-        }
-        post(
-            context,
-            ID_FRIENDS,
+            val title = context.resources.getQuantityString(R.plurals.notify_friends_online, friends.size, friends.size)
             builder(context, CHANNEL_FRIENDS, title, friends.joinToString(", ") { it.nick })
-                .setContentIntent(openApp(context, MainActivity.TAB_FRIENDS)),
-        )
+                .setStyle(inbox(friends.map { friend -> friend.locationTitle?.let { "${friend.nick} – $it" } ?: friend.nick }))
+        }
+        post(context, ID_FRIENDS, notification.setContentIntent(openApp(context, MainActivity.TAB_FRIENDS)))
     }
 
     fun sessionExpired(context: Context) {
@@ -171,7 +176,7 @@ object Notifier {
         )
     }
 
-    private fun builder(context: Context, channel: String, title: String, text: String) =
+    private fun builder(context: Context, channel: String, title: String, text: String?) =
         NotificationCompat.Builder(context, channel)
             .setSmallIcon(R.drawable.ic_stat_mokap)
             .setContentTitle(title)
