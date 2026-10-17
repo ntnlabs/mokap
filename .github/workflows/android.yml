@@ -24,7 +24,7 @@ jobs:
     env:
       GITLEAKS_VERSION: 8.28.0
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Install gitleaks
@@ -39,7 +39,7 @@ jobs:
     name: Lint a unit testy
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
@@ -61,7 +61,7 @@ jobs:
     needs: [secrets-scan, checks]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
