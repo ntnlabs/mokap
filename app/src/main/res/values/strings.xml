@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="sk">
+    <string name="app_name">mokap</string>
+
+    <string name="login_subtitle">neoficiálny klient kyberia.sk</string>
+    <string name="login_username">Nick</string>
+    <string name="login_password">Heslo</string>
+    <string name="login_button">Prihlásiť</string>
+    <string name="login_show_password">Ukázať heslo</string>
+    <string name="login_hide_password">Skryť heslo</string>
+    <string name="login_privacy_note">Heslo ide len na kyberia.sk a appka si ho nikde neukladá.</string>
+    <string name="login_rejected">Prihlásenie nevyšlo. Skontroluj nick a heslo.</string>
+    <string name="login_form_not_found">Nenašla som prihlasovací formulár. Kyberia asi zmenila stránku.</string>
+    <string name="login_network_error">Kyberia neodpovedá. Skús to o chvíľu.</string>
+
+    <string name="logout">Odhlásiť</string>
+    <string name="tab_mail">Pošta</string>
+    <string name="tab_bookmarks">Bookmarky</string>
+    <string name="tab_replies">Odpovede</string>
+    <string name="tab_k">K</string>
+    <string name="tab_friends">Friends</string>
+    <string name="coming_soon">Pripravujem. Potrebujem vzorku HTML tejto stránky.</string>
+
+    <string name="bookmarks_search">Hľadať v bookmarkoch</string>
+    <string name="bookmarks_search_clear">Vymazať hľadanie</string>
+    <string name="bookmarks_only_news">Len s novinkami</string>
+    <string name="bookmarks_sort_alphabet">A–Z</string>
+    <string name="bookmarks_sort_news">Podľa noviniek</string>
+    <string name="bookmarks_nothing_new">V bookmarkoch nič nové.</string>
+    <string name="bookmarks_nothing_found">Nič sa nenašlo.</string>
+    <string name="bookmarks_load_error">Bookmarky sa nepodarilo načítať.</string>
+    <string name="bookmark_descendants">hlbšie</string>
+    <string name="bookmark_changed">zmenené</string>
+    <string name="retry">Skúsiť znova</string>
+
+    <string name="friends_nobody">Žiadny priateľ nie je práve online.</string>
+    <string name="friends_location">je v: %1$s</string>
+    <string name="friends_idle">nečinnosť %1$s</string>
+
+    <string name="settings_title">Nastavenia</string>
+    <string name="settings_back">Späť</string>
+    <string name="settings_section_checks">Kontrola na pozadí</string>
+    <string name="settings_interval">Ako často kontrolovať</string>
+    <string name="settings_interval_value">každých %1$d min</string>
+    <string name="settings_interval_note">Android dovolí najčastejšie raz za 15 minút a pri šetrení batérie kontrolu aj odloží.</string>
+    <string name="settings_refresh_on_open">Obnoviť pri otvorení appky</string>
+    <string name="settings_section_notify">Notifikácie</string>
+    <string name="settings_notify_replies">Odpovede na moje príspevky</string>
+    <string name="settings_notify_bookmarks">Novinky v bookmarkoch</string>
+    <string name="settings_notify_friends">Priateľ prišiel online</string>
+    <string name="settings_system_notifications">Systémové nastavenia notifikácií</string>
+    <string name="settings_section_quiet">Tichý režim</string>
+    <string name="settings_quiet">Tichý režim</string>
+    <string name="settings_quiet_note">V tichom režime appka kyberiu nekontroluje. Čo sa nazbiera, príde po jeho skončení.</string>
+    <string name="settings_quiet_from">Od</string>
+    <string name="settings_quiet_to">Do</string>
+    <string name="settings_section_account">Účet</string>
+    <string name="settings_section_diagnostics">Diagnostika</string>
+    <string name="diag_last_check">Posledná kontrola</string>
+    <string name="diag_last_ok">Posledná úspešná</string>
+    <string name="diag_last_logout">Posledné odhlásenie</string>
+    <string name="diag_never">zatiaľ nikdy</string>
+    <string name="diag_ok">OK</string>
+    <string name="diag_error">chyba: %1$s</string>
+    <string name="diag_expired">kyberia ťa odhlásila (%1$s)</string>
+    <string name="diag_app">v appke</string>
+    <string name="settings_section_look">Vzhľad</string>
+    <string name="settings_theme">Téma</string>
+    <string name="theme_system">Podľa systému</string>
+    <string name="theme_light">Svetlá</string>
+    <string name="theme_dark">Tmavá</string>
+    <string name="theme_dim">Tlmená (nočná)</string>
+    <string name="theme_dim_note">Tlmená téma: čierne pozadie, sivý text, stlmené farby aj avatary.</string>
+
+    <string name="replies_empty">Zatiaľ žiadne odpovede na tvoje príspevky.</string>
+    <string name="replies_on">na „%1$s“</string>
+
+    <string name="channel_replies">Odpovede</string>
+    <string name="channel_bookmarks">Bookmarky</string>
+    <string name="channel_friends">Priatelia online</string>
+    <string name="channel_account">Účet</string>
+    <string name="notify_session_expired_title">Odhlásilo ťa z kyberie</string>
+    <string name="notify_session_expired_text">Prihlás sa znova, inak neprídu notifikácie.</string>
+    <string name="notify_reply_from">Odpoveď od %1$s</string>
+    <string name="notify_friend_online">%1$s je online</string>
+    <plurals name="notify_friends_online">
+        <item quantity="one">%d priateľ je online</item>
+        <item quantity="few">%d priatelia sú online</item>
+        <item quantity="many">%d priateľa je online</item>
+        <item quantity="other">%d priateľov je online</item>
+    </plurals>
+    <plurals name="notify_replies_title">
+        <item quantity="one">%d nová odpoveď</item>
+        <item quantity="few">%d nové odpovede</item>
+        <item quantity="many">%d novej odpovede</item>
+        <item quantity="other">%d nových odpovedí</item>
+    </plurals>
+    <plurals name="notify_bookmark_new">
+        <item quantity="one">%d nový príspevok</item>
+        <item quantity="few">%d nové príspevky</item>
+        <item quantity="many">%d nového príspevku</item>
+        <item quantity="other">%d nových príspevkov</item>
+    </plurals>
+    <plurals name="notify_bookmarks_title">
+        <item quantity="one">%d nový príspevok v bookmarkoch</item>
+        <item quantity="few">%d nové príspevky v bookmarkoch</item>
+        <item quantity="many">%d nového príspevku v bookmarkoch</item>
+        <item quantity="other">%d nových príspevkov v bookmarkoch</item>
+    </plurals>
+</resources>
