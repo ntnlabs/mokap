@@ -94,15 +94,17 @@ object Notifier {
         }
     }
 
-    /** Jedna notifikácia s počtom neprečítaných; ťuknutie otvorí poštu na webe. */
-    fun mail(context: Context, unread: Int) {
+    /** Jedna notifikácia s počtom neprečítaných a tým, kto písal naposledy; ťuknutie otvorí poštu na webe. */
+    fun mail(context: Context, unread: Int, lastFrom: String?) {
+        val title = lastFrom?.let { context.getString(R.string.notify_mail_from, it) }
+            ?: context.getString(R.string.notify_mail_title)
         post(
             context,
             ID_MAIL,
             builder(
                 context,
                 CHANNEL_MAIL,
-                context.getString(R.string.notify_mail_title),
+                title,
                 context.resources.getQuantityString(R.plurals.notify_mail_unread, unread, unread),
             ).setNumber(unread)
                 .setContentIntent(openWeb(context, ID_MAIL, KyberiaUrls.MAIL_ID)),
