@@ -89,6 +89,7 @@
     <string name="notify_reply_from">Odpoveď od %1$s</string>
     <string name="notify_friend_online">%1$s je online</string>
     <string name="notify_mail_title">Nová pošta</string>
+    <string name="notify_mail_from">Nová pošta od %1$s</string>
     <plurals name="notify_mail_unread">
         <item quantity="one">%d neprečítaná správa</item>
         <item quantity="few">%d neprečítané správy</item>

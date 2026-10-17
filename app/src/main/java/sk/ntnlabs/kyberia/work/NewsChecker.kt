@@ -84,7 +84,7 @@ class NewsChecker(
         val added = tracker.updateMail(check.count)
         when {
             check.count == 0 -> Notifier.cancelMail(context) // prečítané na webe
-            added > 0 -> Notifier.mail(context, check.count)
+            added > 0 -> Notifier.mail(context, check.count, check.lastFrom)
         }
     }
 }
