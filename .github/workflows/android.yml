@@ -40,11 +40,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-java@v5
+      # Wrapper jar sa spúšťa ako prvý kód buildu – musí sedieť s oficiálnym checksumom od Gradle.
+      - name: Overenie gradle-wrapper.jar
+        run: |
+          version=$(sed -n 's/^distributionUrl=.*gradle-\([0-9.]*\)-\(bin\|all\)\.zip$/\1/p' gradle/wrapper/gradle-wrapper.properties)
+          expected=$(curl -fsSL "https://services.gradle.org/distributions/gradle-${version}-wrapper.jar.sha256")
+          echo "Gradle ${version}, očakávaný sha256 ${expected}"
+          echo "${expected}  gradle/wrapper/gradle-wrapper.jar" | sha256sum -c -
+      # Cache cez setup-java (open source actions/cache) namiesto gradle/actions – od v6 má proprietárne cachovanie.
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "17"
-      - uses: gradle/actions/setup-gradle@v4
+          cache: gradle
       - name: Lint and unit tests
         run: ./gradlew lintDebug testDebugUnitTest
       - name: Upload reports
@@ -62,11 +70,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "17"
-      - uses: gradle/actions/setup-gradle@v4
+          cache: gradle
       - name: Build debug and release
         run: ./gradlew assembleDebug assembleRelease
       - name: Permission audit

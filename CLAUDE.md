@@ -44,6 +44,8 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   Bookmarky predvolene A–Z (slovenský Collator); radenie/filter si appka pamätá v nastaveniach.
 - Téma „Tlmená“ = tmavá s nízkym jasom textu, farieb aj avatarov (`LocalDimImages`).
 - CI: `.github/workflows/android.yml` – na push/PR len gitleaks, lint a unit testy.
+  Gradle cache cez `setup-java` (`cache: gradle`); `gradle/actions` nepoužívať – od v6 má proprietárne
+  cachovanie. `gradle-wrapper.jar` sa v CI overuje proti oficiálnemu sha256 od Gradle.
 - Hotové kolo zmien sa hneď zlučuje do `main` cez PR (merge commit, po zelenom CI); dlhé vetvy nedržíme.
 - **APK sa builduje iba so súhlasom používateľa.** Pred každým buildom APK sa najprv opýtaj;
   build spúšťa job `apk` cez `workflow_dispatch` (Actions → Android CI → Run workflow) alebo
