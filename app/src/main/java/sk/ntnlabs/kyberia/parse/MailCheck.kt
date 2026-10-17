@@ -15,7 +15,7 @@ object MailCheckParser {
 
     /** null = nečakaná odpoveď (chybová stránka a pod.) – berie sa ako dočasná chyba. */
     fun parse(body: String): MailCheck? {
-        val first = body.removePrefix("﻿").trim().substringBefore(';').trim()
+        val first = body.removePrefix("\uFEFF").trim().substringBefore(';').trim()
         if (first == "offline") return MailCheck.Offline
         return first.toIntOrNull()?.takeIf { it >= 0 }?.let(MailCheck::Unread)
     }

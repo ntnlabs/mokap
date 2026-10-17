@@ -10,7 +10,7 @@ class MailCheckParserTest {
     fun unreadCountIsFirstField() {
         assertEquals(MailCheck.Unread(0), MailCheckParser.parse("0;alfa;5"))
         assertEquals(MailCheck.Unread(3), MailCheckParser.parse("3;beta 1/2;1\n"))
-        assertEquals(MailCheck.Unread(2), MailCheckParser.parse("﻿ 2 "))
+        assertEquals(MailCheck.Unread(2), MailCheckParser.parse("\uFEFF 2 "))
     }
 
     @Test
