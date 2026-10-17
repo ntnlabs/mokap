@@ -85,6 +85,13 @@ fun SettingsScreen(container: AppContainer, onBack: () -> Unit) {
                 onSelect = { mode -> store.update { it.copy(theme = mode) } },
             )
             Note(stringResource(R.string.theme_dim_note))
+            SwitchRow(stringResource(R.string.settings_animate_avatars), settings.animateAvatars) { on ->
+                store.update { it.copy(animateAvatars = on) }
+            }
+            SwitchRow(stringResource(R.string.settings_avatars_only_wifi), settings.avatarsOnlyWifi) { on ->
+                store.update { it.copy(avatarsOnlyWifi = on) }
+            }
+            Note(stringResource(R.string.settings_avatars_note))
 
             SectionHeader(stringResource(R.string.settings_section_checks))
             ChoiceRow(

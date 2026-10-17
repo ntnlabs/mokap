@@ -10,6 +10,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -17,6 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import sk.ntnlabs.kyberia.ui.common.AvatarOptions
+import sk.ntnlabs.kyberia.ui.common.LocalAvatarOptions
+import sk.ntnlabs.kyberia.ui.common.rememberMeteredNetwork
 import sk.ntnlabs.kyberia.ui.home.HomeScreen
 import sk.ntnlabs.kyberia.ui.login.LoginScreen
 import sk.ntnlabs.kyberia.ui.login.LoginViewModel
@@ -45,16 +49,23 @@ class MainActivity : ComponentActivity() {
                 )
                 onDispose {}
             }
+            val metered by rememberMeteredNetwork(enabled = settings.avatarsOnlyWifi)
+            val avatars = AvatarOptions(
+                animate = settings.animateAvatars,
+                network = settings.avatarDownloadAllowed(metered),
+            )
             MokapTheme(settings.theme) {
-                Surface(Modifier.fillMaxSize()) {
-                    val loggedIn by container.auth.loggedIn.collectAsStateWithLifecycle()
-                    val tab by requestedTab.collectAsStateWithLifecycle()
-                    if (loggedIn) {
-                        // Ak systém plán kontrol zrušil (napr. force stop), obnov ho.
-                        LaunchedEffect(Unit) { container.scheduler.schedule() }
-                        HomeScreen(container, requestedTab = tab, onTabHandled = { requestedTab.value = null })
-                    } else {
-                        LoginScreen(viewModel(factory = LoginViewModel.factory(container.auth)))
+                CompositionLocalProvider(LocalAvatarOptions provides avatars) {
+                    Surface(Modifier.fillMaxSize()) {
+                        val loggedIn by container.auth.loggedIn.collectAsStateWithLifecycle()
+                        val tab by requestedTab.collectAsStateWithLifecycle()
+                        if (loggedIn) {
+                            // Ak systém plán kontrol zrušil (napr. force stop), obnov ho.
+                            LaunchedEffect(Unit) { container.scheduler.schedule() }
+                            HomeScreen(container, requestedTab = tab, onTabHandled = { requestedTab.value = null })
+                        } else {
+                            LoginScreen(viewModel(factory = LoginViewModel.factory(container.auth)))
+                        }
                     }
                 }
             }

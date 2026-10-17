@@ -31,6 +31,8 @@ class SettingsStore(context: Context) {
             putString(BOOKMARK_SORT, updated.bookmarkSort.name)
             putBoolean(ONLY_NEWS, updated.bookmarksOnlyNews)
             putBoolean(REFRESH_ON_OPEN, updated.refreshOnOpen)
+            putBoolean(ANIMATE_AVATARS, updated.animateAvatars)
+            putBoolean(AVATARS_ONLY_WIFI, updated.avatarsOnlyWifi)
         }
         state.value = updated
     }
@@ -49,6 +51,8 @@ class SettingsStore(context: Context) {
             bookmarkSort = enumOrDefault(prefs.getString(BOOKMARK_SORT, null), defaults.bookmarkSort),
             bookmarksOnlyNews = prefs.getBoolean(ONLY_NEWS, defaults.bookmarksOnlyNews),
             refreshOnOpen = prefs.getBoolean(REFRESH_ON_OPEN, defaults.refreshOnOpen),
+            animateAvatars = prefs.getBoolean(ANIMATE_AVATARS, defaults.animateAvatars),
+            avatarsOnlyWifi = prefs.getBoolean(AVATARS_ONLY_WIFI, defaults.avatarsOnlyWifi),
         )
     }
 
@@ -67,5 +71,7 @@ class SettingsStore(context: Context) {
         const val BOOKMARK_SORT = "bookmark_sort"
         const val ONLY_NEWS = "bookmarks_only_news"
         const val REFRESH_ON_OPEN = "refresh_on_open"
+        const val ANIMATE_AVATARS = "animate_avatars"
+        const val AVATARS_ONLY_WIFI = "avatars_only_wifi"
     }
 }

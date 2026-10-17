@@ -17,8 +17,13 @@ data class Settings(
     val bookmarkSort: BookmarkSort = BookmarkSort.ALPHABET,
     val bookmarksOnlyNews: Boolean = false,
     val refreshOnOpen: Boolean = true,
+    val animateAvatars: Boolean = true,
+    val avatarsOnlyWifi: Boolean = false,
 ) {
     fun isQuiet(hour: Int): Boolean = quietEnabled && QuietHours.contains(quietFromHour, quietToHour, hour)
+
+    /** Či smie avatar ísť po sieti; na meranej sieti (mobilné dáta, hotspot) len ak to nie je zakázané. */
+    fun avatarDownloadAllowed(metered: Boolean): Boolean = !avatarsOnlyWifi || !metered
 
     companion object {
         /** Android pustí periodickú prácu najčastejšie raz za 15 minút. */

@@ -36,6 +36,14 @@ class SettingsTest {
     }
 
     @Test
+    fun avatarsOnlyWifiBlocksMeteredNetwork() {
+        assertTrue(Settings().avatarDownloadAllowed(metered = true))
+        assertTrue(Settings(avatarsOnlyWifi = true).avatarDownloadAllowed(metered = false))
+        assertFalse(Settings(avatarsOnlyWifi = true).avatarDownloadAllowed(metered = true))
+        assertTrue(Settings().animateAvatars)
+    }
+
+    @Test
     fun intervalIsClampedToWhatAndroidAllows() {
         assertEquals(15, Settings.sanitizeInterval(10))
         assertEquals(15, Settings.sanitizeInterval(15))

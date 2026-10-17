@@ -71,6 +71,9 @@
     <string name="theme_dark">Tmavá</string>
     <string name="theme_dim">Tlmená (nočná)</string>
     <string name="theme_dim_note">Tlmená téma: čierne pozadie, sivý text, stlmené farby aj avatary.</string>
+    <string name="settings_animate_avatars">Animované avatary</string>
+    <string name="settings_avatars_only_wifi">Avatary sťahovať len cez Wi-Fi</string>
+    <string name="settings_avatars_note">Bez animácie sa ukáže len prvý obrázok GIFu – menej pamäte aj batérie. Na mobilných dátach sa pri druhom prepínači ukážu len už stiahnuté avatary.</string>
 
     <string name="replies_empty">Zatiaľ žiadne odpovede na tvoje príspevky.</string>
     <string name="replies_on">na „%1$s“</string>
