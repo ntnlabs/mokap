@@ -11,15 +11,14 @@ import sk.ntnlabs.kyberia.data.CheckEntry
 import sk.ntnlabs.kyberia.data.CheckResult
 import sk.ntnlabs.kyberia.data.CheckTrigger
 import sk.ntnlabs.kyberia.data.DiagnosticsStore
-import sk.ntnlabs.kyberia.data.KeepAlivePolicy
 import sk.ntnlabs.kyberia.data.NewsTracker
 import sk.ntnlabs.kyberia.data.SessionExpiredException
 import sk.ntnlabs.kyberia.data.SettingsStore
 import sk.ntnlabs.kyberia.notify.Notifier
 
 /**
- * Jedna kontrola kyberie: zároveň udrží session nažive a pošle notifikácie o novinkách.
- * Spúšťa ju periodický worker aj hodinový keepalive budík; mutex zabráni súbehu.
+ * Jedna kontrola kyberie a notifikácie o novinkách. Mutex zabráni súbehu,
+ * ak by sa kontrola spustila dvakrát naraz.
  */
 class NewsChecker(
     private val context: Context,
@@ -39,10 +38,9 @@ class NewsChecker(
     /** Vráti false pri dočasnej chybe (treba skúsiť znova). */
     suspend fun run(trigger: CheckTrigger): Boolean = mutex.withLock {
         if (!auth.loggedIn.value) return true
+        // V tichom režime kyberiu vôbec nekontrolujeme; novinky prídu po jeho skončení.
+        if (settings.current.isQuiet(LocalTime.now().hour)) return true
         val now = System.currentTimeMillis()
-        val quiet = settings.current.isQuiet(LocalTime.now().hour)
-        // V tichom režime len udržiavame session, a to najviac raz za hodinu.
-        if (quiet && !KeepAlivePolicy.quietKeepAliveDue(diagnostics.current.lastOkMillis, now)) return true
 
         val page = try {
             bookmarks.load()
@@ -56,11 +54,6 @@ class NewsChecker(
             return false
         }
 
-        if (quiet) {
-            // Stav noviniek neaktualizujeme, aby po tichom režime prišlo všetko, čo sa nazbieralo.
-            diagnostics.record(CheckEntry(now, CheckResult.QUIET_KEEPALIVE, trigger))
-            return true
-        }
         diagnostics.record(CheckEntry(now, CheckResult.OK, trigger))
 
         // Stav sa aktualizuje vždy, aby po zapnutí notifikácie neprišla stará záplava.

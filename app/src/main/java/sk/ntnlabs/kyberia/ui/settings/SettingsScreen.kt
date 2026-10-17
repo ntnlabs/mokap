@@ -174,11 +174,9 @@ private fun describe(entry: CheckEntry): String {
         CheckResult.OK -> stringResource(R.string.diag_ok)
         CheckResult.ERROR -> stringResource(R.string.diag_error, entry.detail)
         CheckResult.EXPIRED -> stringResource(R.string.diag_expired, entry.detail)
-        CheckResult.QUIET_KEEPALIVE -> stringResource(R.string.diag_quiet)
     }
     return when (entry.trigger) {
         CheckTrigger.SCHEDULED -> text
-        CheckTrigger.KEEPALIVE -> "$text (${stringResource(R.string.diag_keepalive)})"
         CheckTrigger.APP -> "$text (${stringResource(R.string.diag_app)})"
     }
 }

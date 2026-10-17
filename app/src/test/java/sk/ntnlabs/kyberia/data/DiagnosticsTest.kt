@@ -2,9 +2,7 @@ package sk.ntnlabs.kyberia.data
 
 import org.jsoup.Jsoup
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import sk.ntnlabs.kyberia.parse.Fixtures
 import sk.ntnlabs.kyberia.parse.PageKind
@@ -24,7 +22,7 @@ class DiagnosticsTest {
     @Test
     fun recordKeepsLastOkAndLastExpired() {
         val ok = CheckEntry(1_000, CheckResult.OK, CheckTrigger.SCHEDULED)
-        val error = CheckEntry(2_000, CheckResult.ERROR, CheckTrigger.KEEPALIVE, "timeout")
+        val error = CheckEntry(2_000, CheckResult.ERROR, CheckTrigger.APP, "timeout")
         val expired = CheckEntry(3_000, CheckResult.EXPIRED, CheckTrigger.SCHEDULED, "login")
 
         val afterOk = Diagnostics().record(ok)
@@ -38,13 +36,5 @@ class DiagnosticsTest {
         val afterExpired = afterError.record(expired)
         assertEquals(expired, afterExpired.lastExpired)
         assertEquals(1_000L, afterExpired.lastOkMillis)
-    }
-
-    @Test
-    fun quietKeepAliveAtMostHourly() {
-        val minute = 60_000L
-        assertTrue(KeepAlivePolicy.quietKeepAliveDue(null, 10 * minute))
-        assertFalse(KeepAlivePolicy.quietKeepAliveDue(0, 20 * minute))
-        assertTrue(KeepAlivePolicy.quietKeepAliveDue(0, 50 * minute))
     }
 }

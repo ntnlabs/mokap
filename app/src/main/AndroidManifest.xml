@@ -25,10 +25,5 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <!-- Hodinový keepalive budík; zvonka nedostupný. -->
-        <receiver
-            android:name=".work.KeepAliveReceiver"
-            android:exported="false" />
     </application>
 </manifest>

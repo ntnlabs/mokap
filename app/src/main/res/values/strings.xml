@@ -42,7 +42,7 @@
     <string name="settings_section_checks">Kontrola na pozadí</string>
     <string name="settings_interval">Ako často kontrolovať</string>
     <string name="settings_interval_value">každých %1$d min</string>
-    <string name="settings_interval_note">Android dovolí najčastejšie raz za 15 minút a pri šetrení batérie kontrolu aj odloží. Navyše raz za hodinu appka otvorí kyberiu aj v hlbokom spánku telefónu, aby session nevypršala.</string>
+    <string name="settings_interval_note">Android dovolí najčastejšie raz za 15 minút a pri šetrení batérie kontrolu aj odloží.</string>
     <string name="settings_refresh_on_open">Obnoviť pri otvorení appky</string>
     <string name="settings_section_notify">Notifikácie</string>
     <string name="settings_notify_replies">Odpovede na moje príspevky</string>
@@ -51,7 +51,7 @@
     <string name="settings_system_notifications">Systémové nastavenia notifikácií</string>
     <string name="settings_section_quiet">Tichý režim</string>
     <string name="settings_quiet">Tichý režim</string>
-    <string name="settings_quiet_note">V tichom režime nechodia notifikácie a appka kyberiu otvorí najviac raz za hodinu, len aby session nevypršala. Čo sa nazbiera, príde po skončení tichého režimu.</string>
+    <string name="settings_quiet_note">V tichom režime appka kyberiu nekontroluje. Čo sa nazbiera, príde po jeho skončení.</string>
     <string name="settings_quiet_from">Od</string>
     <string name="settings_quiet_to">Do</string>
     <string name="settings_section_account">Účet</string>
@@ -63,8 +63,6 @@
     <string name="diag_ok">OK</string>
     <string name="diag_error">chyba: %1$s</string>
     <string name="diag_expired">kyberia ťa odhlásila (%1$s)</string>
-    <string name="diag_quiet">tichý režim – len udržanie session</string>
-    <string name="diag_keepalive">keepalive</string>
     <string name="diag_app">v appke</string>
     <string name="settings_section_look">Vzhľad</string>
     <string name="settings_theme">Téma</string>
