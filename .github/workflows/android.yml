@@ -44,7 +44,7 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
       - name: Lint and unit tests
         run: ./gradlew lintDebug testDebugUnitTest
       - name: Upload reports
@@ -66,7 +66,7 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
       - name: Build debug and release
         run: ./gradlew assembleDebug assembleRelease
       - name: Permission audit
