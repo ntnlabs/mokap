@@ -53,10 +53,22 @@ object Forms {
     }
 }
 
+enum class PageKind { LOGGED_IN, LOGGED_OUT, UNKNOWN }
+
 object Session {
     /** Prihlásená stránka má vždy tlačidlo `event=logout`. */
     fun isLoggedIn(document: Document): Boolean =
         document.selectFirst("[name=event][value=logout]") != null
+
+    /**
+     * Za odhláseného považujeme len stránku s prihlasovacím formulárom. Chybová stránka,
+     * údržba či ochrana proti botom je [PageKind.UNKNOWN] – session kvôli nej nezahadzujeme.
+     */
+    fun classify(document: Document): PageKind = when {
+        isLoggedIn(document) -> PageKind.LOGGED_IN
+        LoginFormParser.find(document) != null -> PageKind.LOGGED_OUT
+        else -> PageKind.UNKNOWN
+    }
 }
 
 class LoginForm(

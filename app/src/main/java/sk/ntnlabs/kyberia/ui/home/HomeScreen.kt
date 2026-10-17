@@ -36,6 +36,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 import sk.ntnlabs.kyberia.AppContainer
 import sk.ntnlabs.kyberia.KyberiaUrls
@@ -56,11 +58,24 @@ private enum class Tab(@StringRes val label: Int, @DrawableRes val icon: Int) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(container: AppContainer) {
+fun HomeScreen(container: AppContainer, requestedTab: String?, onTabHandled: () -> Unit) {
     var tab by rememberSaveable { mutableStateOf(Tab.BOOKMARKS) }
     var settingsOpen by rememberSaveable { mutableStateOf(false) }
     val uriHandler = LocalUriHandler.current
     val overview: OverviewViewModel = viewModel(factory = OverviewViewModel.factory(container))
+
+    // Otvorené z notifikácie: prepni na správnu záložku a stiahni čerstvé dáta.
+    LaunchedEffect(requestedTab) {
+        val target = Tab.entries.firstOrNull { it.name == requestedTab } ?: return@LaunchedEffect
+        tab = target
+        settingsOpen = false
+        overview.refresh()
+        onTabHandled()
+    }
+    // Pri každom návrate do appky obnov, ak je to zapnuté a dáta nie sú čerstvé.
+    LifecycleEventEffect(Lifecycle.Event.ON_START) {
+        if (container.settings.current.refreshOnOpen) overview.refreshIfStale()
+    }
     val kWallet = overview.state.user?.kWallet
     val friendsOnline = overview.state.friends.size
     // Čítanie nodov v appke príde neskôr; dovtedy sa node otvorí na webe.

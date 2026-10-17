@@ -12,12 +12,17 @@ import kotlinx.coroutines.launch
 import sk.ntnlabs.kyberia.AppContainer
 import sk.ntnlabs.kyberia.data.AuthRepository
 import sk.ntnlabs.kyberia.data.BookmarksRepository
+import sk.ntnlabs.kyberia.data.CheckEntry
+import sk.ntnlabs.kyberia.data.CheckResult
+import sk.ntnlabs.kyberia.data.CheckTrigger
+import sk.ntnlabs.kyberia.data.DiagnosticsStore
 import sk.ntnlabs.kyberia.data.NewsTracker
 import sk.ntnlabs.kyberia.data.SessionExpiredException
 import sk.ntnlabs.kyberia.parse.Bookmark
 import sk.ntnlabs.kyberia.parse.Friend
 import sk.ntnlabs.kyberia.parse.Reply
 import sk.ntnlabs.kyberia.parse.UserInfo
+import sk.ntnlabs.kyberia.work.NewsChecker
 
 data class OverviewUiState(
     val loading: Boolean = false,
@@ -33,10 +38,13 @@ class OverviewViewModel(
     private val repository: BookmarksRepository,
     private val tracker: NewsTracker,
     private val auth: AuthRepository,
+    private val diagnostics: DiagnosticsStore,
 ) : ViewModel() {
 
     var state by mutableStateOf(OverviewUiState())
         private set
+
+    private var loadedAtMillis = 0L
 
     init {
         // Po prihlásení načítaj, po odhlásení zahoď dáta predchádzajúceho účtu.
@@ -57,6 +65,8 @@ class OverviewViewModel(
                 tracker.updateBookmarks(page.bookmarks)
                 tracker.updateReplies(page.replies, page.user.userId)
                 tracker.updateFriends(page.friends)
+                loadedAtMillis = System.currentTimeMillis()
+                diagnostics.record(CheckEntry(loadedAtMillis, CheckResult.OK, CheckTrigger.APP))
                 state.copy(
                     loading = false,
                     // Radenie a filter rieši obrazovka podľa nastavení (BookmarkFilter).
@@ -67,17 +77,33 @@ class OverviewViewModel(
                     user = page.user,
                 )
             } catch (e: SessionExpiredException) {
+                // Len keď kyberia naozaj ukázala prihlasovací formulár (pozri BookmarksRepository).
+                diagnostics.record(
+                    CheckEntry(System.currentTimeMillis(), CheckResult.EXPIRED, CheckTrigger.APP, NewsChecker.LOGIN_SHOWN),
+                )
                 auth.sessionEnded()
                 OverviewUiState()
             } catch (e: IOException) {
+                diagnostics.record(
+                    CheckEntry(System.currentTimeMillis(), CheckResult.ERROR, CheckTrigger.APP, e.message ?: e.javaClass.simpleName),
+                )
                 state.copy(loading = false, error = true)
             }
         }
     }
 
+    /** Obnoví, len ak sú dáta staršie ako [maxAgeMillis] – pri rýchlom prepínaní appiek nič nesťahuje. */
+    fun refreshIfStale(maxAgeMillis: Long = STALE_AFTER_MILLIS) {
+        if (System.currentTimeMillis() - loadedAtMillis > maxAgeMillis) refresh()
+    }
+
     companion object {
+        private const val STALE_AFTER_MILLIS = 60_000L
+
         fun factory(container: AppContainer) = viewModelFactory {
-            initializer { OverviewViewModel(container.bookmarks, container.newsTracker, container.auth) }
+            initializer {
+                OverviewViewModel(container.bookmarks, container.newsTracker, container.auth, container.diagnostics)
+            }
         }
     }
 }

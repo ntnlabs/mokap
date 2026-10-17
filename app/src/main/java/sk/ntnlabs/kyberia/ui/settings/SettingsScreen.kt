@@ -34,10 +34,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlinx.coroutines.launch
 import sk.ntnlabs.kyberia.AppContainer
 import sk.ntnlabs.kyberia.R
+import sk.ntnlabs.kyberia.data.CheckEntry
+import sk.ntnlabs.kyberia.data.CheckResult
+import sk.ntnlabs.kyberia.data.CheckTrigger
 import sk.ntnlabs.kyberia.data.Settings
 import sk.ntnlabs.kyberia.data.ThemeMode
 
@@ -45,6 +51,7 @@ import sk.ntnlabs.kyberia.data.ThemeMode
 @Composable
 fun SettingsScreen(container: AppContainer, onBack: () -> Unit) {
     val settings by container.settings.settings.collectAsStateWithLifecycle()
+    val diagnostics by container.diagnostics.diagnostics.collectAsStateWithLifecycle()
     val store = container.settings
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -91,6 +98,9 @@ fun SettingsScreen(container: AppContainer, onBack: () -> Unit) {
                 },
             )
             Note(stringResource(R.string.settings_interval_note))
+            SwitchRow(stringResource(R.string.settings_refresh_on_open), settings.refreshOnOpen) { on ->
+                store.update { it.copy(refreshOnOpen = on) }
+            }
 
             SectionHeader(stringResource(R.string.settings_section_notify))
             SwitchRow(stringResource(R.string.settings_notify_replies), settings.notifyReplies) { on ->
@@ -134,6 +144,15 @@ fun SettingsScreen(container: AppContainer, onBack: () -> Unit) {
             )
             Note(stringResource(R.string.settings_quiet_note))
 
+            SectionHeader(stringResource(R.string.settings_section_diagnostics))
+            val never = stringResource(R.string.diag_never)
+            InfoRow(stringResource(R.string.diag_last_check), diagnostics.last?.let { "${time(it.atMillis)} – ${describe(it)}" } ?: never)
+            InfoRow(stringResource(R.string.diag_last_ok), diagnostics.lastOkMillis?.let(::time) ?: never)
+            InfoRow(
+                stringResource(R.string.diag_last_logout),
+                diagnostics.lastExpired?.let { "${time(it.atMillis)} – ${describe(it)}" } ?: never,
+            )
+
             SectionHeader(stringResource(R.string.settings_section_account))
             ListItem(
                 headlineContent = { Text(stringResource(R.string.logout), color = MaterialTheme.colorScheme.error) },
@@ -144,6 +163,33 @@ fun SettingsScreen(container: AppContainer, onBack: () -> Unit) {
 }
 
 private val HOURS = (0..23).toList()
+
+private val TIME_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("d.M. HH:mm").withZone(ZoneId.systemDefault())
+
+private fun time(millis: Long): String = TIME_FORMAT.format(Instant.ofEpochMilli(millis))
+
+@Composable
+private fun describe(entry: CheckEntry): String {
+    val text = when (entry.result) {
+        CheckResult.OK -> stringResource(R.string.diag_ok)
+        CheckResult.ERROR -> stringResource(R.string.diag_error, entry.detail)
+        CheckResult.EXPIRED -> stringResource(R.string.diag_expired, entry.detail)
+        CheckResult.QUIET_KEEPALIVE -> stringResource(R.string.diag_quiet)
+    }
+    return when (entry.trigger) {
+        CheckTrigger.SCHEDULED -> text
+        CheckTrigger.KEEPALIVE -> "$text (${stringResource(R.string.diag_keepalive)})"
+        CheckTrigger.APP -> "$text (${stringResource(R.string.diag_app)})"
+    }
+}
+
+@Composable
+private fun InfoRow(label: String, value: String) {
+    ListItem(
+        headlineContent = { Text(label) },
+        supportingContent = { Text(value, color = MaterialTheme.colorScheme.onSurfaceVariant) },
+    )
+}
 
 @Composable
 private fun themeLabel(mode: ThemeMode): String = stringResource(

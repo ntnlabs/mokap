@@ -16,7 +16,7 @@ import org.jsoup.nodes.Document
 import sk.ntnlabs.kyberia.UrlPolicy
 
 /** Stiahnutá a rozparsovaná stránka kyberie. */
-class Page(val url: String, val document: Document)
+class Page(val url: String, val code: Int, val document: Document)
 
 /** Jediný vstup appky na kyberiu: GET stránky a POST formulára, nič iné. */
 class KyberiaClient(cookieJar: CookieJar, private val userAgent: String) {
@@ -65,7 +65,7 @@ class KyberiaClient(cookieJar: CookieJar, private val userAgent: String) {
             if (response.code >= 500) throw IOException("HTTP ${response.code}")
             val finalUrl = response.request.url.toString()
             val charset = response.body.contentType()?.charset()?.name()
-            Page(finalUrl, Jsoup.parse(response.body.byteStream(), charset, finalUrl))
+            Page(finalUrl, response.code, Jsoup.parse(response.body.byteStream(), charset, finalUrl))
         }
     }
 }

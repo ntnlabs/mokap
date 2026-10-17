@@ -30,6 +30,7 @@ class SettingsStore(context: Context) {
             putString(THEME, updated.theme.name)
             putString(BOOKMARK_SORT, updated.bookmarkSort.name)
             putBoolean(ONLY_NEWS, updated.bookmarksOnlyNews)
+            putBoolean(REFRESH_ON_OPEN, updated.refreshOnOpen)
         }
         state.value = updated
     }
@@ -47,6 +48,7 @@ class SettingsStore(context: Context) {
             theme = enumOrDefault(prefs.getString(THEME, null), defaults.theme),
             bookmarkSort = enumOrDefault(prefs.getString(BOOKMARK_SORT, null), defaults.bookmarkSort),
             bookmarksOnlyNews = prefs.getBoolean(ONLY_NEWS, defaults.bookmarksOnlyNews),
+            refreshOnOpen = prefs.getBoolean(REFRESH_ON_OPEN, defaults.refreshOnOpen),
         )
     }
 
@@ -64,5 +66,6 @@ class SettingsStore(context: Context) {
         const val THEME = "theme"
         const val BOOKMARK_SORT = "bookmark_sort"
         const val ONLY_NEWS = "bookmarks_only_news"
+        const val REFRESH_ON_OPEN = "refresh_on_open"
     }
 }

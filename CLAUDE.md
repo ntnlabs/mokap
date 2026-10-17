@@ -31,7 +31,11 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   `org.jetbrains.kotlin.android`; verzia KGP (root `buildscript`) a Compose compiler pluginu musí byť rovnaká.
 - `parse/` a čistá logika v `data/` nesmú závisieť od Android API – majú JVM unit testy.
 - Notifikácie sú lokálne (WorkManager, interval 15–60 min z nastavení – 15 je minimum Androidu),
-  žiadny Firebase. Tichý režim = worker nerobí žiadnu požiadavku. Každý typ má vlastný kanál.
+  žiadny Firebase. Každý typ má vlastný kanál; jednotlivé odpovede/fóra otvárajú node na webe.
+- Kontrolu robí `NewsChecker` (mutex) – volá ho `CheckWorker` aj hodinový `KeepAliveReceiver`
+  (AlarmManager allow-while-idle, kvôli Doze). Tichý režim = len keepalive max. raz za hodinu.
+- Session sa zahodí **len** pri `PageKind.LOGGED_OUT` (prihlasovací formulár na stránke);
+  `UNKNOWN` stránka je dočasná chyba. Výsledky kontrol ide do `DiagnosticsStore` (bez osobných údajov).
 - Čas pri priateľoch je **nečinnosť** (idle); zoznam je zoradený od najaktívnejšieho.
 - UI je pre mobil: každá oblasť má vlastnú záložku (Bookmarky, Odpovede, Pošta, K, Friends).
   Bookmarky predvolene A–Z (slovenský Collator); radenie/filter si appka pamätá v nastaveniach.

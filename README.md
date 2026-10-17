@@ -29,7 +29,11 @@ zoradené, prefiltrované a s lokálnymi notifikáciami.
   z Android Keystore. Dáta appky sa nezálohujú ani neprenášajú na iný telefón.
 - **Notifikácie:** WorkManager podľa nastavenia (15–60 min; 15 je minimum Androidu) stiahne
   `/id/19/`, porovná ho s naposledy videným stavom a pri novinkách vytvorí lokálnu notifikáciu.
-  V tichom režime sa nekontroluje vôbec. Žiadny Firebase, žiadny server.
+  Ťuknutie na odpoveď/fórum otvorí daný node na webe. Žiadny Firebase, žiadny server.
+- **Keepalive:** hodinový budík (allow-while-idle) otvorí kyberiu aj v nočnom Doze, aby session
+  nevypršala. V tichom režime len udrží session (max. raz za hodinu), bez notifikácií.
+- **Odhlásenie** sa vyhodnotí len vtedy, keď kyberia ukáže prihlasovací formulár; chybové stránky
+  (údržba, ochrana proti botom) sú dočasná chyba. Nastavenia → Diagnostika ukazuje posledné kontroly.
 - **UI:** Jetpack Compose, Material 3.
 
 ## Build

@@ -16,6 +16,7 @@ data class Settings(
     val theme: ThemeMode = ThemeMode.SYSTEM,
     val bookmarkSort: BookmarkSort = BookmarkSort.ALPHABET,
     val bookmarksOnlyNews: Boolean = false,
+    val refreshOnOpen: Boolean = true,
 ) {
     fun isQuiet(hour: Int): Boolean = quietEnabled && QuietHours.contains(quietFromHour, quietToHour, hour)
 

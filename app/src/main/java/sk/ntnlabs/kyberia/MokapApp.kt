@@ -12,6 +12,7 @@ import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import coil3.request.crossfade
 import sk.ntnlabs.kyberia.data.AuthRepository
 import sk.ntnlabs.kyberia.data.BookmarksRepository
+import sk.ntnlabs.kyberia.data.DiagnosticsStore
 import sk.ntnlabs.kyberia.data.KyberiaClient
 import sk.ntnlabs.kyberia.data.KyberiaCookieJar
 import sk.ntnlabs.kyberia.data.NewsTracker
@@ -19,6 +20,7 @@ import sk.ntnlabs.kyberia.data.SessionStore
 import sk.ntnlabs.kyberia.data.SettingsStore
 import sk.ntnlabs.kyberia.notify.Notifier
 import sk.ntnlabs.kyberia.work.CheckScheduler
+import sk.ntnlabs.kyberia.work.NewsChecker
 
 class MokapApp : Application(), SingletonImageLoader.Factory {
 
@@ -66,4 +68,6 @@ class AppContainer(context: Context) {
     val newsTracker = NewsTracker(context)
     val auth = AuthRepository(client, cookieJar, newsTracker, scheduler)
     val bookmarks = BookmarksRepository(client)
+    val diagnostics = DiagnosticsStore(context)
+    val checker = NewsChecker(context, auth, bookmarks, newsTracker, settings, diagnostics)
 }
