@@ -15,7 +15,7 @@ zoradené, prefiltrované a s lokálnymi notifikáciami.
 | Odpovede na tvoje príspevky – vlastná záložka, animované avatary s diskovou cache | hotové |
 | Notifikácie: odpovede, novinky v bookmarkoch, priateľ online | hotové, každá s vlastným kanálom a prepínačom |
 | Friends online – kde sú, nečinnosť, počet na záložke | hotové |
-| Nastavenia: téma (systém/svetlá/tmavá/tlmená), interval kontrol 15–60 min, tichý režim, notifikácie, odhlásenie | hotové |
+| Nastavenia: téma (systém/svetlá/tmavá/tlmená), avatary (animácia, len cez Wi-Fi), interval kontrol 15–60 min, tichý režim, notifikácie, odhlásenie | hotové |
 | K_wallet a vlastné ID (SELF) | parsované z hlavičky |
 | Pošta (`/id/24/`), K (`/id/8340566/`) | čaká na vzorky HTML |
 | Čítanie nodov priamo v appke | neskôr; zatiaľ sa node otvorí na webe |
