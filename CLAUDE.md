@@ -24,6 +24,9 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   autora odpovede, odkaz na **tvoj** príspevok (nie na odpoveď) a úryvok textu.
 - `/id/19/` má aj blok „Friends“ (`div.active_friend`): avatar+nick, `[odkaz]` na node, kde
   priateľ práve je, a čas (napr. `84m39s`). Avatary sú animované GIFy (Coil + disková cache).
+- Pošta: `GET /ajax/check_new_mail.php` (web ho volá raz za minútu) vráti `<počet nových>;…;…` alebo
+  `offline`. Používa sa len počet; `offline` session nezahadzuje. Ďalšie polia nemajú overený význam
+  a môžu obsahovať nick – do testov/gitu len vymyslené hodnoty.
 - Avatary: prepínač animácie (vypnutá = prvý snímok cez `BitmapFactoryDecoder`) a „len cez Wi-Fi“
   (na meranej sieti len z diskovej cache, `networkCachePolicy(DISABLED)`); `LocalAvatarOptions`.
 
@@ -47,6 +50,8 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   Gradle cache cez `setup-java` (`cache: gradle`); `gradle/actions` nepoužívať – od v6 má proprietárne
   cachovanie. `gradle-wrapper.jar` sa v CI overuje proti oficiálnemu sha256 od Gradle.
 - Hotové kolo zmien sa hneď zlučuje do `main` cez PR (merge commit, po zelenom CI); dlhé vetvy nedržíme.
+- Dependabot: patch a minor verzie zlučuj sám po zelenom CI; major verzie najprv vysvetli používateľovi
+  (zmeny, licencia, riziko) a čakaj na súhlas.
 - **APK sa builduje iba so súhlasom používateľa.** Pred každým buildom APK sa najprv opýtaj;
   build spúšťa job `apk` cez `workflow_dispatch` (Actions → Android CI → Run workflow) alebo
   push tagu `apk-*`; vyrobí debug aj release APK, vypíše audit oprávnení a nahrá `mokap-debug-apk`.

@@ -15,6 +15,7 @@ import sk.ntnlabs.kyberia.data.BookmarksRepository
 import sk.ntnlabs.kyberia.data.DiagnosticsStore
 import sk.ntnlabs.kyberia.data.KyberiaClient
 import sk.ntnlabs.kyberia.data.KyberiaCookieJar
+import sk.ntnlabs.kyberia.data.MailRepository
 import sk.ntnlabs.kyberia.data.NewsTracker
 import sk.ntnlabs.kyberia.data.SessionStore
 import sk.ntnlabs.kyberia.data.SettingsStore
@@ -68,6 +69,7 @@ class AppContainer(context: Context) {
     val newsTracker = NewsTracker(context)
     val auth = AuthRepository(client, cookieJar, newsTracker, scheduler)
     val bookmarks = BookmarksRepository(client)
+    val mail = MailRepository(client)
     val diagnostics = DiagnosticsStore(context)
-    val checker = NewsChecker(context, auth, bookmarks, newsTracker, settings, diagnostics)
+    val checker = NewsChecker(context, auth, bookmarks, mail, newsTracker, settings, diagnostics)
 }

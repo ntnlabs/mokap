@@ -13,11 +13,12 @@ zoradené, prefiltrované a s lokálnymi notifikáciami.
 | Prihlásenie (natívne, heslo sa neukladá) | hotové, parser overený na skutočnej stránke |
 | Bookmarky (`/id/19/`) – A–Z (slovenské radenie) alebo podľa noviniek, filter „len s novinkami“, hľadanie bez diakritiky | hotové |
 | Odpovede na tvoje príspevky – vlastná záložka, animované avatary s diskovou cache | hotové |
-| Notifikácie: odpovede, novinky v bookmarkoch, priateľ online | hotové, každá s vlastným kanálom a prepínačom |
+| Notifikácie: odpovede, pošta, novinky v bookmarkoch, priateľ online | hotové, každá s vlastným kanálom a prepínačom |
 | Friends online – kde sú, nečinnosť, počet na záložke | hotové |
 | Nastavenia: téma (systém/svetlá/tmavá/tlmená), avatary (animácia, len cez Wi-Fi), interval kontrol 15–60 min, tichý režim, notifikácie, odhlásenie | hotové |
 | K_wallet a vlastné ID (SELF) | parsované z hlavičky |
-| Pošta (`/id/24/`), K (`/id/8340566/`) | čaká na vzorky HTML |
+| Notifikácia o novej pošte (ľahký endpoint `check_new_mail.php`, otvorí poštu na webe) | hotové |
+| Čítanie pošty (`/id/24/`), K (`/id/8340566/`) | čaká na vzorky HTML |
 | Čítanie nodov priamo v appke | neskôr; zatiaľ sa node otvorí na webe |
 
 ## Ako to funguje
@@ -29,6 +30,7 @@ zoradené, prefiltrované a s lokálnymi notifikáciami.
   z Android Keystore. Dáta appky sa nezálohujú ani neprenášajú na iný telefón.
 - **Notifikácie:** WorkManager podľa nastavenia (15–60 min; 15 je minimum Androidu) stiahne
   `/id/19/`, porovná ho s naposledy videným stavom a pri novinkách vytvorí lokálnu notifikáciu.
+  Počet novej pošty zistí jednou malou požiadavkou na `/ajax/check_new_mail.php` (len ak je zapnutá).
   Ťuknutie na odpoveď/fórum otvorí daný node na webe. Žiadny Firebase, žiadny server.
 - **Bez keepalive:** zámerne – kyberia drží session dlho a appka nemá serveru pridávať záťaž.
   V tichom režime sa nekontroluje vôbec.

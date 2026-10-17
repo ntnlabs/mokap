@@ -46,6 +46,7 @@
     <string name="settings_refresh_on_open">Obnoviť pri otvorení appky</string>
     <string name="settings_section_notify">Notifikácie</string>
     <string name="settings_notify_replies">Odpovede na moje príspevky</string>
+    <string name="settings_notify_mail">Nová pošta</string>
     <string name="settings_notify_bookmarks">Novinky v bookmarkoch</string>
     <string name="settings_notify_friends">Priateľ prišiel online</string>
     <string name="settings_system_notifications">Systémové nastavenia notifikácií</string>
@@ -79,6 +80,7 @@
     <string name="replies_on">na „%1$s“</string>
 
     <string name="channel_replies">Odpovede</string>
+    <string name="channel_mail">Pošta</string>
     <string name="channel_bookmarks">Bookmarky</string>
     <string name="channel_friends">Priatelia online</string>
     <string name="channel_account">Účet</string>
@@ -86,6 +88,13 @@
     <string name="notify_session_expired_text">Prihlás sa znova, inak neprídu notifikácie.</string>
     <string name="notify_reply_from">Odpoveď od %1$s</string>
     <string name="notify_friend_online">%1$s je online</string>
+    <string name="notify_mail_title">Nová pošta</string>
+    <plurals name="notify_mail_unread">
+        <item quantity="one">%d neprečítaná správa</item>
+        <item quantity="few">%d neprečítané správy</item>
+        <item quantity="many">%d neprečítanej správy</item>
+        <item quantity="other">%d neprečítaných správ</item>
+    </plurals>
     <plurals name="notify_friends_online">
         <item quantity="one">%d priateľ je online</item>
         <item quantity="few">%d priatelia sú online</item>

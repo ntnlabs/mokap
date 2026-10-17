@@ -23,6 +23,13 @@ class NewsTest {
     }
 
     @Test
+    fun mailReportsOnlyGrowth() {
+        assertEquals(2, MailNews.added(previousUnread = 1, unread = 3))
+        assertEquals(0, MailNews.added(previousUnread = 3, unread = 0))
+        assertEquals(0, MailNews.added(previousUnread = 2, unread = 2))
+    }
+
+    @Test
     fun bookmarksNothingNewMeansEmpty() {
         val current = listOf(bookmark(1, 2))
         assertTrue(BookmarkNews.increases(BookmarkNews.snapshot(current), current).isEmpty())

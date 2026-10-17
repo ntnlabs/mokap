@@ -11,10 +11,12 @@ import sk.ntnlabs.kyberia.data.CheckEntry
 import sk.ntnlabs.kyberia.data.CheckResult
 import sk.ntnlabs.kyberia.data.CheckTrigger
 import sk.ntnlabs.kyberia.data.DiagnosticsStore
+import sk.ntnlabs.kyberia.data.MailRepository
 import sk.ntnlabs.kyberia.data.NewsTracker
 import sk.ntnlabs.kyberia.data.SessionExpiredException
 import sk.ntnlabs.kyberia.data.SettingsStore
 import sk.ntnlabs.kyberia.notify.Notifier
+import sk.ntnlabs.kyberia.parse.MailCheck
 
 /**
  * Jedna kontrola kyberie a notifikácie o novinkách. Mutex zabráni súbehu,
@@ -24,6 +26,7 @@ class NewsChecker(
     private val context: Context,
     private val auth: AuthRepository,
     private val bookmarks: BookmarksRepository,
+    private val mail: MailRepository,
     private val tracker: NewsTracker,
     private val settings: SettingsStore,
     private val diagnostics: DiagnosticsStore,
@@ -65,6 +68,23 @@ class NewsChecker(
         if (current.notifyReplies && replies.isNotEmpty()) Notifier.replies(context, replies)
         if (current.notifyBookmarks && increases.isNotEmpty()) Notifier.bookmarks(context, increases)
         if (current.notifyFriends && friends.isNotEmpty()) Notifier.friendsOnline(context, friends)
+        // Pošta je jedna malá požiadavka navyše – len keď o ňu používateľ stojí.
+        if (current.notifyMail) checkMail()
         true
+    }
+
+    /** Chyba pošty nepokazí zvyšok kontroly; o session rozhoduje len stránka s loginom. */
+    private suspend fun checkMail() {
+        val check = try {
+            mail.check()
+        } catch (e: IOException) {
+            return
+        }
+        if (check !is MailCheck.Unread) return
+        val added = tracker.updateMail(check.count)
+        when {
+            check.count == 0 -> Notifier.cancelMail(context) // prečítané na webe
+            added > 0 -> Notifier.mail(context, check.count)
+        }
     }
 }

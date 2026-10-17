@@ -8,6 +8,7 @@ enum class BookmarkSort { ALPHABET, NEWS }
 data class Settings(
     val intervalMinutes: Int = DEFAULT_INTERVAL,
     val notifyReplies: Boolean = true,
+    val notifyMail: Boolean = true,
     val notifyBookmarks: Boolean = true,
     val notifyFriends: Boolean = true,
     val quietEnabled: Boolean = false,
