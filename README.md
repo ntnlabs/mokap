@@ -46,7 +46,9 @@ Požiadavky: JDK 17+, Android SDK (compileSdk 37).
 ./gradlew lintDebug              # lint
 ```
 
-Debug APK z každého pushu je v GitHub Actions ako artefakt `mokap-debug-apk`.
+CI pri každom pushi spúšťa len gitleaks, lint a unit testy. APK sa vyrába iba na požiadanie:
+GitHub → Actions → **Android CI** → **Run workflow**, alebo push tagu `apk-*`
+(napr. `apk-2026-10-17`); výsledok je artefakt `mokap-debug-apk`.
 
 ## Release podpisovanie (secrets mimo gitu)
 

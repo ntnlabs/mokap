@@ -40,4 +40,7 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
 - UI je pre mobil: každá oblasť má vlastnú záložku (Bookmarky, Odpovede, Pošta, K, Friends).
   Bookmarky predvolene A–Z (slovenský Collator); radenie/filter si appka pamätá v nastaveniach.
 - Téma „Tlmená“ = tmavá s nízkym jasom textu, farieb aj avatarov (`LocalDimImages`).
-- CI: `.github/workflows/android.yml` – gitleaks, lint, unit testy, debug aj release build.
+- CI: `.github/workflows/android.yml` – na push/PR len gitleaks, lint a unit testy.
+- **APK sa builduje iba so súhlasom používateľa.** Pred každým buildom APK sa najprv opýtaj;
+  build spúšťa job `apk` cez `workflow_dispatch` (Actions → Android CI → Run workflow) alebo
+  push tagu `apk-*`; vyrobí debug aj release APK, vypíše audit oprávnení a nahrá `mokap-debug-apk`.
