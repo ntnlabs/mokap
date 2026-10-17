@@ -36,8 +36,12 @@ object UrlPolicy {
 object KyberiaUrls {
     const val BASE = "https://kyberia.sk"
     val BOOKMARKS = node(19)
-    val MAIL = node(24)
+    const val MAIL_ID = 24L
+    val MAIL = node(MAIL_ID)
     val TOP_K = node(8340566)
+
+    /** Ľahký endpoint, ktorý web volá kvôli počtu novej pošty. */
+    const val MAIL_CHECK = "$BASE/ajax/check_new_mail.php"
 
     fun node(id: Long): String = "$BASE/id/$id/"
 }

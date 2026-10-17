@@ -22,6 +22,7 @@ class SettingsStore(context: Context) {
         prefs.edit {
             putInt(INTERVAL, updated.intervalMinutes)
             putBoolean(NOTIFY_REPLIES, updated.notifyReplies)
+            putBoolean(NOTIFY_MAIL, updated.notifyMail)
             putBoolean(NOTIFY_BOOKMARKS, updated.notifyBookmarks)
             putBoolean(NOTIFY_FRIENDS, updated.notifyFriends)
             putBoolean(QUIET, updated.quietEnabled)
@@ -42,6 +43,7 @@ class SettingsStore(context: Context) {
         return Settings(
             intervalMinutes = Settings.sanitizeInterval(prefs.getInt(INTERVAL, defaults.intervalMinutes)),
             notifyReplies = prefs.getBoolean(NOTIFY_REPLIES, defaults.notifyReplies),
+            notifyMail = prefs.getBoolean(NOTIFY_MAIL, defaults.notifyMail),
             notifyBookmarks = prefs.getBoolean(NOTIFY_BOOKMARKS, defaults.notifyBookmarks),
             notifyFriends = prefs.getBoolean(NOTIFY_FRIENDS, defaults.notifyFriends),
             quietEnabled = prefs.getBoolean(QUIET, defaults.quietEnabled),
@@ -62,6 +64,7 @@ class SettingsStore(context: Context) {
     private companion object {
         const val INTERVAL = "interval_minutes"
         const val NOTIFY_REPLIES = "notify_replies"
+        const val NOTIFY_MAIL = "notify_mail"
         const val NOTIFY_BOOKMARKS = "notify_bookmarks"
         const val NOTIFY_FRIENDS = "notify_friends"
         const val QUIET = "quiet_enabled"

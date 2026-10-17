@@ -35,6 +35,14 @@ class NewsTracker(context: Context) {
         return previous?.let { FriendNews.cameOnline(it, friends) }.orEmpty()
     }
 
+    /** Koľko neprečítaných správ pribudlo od minulej kontroly. */
+    @Synchronized
+    fun updateMail(unread: Int): Int {
+        val previous = if (prefs.contains(KEY_MAIL)) prefs.getInt(KEY_MAIL, 0) else null
+        prefs.edit { putInt(KEY_MAIL, unread) }
+        return previous?.let { MailNews.added(it, unread) } ?: 0
+    }
+
     fun reset() {
         prefs.edit { clear() }
     }
@@ -43,5 +51,6 @@ class NewsTracker(context: Context) {
         const val KEY_BOOKMARKS = "bookmarks_snapshot"
         const val KEY_REPLIES = "replies_seen"
         const val KEY_FRIENDS = "friends_online"
+        const val KEY_MAIL = "mail_unread"
     }
 }

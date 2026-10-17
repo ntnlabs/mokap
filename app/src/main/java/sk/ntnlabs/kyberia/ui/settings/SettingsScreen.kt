@@ -113,6 +113,9 @@ fun SettingsScreen(container: AppContainer, onBack: () -> Unit) {
             SwitchRow(stringResource(R.string.settings_notify_replies), settings.notifyReplies) { on ->
                 store.update { it.copy(notifyReplies = on) }
             }
+            SwitchRow(stringResource(R.string.settings_notify_mail), settings.notifyMail) { on ->
+                store.update { it.copy(notifyMail = on) }
+            }
             SwitchRow(stringResource(R.string.settings_notify_bookmarks), settings.notifyBookmarks) { on ->
                 store.update { it.copy(notifyBookmarks = on) }
             }

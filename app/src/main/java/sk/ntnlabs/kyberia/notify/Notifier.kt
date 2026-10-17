@@ -27,6 +27,7 @@ import sk.ntnlabs.kyberia.parse.Reply
 object Notifier {
 
     private const val CHANNEL_REPLIES = "replies"
+    private const val CHANNEL_MAIL = "mail"
     private const val CHANNEL_BOOKMARKS = "bookmarks"
     private const val CHANNEL_FRIENDS = "friends"
     private const val CHANNEL_ACCOUNT = "account"
@@ -36,6 +37,7 @@ object Notifier {
     private const val ID_SESSION = 2
     private const val ID_REPLIES = 3
     private const val ID_FRIENDS = 4
+    private const val ID_MAIL = 5
     private const val ID_REPLY_BASE = 10_000
     private const val ID_BOOKMARK_BASE = 20_000
     private const val ID_RANGE = 10_000
@@ -46,6 +48,9 @@ object Notifier {
             listOf(
                 NotificationChannelCompat.Builder(CHANNEL_REPLIES, NotificationManagerCompat.IMPORTANCE_HIGH)
                     .setName(context.getString(R.string.channel_replies))
+                    .build(),
+                NotificationChannelCompat.Builder(CHANNEL_MAIL, NotificationManagerCompat.IMPORTANCE_HIGH)
+                    .setName(context.getString(R.string.channel_mail))
                     .build(),
                 NotificationChannelCompat.Builder(CHANNEL_BOOKMARKS, NotificationManagerCompat.IMPORTANCE_DEFAULT)
                     .setName(context.getString(R.string.channel_bookmarks))
@@ -87,6 +92,25 @@ object Notifier {
                     .setContentIntent(openApp(context, MainActivity.TAB_REPLIES)),
             )
         }
+    }
+
+    /** Jedna notifikácia s počtom neprečítaných; ťuknutie otvorí poštu na webe. */
+    fun mail(context: Context, unread: Int) {
+        post(
+            context,
+            ID_MAIL,
+            builder(
+                context,
+                CHANNEL_MAIL,
+                context.getString(R.string.notify_mail_title),
+                context.resources.getQuantityString(R.plurals.notify_mail_unread, unread, unread),
+            ).setNumber(unread)
+                .setContentIntent(openWeb(context, ID_MAIL, KyberiaUrls.MAIL_ID)),
+        )
+    }
+
+    fun cancelMail(context: Context) {
+        NotificationManagerCompat.from(context).cancel(ID_MAIL)
     }
 
     fun bookmarks(context: Context, increases: List<Increase>) {

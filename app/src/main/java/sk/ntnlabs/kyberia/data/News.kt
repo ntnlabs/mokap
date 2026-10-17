@@ -43,6 +43,12 @@ object ReplyNews {
     fun decode(value: String): Set<String> = value.lineSequence().filter { it.isNotBlank() }.toSet()
 }
 
+/** Nová pošta: hlási sa len nárast neprečítaných; keď počet klesne (prečítané), nič. */
+object MailNews {
+
+    fun added(previousUnread: Int, unread: Int): Int = (unread - previousUnread).coerceAtLeast(0)
+}
+
 /** Priatelia, ktorí sa od minulej kontroly objavili online. */
 object FriendNews {
 
