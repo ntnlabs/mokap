@@ -16,7 +16,10 @@ import sk.ntnlabs.kyberia.data.CheckEntry
 import sk.ntnlabs.kyberia.data.CheckResult
 import sk.ntnlabs.kyberia.data.CheckTrigger
 import sk.ntnlabs.kyberia.data.DiagnosticsStore
+import sk.ntnlabs.kyberia.data.LatestPage
+import sk.ntnlabs.kyberia.data.LoadedPage
 import sk.ntnlabs.kyberia.data.NewsTracker
+import sk.ntnlabs.kyberia.data.SeenArea
 import sk.ntnlabs.kyberia.data.SessionExpiredException
 import sk.ntnlabs.kyberia.parse.Bookmark
 import sk.ntnlabs.kyberia.parse.Friend
@@ -33,6 +36,10 @@ data class OverviewUiState(
     val last: List<LastPost> = emptyList(),
     val user: UserInfo? = null,
     val error: Boolean = false,
+    /** Kedy sa naposledy stiahla /id/19/ – v appke alebo kontrolou v pozadí. */
+    val loadedAtMillis: Long? = null,
+    /** Záložky, kde je niečo nové od poslednej návštevy. */
+    val changed: Set<SeenArea> = emptySet(),
 )
 
 /** Dáta z /id/19/ – jedna požiadavka kŕmi bookmarky, odpovede, last, friends aj K_wallet. */
@@ -41,14 +48,17 @@ class OverviewViewModel(
     private val tracker: NewsTracker,
     private val auth: AuthRepository,
     private val diagnostics: DiagnosticsStore,
+    private val latest: LatestPage,
 ) : ViewModel() {
 
     var state by mutableStateOf(OverviewUiState())
         private set
 
-    private var loadedAtMillis = 0L
-
     init {
+        // Čokoľvek stiahne appka alebo kontrola v pozadí, ukáže sa tu.
+        viewModelScope.launch {
+            latest.flow.collect { loaded -> if (loaded != null) show(loaded) }
+        }
         // Po prihlásení načítaj, po odhlásení zahoď dáta predchádzajúceho účtu.
         viewModelScope.launch {
             auth.loggedIn.collect { loggedIn ->
@@ -67,20 +77,12 @@ class OverviewViewModel(
                 tracker.updateBookmarks(page.bookmarks)
                 tracker.updateReplies(page.replies, page.user.userId)
                 tracker.updateFriends(page.friends)
-                loadedAtMillis = System.currentTimeMillis()
-                diagnostics.record(CheckEntry(loadedAtMillis, CheckResult.OK, CheckTrigger.APP))
-                state.copy(
-                    loading = false,
-                    // Radenie a filter rieši obrazovka podľa nastavení (BookmarkFilter).
-                    bookmarks = page.bookmarks,
-                    replies = page.replies.filter { it.authorId != page.user.userId },
-                    // Najaktívnejší (najkratšia nečinnosť) hore.
-                    friends = page.friends.sortedBy { it.timeSeconds ?: Long.MAX_VALUE },
-                    last = page.last,
-                    user = page.user,
-                )
+                val now = System.currentTimeMillis()
+                diagnostics.record(CheckEntry(now, CheckResult.OK, CheckTrigger.APP))
+                latest.publish(page, now)
+                state.copy(loading = false)
             } catch (e: SessionExpiredException) {
-                // Len keď kyberia naozaj ukázala prihlasovací formulár (pozri BookmarksRepository).
+                // Len keď kyberia naozaj ukázala prihlasovací formulár (pozri loggedInPage).
                 diagnostics.record(
                     CheckEntry(System.currentTimeMillis(), CheckResult.EXPIRED, CheckTrigger.APP, NewsChecker.LOGIN_SHOWN),
                 )
@@ -97,7 +99,30 @@ class OverviewViewModel(
 
     /** Obnoví, len ak sú dáta staršie ako [maxAgeMillis] – pri rýchlom prepínaní appiek nič nesťahuje. */
     fun refreshIfStale(maxAgeMillis: Long = STALE_AFTER_MILLIS) {
-        if (System.currentTimeMillis() - loadedAtMillis > maxAgeMillis) refresh()
+        if (System.currentTimeMillis() - (state.loadedAtMillis ?: 0L) > maxAgeMillis) refresh()
+    }
+
+    /** Záložka je na obrazovke – jej novinky sú videné. */
+    fun markSeen(area: SeenArea) {
+        if (state.loadedAtMillis == null) return
+        tracker.markSeen(area, state.bookmarks, state.replies, state.last)
+        if (area in state.changed) state = state.copy(changed = state.changed - area)
+    }
+
+    private fun show(loaded: LoadedPage) {
+        val page = loaded.page
+        val replies = page.replies.filter { it.authorId != page.user.userId }
+        state = state.copy(
+            // Radenie a filter rieši obrazovka podľa nastavení (BookmarkFilter).
+            bookmarks = page.bookmarks,
+            replies = replies,
+            // Najaktívnejší (najkratšia nečinnosť) hore.
+            friends = page.friends.sortedBy { it.timeSeconds ?: Long.MAX_VALUE },
+            last = page.last,
+            user = page.user,
+            loadedAtMillis = loaded.atMillis,
+            changed = tracker.tabChanges(page.bookmarks, replies, page.last),
+        )
     }
 
     companion object {
@@ -105,7 +130,13 @@ class OverviewViewModel(
 
         fun factory(container: AppContainer) = viewModelFactory {
             initializer {
-                OverviewViewModel(container.bookmarks, container.newsTracker, container.auth, container.diagnostics)
+                OverviewViewModel(
+                    container.bookmarks,
+                    container.newsTracker,
+                    container.auth,
+                    container.diagnostics,
+                    container.latestPage,
+                )
             }
         }
     }

@@ -49,6 +49,10 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
 - Notifikácie sú lokálne (WorkManager, interval 15–60 min z nastavení – 15 je minimum Androidu),
   žiadny Firebase. Každý typ má vlastný kanál; jednotlivé odpovede/fóra otvárajú node na webe.
 - Kontrolu robí `NewsChecker` (mutex), volá ho `CheckWorker`. Tichý režim = žiadna požiadavka.
+- `LatestPage` = posledná /id/19/ v pamäti, zdieľaná kontrolou v pozadí aj appkou (čo stiahne jedna,
+  ukáže druhá). Zelený pruh nad záložkami rastie do ďalšieho obnovenia (interval z nastavení); v otvorenej
+  appke sa po naplnení obnoví sama. Kontrola v pozadí preskočí /id/19/, ak ju appka stiahla nedávno.
+- Bodka na záložke (Bookmarky, Odpovede, Last) = novinka od poslednej návštevy záložky (`TabChanges`).
 - **Žiadny keepalive** a žiadne zbytočné požiadavky – kyberia má obmedzený hosting; pri každej
   novej funkcii zvažuj záťaž servera (1000 používateľov × interval).
 - Session sa zahodí **len** pri `PageKind.LOGGED_OUT` (prihlasovací formulár na stránke);
