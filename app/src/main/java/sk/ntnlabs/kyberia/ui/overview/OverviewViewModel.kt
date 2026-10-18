@@ -19,8 +19,10 @@ import sk.ntnlabs.kyberia.data.DiagnosticsStore
 import sk.ntnlabs.kyberia.data.LatestPage
 import sk.ntnlabs.kyberia.data.LoadedPage
 import sk.ntnlabs.kyberia.data.NewsTracker
+import sk.ntnlabs.kyberia.data.Nsfw
 import sk.ntnlabs.kyberia.data.SeenArea
 import sk.ntnlabs.kyberia.data.SessionExpiredException
+import sk.ntnlabs.kyberia.data.SettingsStore
 import sk.ntnlabs.kyberia.parse.Bookmark
 import sk.ntnlabs.kyberia.parse.Friend
 import sk.ntnlabs.kyberia.parse.LastPost
@@ -49,6 +51,7 @@ class OverviewViewModel(
     private val auth: AuthRepository,
     private val diagnostics: DiagnosticsStore,
     private val latest: LatestPage,
+    private val settings: SettingsStore,
 ) : ViewModel() {
 
     var state by mutableStateOf(OverviewUiState())
@@ -105,7 +108,8 @@ class OverviewViewModel(
     /** Záložka je na obrazovke – jej novinky sú videné. */
     fun markSeen(area: SeenArea) {
         if (state.loadedAtMillis == null) return
-        tracker.markSeen(area, state.bookmarks, state.replies, state.last)
+        val hide = settings.current.hideNsfw
+        tracker.markSeen(area, Nsfw.bookmarks(state.bookmarks, hide), Nsfw.replies(state.replies, hide), Nsfw.last(state.last, hide))
         if (area in state.changed) state = state.copy(changed = state.changed - area)
     }
 
@@ -121,7 +125,10 @@ class OverviewViewModel(
             last = page.last,
             user = page.user,
             loadedAtMillis = loaded.atMillis,
-            changed = tracker.tabChanges(page.bookmarks, replies, page.last),
+            // Skryté NSFW diskusie bodku nezapnú.
+            changed = settings.current.hideNsfw.let { hide ->
+                tracker.tabChanges(Nsfw.bookmarks(page.bookmarks, hide), Nsfw.replies(replies, hide), Nsfw.last(page.last, hide))
+            },
         )
     }
 
@@ -136,6 +143,7 @@ class OverviewViewModel(
                     container.auth,
                     container.diagnostics,
                     container.latestPage,
+                    container.settings,
                 )
             }
         }

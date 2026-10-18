@@ -16,6 +16,7 @@ import sk.ntnlabs.kyberia.KyberiaUrls
 import sk.ntnlabs.kyberia.MainActivity
 import sk.ntnlabs.kyberia.R
 import sk.ntnlabs.kyberia.data.Increase
+import sk.ntnlabs.kyberia.data.Nsfw
 import sk.ntnlabs.kyberia.parse.Friend
 import sk.ntnlabs.kyberia.parse.Reply
 
@@ -73,7 +74,7 @@ object Notifier {
                 id,
                 builder(context, CHANNEL_REPLIES, context.getString(R.string.notify_reply_from, reply.author), reply.snippet)
                     .setStyle(NotificationCompat.BigTextStyle().bigText(reply.snippet))
-                    .setSubText(reply.nodeTitle)
+                    .setSubText(Nsfw.label(reply.nodeTitle))
                     .setGroup(GROUP_REPLIES)
                     // Otvorí môj príspevok – odpoveď visí pod ním, takže je vidieť aj kontext.
                     .setContentIntent(openWeb(context, id, reply.nodeId)),
@@ -124,7 +125,7 @@ object Notifier {
                 context,
                 id,
                 // Názov fóra je to hlavné, počet stačí pod ním.
-                builder(context, CHANNEL_BOOKMARKS, bookmark.title, added)
+                builder(context, CHANNEL_BOOKMARKS, Nsfw.label(bookmark.title), added)
                     .setGroup(GROUP_BOOKMARKS)
                     .setContentIntent(openWeb(context, id, bookmark.id)),
             )
@@ -132,11 +133,11 @@ object Notifier {
         if (increases.size > 1) {
             val total = increases.sumOf { it.added }
             val title = context.resources.getQuantityString(R.plurals.notify_bookmarks_title, total, total)
-            val lines = increases.map { "+${it.added}  ${it.bookmark.title}" }
+            val lines = increases.map { "+${it.added}  ${Nsfw.label(it.bookmark.title)}" }
             post(
                 context,
                 ID_BOOKMARKS,
-                builder(context, CHANNEL_BOOKMARKS, title, increases.joinToString(", ") { it.bookmark.title })
+                builder(context, CHANNEL_BOOKMARKS, title, increases.joinToString(", ") { Nsfw.label(it.bookmark.title) })
                     .setStyle(inbox(lines))
                     .setGroup(GROUP_BOOKMARKS)
                     .setGroupSummary(true)
@@ -153,12 +154,12 @@ object Notifier {
                 context,
                 CHANNEL_FRIENDS,
                 context.getString(R.string.notify_friend_online, friend.nick),
-                friend.locationTitle?.let { context.getString(R.string.friends_location, it) },
+                friend.locationTitle?.let { context.getString(R.string.friends_location, Nsfw.label(it)) },
             )
         } else {
             val title = context.resources.getQuantityString(R.plurals.notify_friends_online, friends.size, friends.size)
             builder(context, CHANNEL_FRIENDS, title, friends.joinToString(", ") { it.nick })
-                .setStyle(inbox(friends.map { friend -> friend.locationTitle?.let { "${friend.nick} – $it" } ?: friend.nick }))
+                .setStyle(inbox(friends.map { friend -> friend.locationTitle?.let { "${friend.nick} – ${Nsfw.label(it)}" } ?: friend.nick }))
         }
         post(context, ID_FRIENDS, notification.setContentIntent(openApp(context, MainActivity.TAB_FRIENDS)))
     }

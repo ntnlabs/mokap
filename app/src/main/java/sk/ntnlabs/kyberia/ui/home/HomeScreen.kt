@@ -176,9 +176,9 @@ fun HomeScreen(container: AppContainer, requestedTab: String?, onTabHandled: () 
         Box(Modifier.fillMaxSize().padding(padding)) {
             when (tab) {
                 Tab.BOOKMARKS -> BookmarksScreen(overview, container.settings, onOpenNode = openNode)
-                Tab.REPLIES -> RepliesScreen(overview, onOpenNode = openNode)
-                Tab.LAST -> LastScreen(overview, onOpenNode = openNode, onOpenAll = { uriHandler.openUri(KyberiaUrls.LAST) })
-                Tab.FRIENDS -> FriendsScreen(overview, people, onOpenNode = openNode)
+                Tab.REPLIES -> RepliesScreen(overview, settings.hideNsfw, onOpenNode = openNode)
+                Tab.LAST -> LastScreen(overview, settings.hideNsfw, onOpenNode = openNode, onOpenAll = { uriHandler.openUri(KyberiaUrls.LAST) })
+                Tab.FRIENDS -> FriendsScreen(overview, people, settings.hideNsfw, onOpenNode = openNode)
                 Tab.MAIL -> OnWeb(R.string.mail_open) { uriHandler.openUri(KyberiaUrls.MAIL) }
                 Tab.K -> OnWeb(R.string.k_open) { uriHandler.openUri(KyberiaUrls.TOP_K) }
             }

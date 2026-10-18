@@ -92,6 +92,10 @@ fun SettingsScreen(container: AppContainer, onBack: () -> Unit) {
                 store.update { it.copy(avatarsOnlyWifi = on) }
             }
             Note(stringResource(R.string.settings_avatars_note))
+            SwitchRow(stringResource(R.string.settings_hide_nsfw), settings.hideNsfw) { on ->
+                store.update { it.copy(hideNsfw = on) }
+            }
+            Note(stringResource(R.string.settings_hide_nsfw_note))
 
             SectionHeader(stringResource(R.string.settings_section_checks))
             ChoiceRow(

@@ -28,8 +28,9 @@ object BookmarkFilter {
         query: String,
         onlyNews: Boolean,
         sort: BookmarkSort,
+        hideNsfw: Boolean = false,
     ): List<Bookmark> {
-        val filtered = bookmarks.filter { (!onlyNews || it.hasNews) && TextSearch.matches(it.title, query) }
+        val filtered = Nsfw.bookmarks(bookmarks, hideNsfw).filter { (!onlyNews || it.hasNews) && TextSearch.matches(it.title, query) }
         return when (sort) {
             BookmarkSort.ALPHABET -> {
                 // Slovenské radenie: á za a, č za c, ch za h; veľkosť písmen nerozhoduje.

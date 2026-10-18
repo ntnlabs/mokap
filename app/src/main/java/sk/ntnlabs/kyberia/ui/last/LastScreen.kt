@@ -19,6 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import sk.ntnlabs.kyberia.R
+import sk.ntnlabs.kyberia.data.Nsfw
 import sk.ntnlabs.kyberia.parse.LastPost
 import sk.ntnlabs.kyberia.ui.common.Avatar
 import sk.ntnlabs.kyberia.ui.overview.OverviewViewModel
@@ -26,18 +27,19 @@ import sk.ntnlabs.kyberia.ui.overview.OverviewViewModel
 /** Najnovšie príspevky na celej kyberii; klik otvorí príspevok na webe. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LastScreen(viewModel: OverviewViewModel, onOpenNode: (Long) -> Unit, onOpenAll: () -> Unit) {
+fun LastScreen(viewModel: OverviewViewModel, hideNsfw: Boolean, onOpenNode: (Long) -> Unit, onOpenAll: () -> Unit) {
     val state = viewModel.state
+    val posts = Nsfw.last(state.last, hideNsfw)
     PullToRefreshBox(
         isRefreshing = state.loading,
         onRefresh = viewModel::refresh,
         modifier = Modifier.fillMaxSize(),
     ) {
         LazyColumn(Modifier.fillMaxSize()) {
-            if (!state.loading && state.last.isEmpty()) {
+            if (!state.loading && posts.isEmpty()) {
                 item { Text(stringResource(R.string.last_empty), Modifier.padding(16.dp)) }
             }
-            items(state.last) { post ->
+            items(posts) { post ->
                 LastRow(post, onClick = { onOpenNode(post.nodeId) })
                 HorizontalDivider()
             }
@@ -61,13 +63,13 @@ private fun LastRow(post: LastPost, onClick: () -> Unit) {
             )
         },
         // Úryvok povie viac než názvy typu „Re[6]: 16.10.…“.
-        headlineContent = { Text(post.snippet.ifEmpty { post.title }, maxLines = 3, overflow = TextOverflow.Ellipsis) },
+        headlineContent = { Text(Nsfw.label(post.snippet.ifEmpty { post.title }), maxLines = 3, overflow = TextOverflow.Ellipsis) },
         supportingContent = {
             Column {
-                Text(post.title, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(Nsfw.label(post.title), maxLines = 1, overflow = TextOverflow.Ellipsis)
                 post.parentTitle?.let {
                     Text(
-                        stringResource(R.string.last_in, it),
+                        stringResource(R.string.last_in, Nsfw.label(it)),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         style = MaterialTheme.typography.bodySmall,

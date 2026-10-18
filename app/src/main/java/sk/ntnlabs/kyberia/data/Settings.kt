@@ -22,6 +22,8 @@ data class Settings(
     val avatarsOnlyWifi: Boolean = false,
     /** Posledný spôsob prihlásenia (nick/ID) – len voľba, nick ani ID sa neukladajú. */
     val loginById: Boolean = false,
+    /** Skryť diskusie s „NSFW“ v názve (zoznamy, notifikácie, bodky na záložkách). */
+    val hideNsfw: Boolean = false,
 ) {
     fun isQuiet(hour: Int): Boolean = quietEnabled && QuietHours.contains(quietFromHour, quietToHour, hour)
 

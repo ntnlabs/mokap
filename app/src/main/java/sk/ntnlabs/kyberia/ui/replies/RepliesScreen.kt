@@ -23,6 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import sk.ntnlabs.kyberia.R
+import sk.ntnlabs.kyberia.data.Nsfw
 import sk.ntnlabs.kyberia.parse.Reply
 import sk.ntnlabs.kyberia.ui.common.Avatar
 import sk.ntnlabs.kyberia.ui.overview.OverviewViewModel
@@ -30,18 +31,19 @@ import sk.ntnlabs.kyberia.ui.overview.OverviewViewModel
 /** Odpovede na tvoje príspevky; klik otvorí tvoj príspevok, pod ktorým odpoveď visí. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RepliesScreen(viewModel: OverviewViewModel, onOpenNode: (Long) -> Unit) {
+fun RepliesScreen(viewModel: OverviewViewModel, hideNsfw: Boolean, onOpenNode: (Long) -> Unit) {
     val state = viewModel.state
+    val replies = Nsfw.replies(state.replies, hideNsfw)
     PullToRefreshBox(
         isRefreshing = state.loading,
         onRefresh = viewModel::refresh,
         modifier = Modifier.fillMaxSize(),
     ) {
         LazyColumn(Modifier.fillMaxSize()) {
-            if (!state.loading && state.replies.isEmpty()) {
+            if (!state.loading && replies.isEmpty()) {
                 item { Text(stringResource(R.string.replies_empty), Modifier.padding(16.dp)) }
             }
-            items(state.replies) { reply ->
+            items(replies) { reply ->
                 ReplyRow(reply, onClick = { onOpenNode(reply.nodeId) })
                 HorizontalDivider()
             }
@@ -77,7 +79,7 @@ private fun ReplyRow(reply: Reply, onClick: () -> Unit) {
         overlineContent = { Text(reply.author, color = MaterialTheme.colorScheme.secondary) },
         headlineContent = { Text(reply.snippet, maxLines = 3, overflow = TextOverflow.Ellipsis) },
         supportingContent = {
-            Text(stringResource(R.string.replies_on, reply.nodeTitle), maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(stringResource(R.string.replies_on, Nsfw.label(reply.nodeTitle)), maxLines = 1, overflow = TextOverflow.Ellipsis)
         },
         trailingContent = if (reply.k != null || reply.children != null) {
             { Counters(reply) }

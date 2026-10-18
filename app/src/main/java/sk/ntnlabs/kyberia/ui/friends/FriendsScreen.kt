@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import sk.ntnlabs.kyberia.R
 import sk.ntnlabs.kyberia.data.Durations
+import sk.ntnlabs.kyberia.data.Nsfw
 import sk.ntnlabs.kyberia.parse.Friend
 import sk.ntnlabs.kyberia.parse.Hotspot
 import sk.ntnlabs.kyberia.parse.Populated
@@ -34,7 +35,7 @@ import sk.ntnlabs.kyberia.ui.overview.OverviewViewModel
 /** Priatelia online, všetci online (/id/27/) a kde sa práve diskutuje (/id/4830026/). */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FriendsScreen(overview: OverviewViewModel, people: PeopleViewModel, onOpenNode: (Long) -> Unit) {
+fun FriendsScreen(overview: OverviewViewModel, people: PeopleViewModel, hideNsfw: Boolean, onOpenNode: (Long) -> Unit) {
     val mode = people.state.mode
     // Pri otvorení záložky a pri prepnutí – len ak sú dáta staršie ako minúta.
     LaunchedEffect(mode) { people.refreshIfStale() }
@@ -71,7 +72,7 @@ fun FriendsScreen(overview: OverviewViewModel, people: PeopleViewModel, onOpenNo
                     onOpenNode = onOpenNode,
                 )
                 PeopleMode.POPULATED -> PopulatedList(
-                    people.state.populated,
+                    people.state.populated?.let { it.copy(hotspots = Nsfw.hotspots(it.hotspots, hideNsfw)) },
                     error = people.state.error,
                     onOpenNode = onOpenNode,
                 )
@@ -133,7 +134,7 @@ private fun PopulatedList(populated: Populated?, error: Boolean, onOpenNode: (Lo
 @Composable
 private fun HotspotRow(hotspot: Hotspot, onClick: () -> Unit) {
     ListItem(
-        headlineContent = { Text(hotspot.title, maxLines = 2, overflow = TextOverflow.Ellipsis) },
+        headlineContent = { Text(Nsfw.label(hotspot.title), maxLines = 2, overflow = TextOverflow.Ellipsis) },
         trailingContent = {
             Text(
                 pluralStringResource(R.plurals.people_count, hotspot.people, hotspot.people),
@@ -147,7 +148,7 @@ private fun HotspotRow(hotspot: Hotspot, onClick: () -> Unit) {
 
 @Composable
 private fun FriendRow(friend: Friend, onOpenProfile: () -> Unit, onOpenLocation: () -> Unit) {
-    val location = friend.locationTitle
+    val location = friend.locationTitle?.let(Nsfw::label)
     ListItem(
         leadingContent = { Avatar(friend.avatarUrl, size = 48.dp) },
         headlineContent = { Text(friend.nick, maxLines = 1, overflow = TextOverflow.Ellipsis) },
