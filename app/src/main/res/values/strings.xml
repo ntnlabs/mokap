@@ -44,6 +44,25 @@
     <string name="friends_nobody">Žiadny priateľ nie je práve online.</string>
     <string name="friends_location">je v: %1$s</string>
     <string name="friends_idle">nečinnosť %1$s</string>
+    <string name="people_mode_friends">Priatelia</string>
+    <string name="people_mode_everyone">Všetci</string>
+    <string name="people_mode_populated">Diskusie</string>
+    <string name="people_nobody">Kyberia teraz neukazuje nikoho online.</string>
+    <string name="people_error">Zoznam sa nepodarilo načítať. Potiahni dole a skús znova.</string>
+    <string name="populated_empty">Práve sa nikde nediskutuje.</string>
+    <string name="populated_header_plain">Tu sa práve diskutuje</string>
+    <plurals name="populated_header">
+        <item quantity="one">Tu sa práve diskutuje · %d človek online</item>
+        <item quantity="few">Tu sa práve diskutuje · %d ľudia online</item>
+        <item quantity="many">Tu sa práve diskutuje · %d človeka online</item>
+        <item quantity="other">Tu sa práve diskutuje · %d ľudí online</item>
+    </plurals>
+    <plurals name="people_count">
+        <item quantity="one">%d človek</item>
+        <item quantity="few">%d ľudia</item>
+        <item quantity="many">%d človeka</item>
+        <item quantity="other">%d ľudí</item>
+    </plurals>
 
     <string name="settings_title">Nastavenia</string>
     <string name="settings_back">Späť</string>

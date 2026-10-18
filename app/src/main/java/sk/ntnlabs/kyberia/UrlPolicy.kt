@@ -40,6 +40,8 @@ object KyberiaUrls {
     val MAIL = node(MAIL_ID)
     val TOP_K = node(8340566)
     val LAST = node(35)
+    val PEOPLE = node(27)
+    val POPULATED = node(4830026)
 
     /** Ľahký endpoint, ktorý web volá kvôli počtu novej pošty. */
     const val MAIL_CHECK = "$BASE/ajax/check_new_mail.php"

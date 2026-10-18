@@ -17,6 +17,7 @@ zoradené, prefiltrované a s lokálnymi notifikáciami.
 | Motto z titulku kyberie pod názvom záložky | hotové |
 | Notifikácie: odpovede, pošta, novinky v bookmarkoch, priateľ online | hotové, každá s vlastným kanálom a prepínačom |
 | Friends online – kde sú, nečinnosť, počet na záložke | hotové |
+| Prepínač vo Friends: Priatelia / Všetci online (`/id/27/`) / Diskusie – kde je najviac ľudí (`/id/4830026/`), sťahuje sa len na požiadanie | hotové |
 | Nastavenia: téma (systém/svetlá/tmavá/tlmená), avatary (animácia, len cez Wi-Fi), interval kontrol 15–60 min, tichý režim, notifikácie, odhlásenie | hotové |
 | K_wallet a vlastné ID (SELF) | parsované z hlavičky |
 | Notifikácia o novej pošte (ľahký endpoint `check_new_mail.php`, otvorí poštu na webe) | hotové |
