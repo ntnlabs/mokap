@@ -49,6 +49,7 @@ import sk.ntnlabs.kyberia.KyberiaUrls
 import sk.ntnlabs.kyberia.R
 import sk.ntnlabs.kyberia.ui.bookmarks.BookmarksScreen
 import sk.ntnlabs.kyberia.ui.friends.FriendsScreen
+import sk.ntnlabs.kyberia.ui.friends.PeopleViewModel
 import sk.ntnlabs.kyberia.ui.last.LastScreen
 import sk.ntnlabs.kyberia.ui.overview.OverviewViewModel
 import sk.ntnlabs.kyberia.ui.replies.RepliesScreen
@@ -70,6 +71,7 @@ fun HomeScreen(container: AppContainer, requestedTab: String?, onTabHandled: () 
     var settingsOpen by rememberSaveable { mutableStateOf(false) }
     val uriHandler = LocalUriHandler.current
     val overview: OverviewViewModel = viewModel(factory = OverviewViewModel.factory(container))
+    val people: PeopleViewModel = viewModel(factory = PeopleViewModel.factory(container))
 
     // Otvorené z notifikácie: prepni na správnu záložku a stiahni čerstvé dáta.
     LaunchedEffect(requestedTab) {
@@ -151,7 +153,7 @@ fun HomeScreen(container: AppContainer, requestedTab: String?, onTabHandled: () 
                 Tab.BOOKMARKS -> BookmarksScreen(overview, container.settings, onOpenNode = openNode)
                 Tab.REPLIES -> RepliesScreen(overview, onOpenNode = openNode)
                 Tab.LAST -> LastScreen(overview, onOpenNode = openNode, onOpenAll = { uriHandler.openUri(KyberiaUrls.LAST) })
-                Tab.FRIENDS -> FriendsScreen(overview, onOpenNode = openNode)
+                Tab.FRIENDS -> FriendsScreen(overview, people, onOpenNode = openNode)
                 Tab.MAIL -> OnWeb(R.string.mail_open) { uriHandler.openUri(KyberiaUrls.MAIL) }
                 Tab.K -> OnWeb(R.string.k_open) { uriHandler.openUri(KyberiaUrls.TOP_K) }
             }

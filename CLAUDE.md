@@ -29,6 +29,11 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
 - Titulok stránky je `<názov> :: <motto>`; motto sa strieda a appka ho ukazuje pod názvom záložky.
 - `/id/19/` má aj blok „Friends“ (`div.active_friend`): avatar+nick, `[odkaz]` na node, kde
   priateľ práve je, a čas (napr. `84m39s`). Avatary sú animované GIFy (Coil + disková cache).
+- People (`/id/27/`): zoznamy `<b>friends</b>` a `<b>users</b>` (`div.user-list`), každý človek
+  `div[data-idle=sekundy]` s nickom v `td.important`, avatarom a `[odkaz]` na node, kde je.
+- Populated (`/id/4830026/`): JS pole `var tags = [[ID,'názov'],…]`, jedna položka za človeka; `(68/110)` =
+  ľudia vo verejných nodoch / online. Appka to spočíta ako „Tu sa práve diskutuje“.
+- People a populated sa sťahujú **len na požiadanie** (prepínač vo Friends), nikdy v pozadí.
 - Pošta: `GET /ajax/check_new_mail.php` (web ho volá raz za minútu) vráti
   `<počet nových>;<nick posledného odosielateľa>;…` alebo `offline`. Nick ide len do notifikácie
   („Nová pošta od …“), nikam sa neukladá; posledné pole nemá overený význam. `offline` session
