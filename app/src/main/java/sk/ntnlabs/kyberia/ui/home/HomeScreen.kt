@@ -7,11 +7,14 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -114,10 +117,10 @@ fun HomeScreen(container: AppContainer, requestedTab: String?, onTabHandled: () 
                                     if (item == Tab.FRIENDS && friendsOnline > 0) Badge { Text("$friendsOnline") }
                                 },
                             ) {
-                                Icon(painterResource(item.icon), contentDescription = null)
+                                // Bez textu pod ikonou – záložiek je veľa; názov je v hornej lište a pre čítačku tu.
+                                Icon(painterResource(item.icon), contentDescription = stringResource(item.label))
                             }
                         },
-                        label = { Text(stringResource(item.label)) },
                     )
                 }
             }
@@ -128,16 +131,23 @@ fun HomeScreen(container: AppContainer, requestedTab: String?, onTabHandled: () 
                 Tab.BOOKMARKS -> BookmarksScreen(overview, container.settings, onOpenNode = openNode)
                 Tab.REPLIES -> RepliesScreen(overview, onOpenNode = openNode)
                 Tab.FRIENDS -> FriendsScreen(overview, onOpenNode = openNode)
-                Tab.MAIL, Tab.K -> ComingSoon()
+                Tab.MAIL -> OnWeb(R.string.mail_on_web, R.string.mail_open) { uriHandler.openUri(KyberiaUrls.MAIL) }
+                Tab.K -> OnWeb(R.string.k_on_web, R.string.k_open) { uriHandler.openUri(KyberiaUrls.TOP_K) }
             }
         }
     }
 }
 
+/** Kým appka nevie stránku zobraziť sama, aspoň ju jedným ťuknutím otvorí na webe. */
 @Composable
-private fun ComingSoon() {
-    Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
-        Text(stringResource(R.string.coming_soon), textAlign = TextAlign.Center)
+private fun OnWeb(@StringRes text: Int, @StringRes button: Int, onOpen: () -> Unit) {
+    Column(
+        Modifier.fillMaxSize().padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(stringResource(text), textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Button(onClick = onOpen) { Text(stringResource(button)) }
     }
 }
 
