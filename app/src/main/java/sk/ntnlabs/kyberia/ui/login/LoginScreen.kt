@@ -13,10 +13,14 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,6 +41,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import sk.ntnlabs.kyberia.R
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(viewModel: LoginViewModel) {
     var username by rememberSaveable { mutableStateOf("") }
@@ -44,7 +49,9 @@ fun LoginScreen(viewModel: LoginViewModel) {
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     val state = viewModel.state
-    val canSubmit = !state.loading && username.isNotBlank() && password.isNotEmpty()
+    // ID je číslo – kým nie je, ani nemá zmysel posielať formulár.
+    val usernameOk = if (state.byId) username.trim().let { it.isNotEmpty() && it.all(Char::isDigit) } else username.isNotBlank()
+    val canSubmit = !state.loading && usernameOk && password.isNotEmpty()
     val submit = { if (canSubmit) viewModel.login(username, password) }
 
     LaunchedEffect(state.error) {
@@ -67,12 +74,31 @@ fun LoginScreen(viewModel: LoginViewModel) {
         Text(stringResource(R.string.login_subtitle), style = MaterialTheme.typography.bodyMedium)
         Spacer(Modifier.height(32.dp))
 
+        SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+            listOf(false to R.string.login_by_nick, true to R.string.login_by_id).forEachIndexed { index, (byId, label) ->
+                SegmentedButton(
+                    selected = state.byId == byId,
+                    onClick = { viewModel.setById(byId) },
+                    shape = SegmentedButtonDefaults.itemShape(index, count = 2),
+                    enabled = !state.loading,
+                ) { Text(stringResource(label)) }
+            }
+        }
+        Spacer(Modifier.height(12.dp))
         OutlinedTextField(
             value = username,
             onValueChange = { username = it },
-            label = { Text(stringResource(R.string.login_username)) },
+            label = { Text(stringResource(if (state.byId) R.string.login_user_id else R.string.login_username)) },
             singleLine = true,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = if (state.byId) KeyboardType.Number else KeyboardType.Text,
+                imeAction = ImeAction.Next,
+            ),
+            supportingText = if (state.byId) {
+                { Text(stringResource(R.string.login_id_hint)) }
+            } else {
+                null
+            },
             modifier = Modifier.fillMaxWidth(),
         )
         Spacer(Modifier.height(8.dp))

@@ -34,6 +34,7 @@ class SettingsStore(context: Context) {
             putBoolean(REFRESH_ON_OPEN, updated.refreshOnOpen)
             putBoolean(ANIMATE_AVATARS, updated.animateAvatars)
             putBoolean(AVATARS_ONLY_WIFI, updated.avatarsOnlyWifi)
+            putBoolean(LOGIN_BY_ID, updated.loginById)
         }
         state.value = updated
     }
@@ -55,6 +56,7 @@ class SettingsStore(context: Context) {
             refreshOnOpen = prefs.getBoolean(REFRESH_ON_OPEN, defaults.refreshOnOpen),
             animateAvatars = prefs.getBoolean(ANIMATE_AVATARS, defaults.animateAvatars),
             avatarsOnlyWifi = prefs.getBoolean(AVATARS_ONLY_WIFI, defaults.avatarsOnlyWifi),
+            loginById = prefs.getBoolean(LOGIN_BY_ID, defaults.loginById),
         )
     }
 
@@ -76,5 +78,6 @@ class SettingsStore(context: Context) {
         const val REFRESH_ON_OPEN = "refresh_on_open"
         const val ANIMATE_AVATARS = "animate_avatars"
         const val AVATARS_ONLY_WIFI = "avatars_only_wifi"
+        const val LOGIN_BY_ID = "login_by_id"
     }
 }

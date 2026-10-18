@@ -20,6 +20,8 @@ data class Settings(
     val refreshOnOpen: Boolean = true,
     val animateAvatars: Boolean = true,
     val avatarsOnlyWifi: Boolean = false,
+    /** Posledný spôsob prihlásenia (nick/ID) – len voľba, nick ani ID sa neukladajú. */
+    val loginById: Boolean = false,
 ) {
     fun isQuiet(hour: Int): Boolean = quietEnabled && QuietHours.contains(quietFromHour, quietToHour, hour)
 

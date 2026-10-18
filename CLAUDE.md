@@ -19,7 +19,8 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
 - Akcie sa posielajú ako POST `event=<názov>` + skrytý `anticsrf` token z tej istej stránky.
 - Prihlásená stránka má vždy tlačidlo `event=logout`; hlavička obsahuje odkaz SELF (vlastné ID).
 - Prihlásenie: odhlásený `/id/19/` vráti „nemáš práva“ s čistým formulárom (multipart POST,
-  `login`, `password`, `login_type=name`, `event=login`). Hlavná stránka sa na login nepoužíva.
+  `login`, `password`, rádio `login_type` = `name`|`id`, `event=login`). Hlavná stránka sa na login
+  nepoužíva. Appka ponúka Nick/ID (niektoré nicky sa napísať nedajú); pamätá si len voľbu, nie nick/ID.
 - `/id/19/` obsahuje aj blok „Last 10 user submissions children“ (`div.user_sub_child`): avatar
   autora odpovede, odkaz na **tvoj** príspevok (nie na odpoveď) a úryvok textu. Počítadlá pred `<br>`:
   `[<span>1K</span>]` = počet K, `[<span>2</span>]` (bez K) = počet odpovedí pod odpoveďou.

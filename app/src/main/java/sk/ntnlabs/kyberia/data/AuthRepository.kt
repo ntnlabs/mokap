@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import sk.ntnlabs.kyberia.KyberiaUrls
 import sk.ntnlabs.kyberia.parse.Forms
 import sk.ntnlabs.kyberia.parse.LoginFormParser
+import sk.ntnlabs.kyberia.parse.LoginType
 import sk.ntnlabs.kyberia.parse.Session
 import sk.ntnlabs.kyberia.work.CheckScheduler
 
@@ -22,12 +23,12 @@ class AuthRepository(
     val loggedIn: StateFlow<Boolean> = _loggedIn.asStateFlow()
 
     /** Heslo sa použije len v tomto volaní na odoslanie formulára, nikam sa neukladá. */
-    suspend fun login(username: String, password: String): LoginResult {
+    suspend fun login(username: String, password: String, type: LoginType = LoginType.NAME): LoginResult {
         cookies.clear()
         // Odhlásený /id/19/ ukáže čistý prihlasovací formulár (hlavná stránka je na parsovanie peklo).
         val page = client.get(KyberiaUrls.BOOKMARKS)
-        val form = LoginFormParser.find(page.document) ?: return LoginResult.FormNotFound
-        val response = client.postForm(form.action, form.fill(username, password), form.charset, form.multipart)
+        val form = LoginFormParser.find(page.document)?.takeIf { it.supports(type) } ?: return LoginResult.FormNotFound
+        val response = client.postForm(form.action, form.fill(username, password, type), form.charset, form.multipart)
         val ok = Session.isLoggedIn(response.document) ||
             Session.isLoggedIn(client.get(KyberiaUrls.BOOKMARKS).document)
         if (!ok) {
