@@ -1,18 +1,24 @@
 package sk.ntnlabs.kyberia.ui.replies
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -43,6 +49,27 @@ fun RepliesScreen(viewModel: OverviewViewModel, onOpenNode: (Long) -> Unit) {
     }
 }
 
+/** K (zvýraznené) a počet odpovedí pod odpoveďou, tak ako ich ukazuje kyberia. */
+@Composable
+private fun Counters(reply: Reply) {
+    Column(horizontalAlignment = Alignment.End) {
+        reply.k?.let {
+            Text(stringResource(R.string.replies_k, it), color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge)
+        }
+        reply.children?.let {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    painterResource(R.drawable.ic_tab_replies),
+                    contentDescription = stringResource(R.string.replies_children),
+                    modifier = Modifier.size(14.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text(" $it", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+    }
+}
+
 @Composable
 private fun ReplyRow(reply: Reply, onClick: () -> Unit) {
     ListItem(
@@ -51,6 +78,11 @@ private fun ReplyRow(reply: Reply, onClick: () -> Unit) {
         headlineContent = { Text(reply.snippet, maxLines = 3, overflow = TextOverflow.Ellipsis) },
         supportingContent = {
             Text(stringResource(R.string.replies_on, reply.nodeTitle), maxLines = 1, overflow = TextOverflow.Ellipsis)
+        },
+        trailingContent = if (reply.k != null || reply.children != null) {
+            { Counters(reply) }
+        } else {
+            null
         },
         modifier = Modifier.clickable(onClick = onClick),
     )

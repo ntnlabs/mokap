@@ -17,12 +17,12 @@
     <string name="tab_mail">Pošta</string>
     <string name="tab_bookmarks">Bookmarky</string>
     <string name="tab_replies">Odpovede</string>
+    <string name="tab_last">Last</string>
     <string name="tab_k">K</string>
     <string name="tab_friends">Friends</string>
-    <string name="mail_on_web">Poštu zatiaľ čítaš na webe kyberie.</string>
-    <string name="mail_open">Otvoriť poštu</string>
-    <string name="k_on_web">Najviac K za posledné dni zatiaľ nájdeš na webe kyberie.</string>
-    <string name="k_open">Otvoriť top K</string>
+    <string name="work_in_progress">Pracujeme na tom.</string>
+    <string name="mail_open">Otvoriť poštu na webe</string>
+    <string name="k_open">Otvoriť top K na webe</string>
 
     <string name="bookmarks_search">Hľadať v bookmarkoch</string>
     <string name="bookmarks_search_clear">Vymazať hľadanie</string>
@@ -81,6 +81,12 @@
 
     <string name="replies_empty">Zatiaľ žiadne odpovede na tvoje príspevky.</string>
     <string name="replies_on">na „%1$s“</string>
+    <string name="replies_k">%1$dK</string>
+    <string name="replies_children">odpovede pod odpoveďou</string>
+
+    <string name="last_empty">Kyberia teraz neukázala žiadne nové príspevky.</string>
+    <string name="last_in">v „%1$s“</string>
+    <string name="last_more">Celý last na webe</string>
 
     <string name="channel_replies">Odpovede</string>
     <string name="channel_mail">Pošta</string>

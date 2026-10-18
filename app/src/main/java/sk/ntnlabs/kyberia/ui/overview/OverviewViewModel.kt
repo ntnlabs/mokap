@@ -20,6 +20,7 @@ import sk.ntnlabs.kyberia.data.NewsTracker
 import sk.ntnlabs.kyberia.data.SessionExpiredException
 import sk.ntnlabs.kyberia.parse.Bookmark
 import sk.ntnlabs.kyberia.parse.Friend
+import sk.ntnlabs.kyberia.parse.LastPost
 import sk.ntnlabs.kyberia.parse.Reply
 import sk.ntnlabs.kyberia.parse.UserInfo
 import sk.ntnlabs.kyberia.work.NewsChecker
@@ -29,11 +30,12 @@ data class OverviewUiState(
     val bookmarks: List<Bookmark> = emptyList(),
     val replies: List<Reply> = emptyList(),
     val friends: List<Friend> = emptyList(),
+    val last: List<LastPost> = emptyList(),
     val user: UserInfo? = null,
     val error: Boolean = false,
 )
 
-/** Dáta z /id/19/ – jedna požiadavka kŕmi bookmarky, odpovede, friends aj K_wallet. */
+/** Dáta z /id/19/ – jedna požiadavka kŕmi bookmarky, odpovede, last, friends aj K_wallet. */
 class OverviewViewModel(
     private val repository: BookmarksRepository,
     private val tracker: NewsTracker,
@@ -74,6 +76,7 @@ class OverviewViewModel(
                     replies = page.replies.filter { it.authorId != page.user.userId },
                     // Najaktívnejší (najkratšia nečinnosť) hore.
                     friends = page.friends.sortedBy { it.timeSeconds ?: Long.MAX_VALUE },
+                    last = page.last,
                     user = page.user,
                 )
             } catch (e: SessionExpiredException) {

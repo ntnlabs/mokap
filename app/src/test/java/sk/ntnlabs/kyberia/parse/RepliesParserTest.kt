@@ -35,6 +35,12 @@ class RepliesParserTest {
     }
 
     @Test
+    fun kAndChildCountersAreSeparate() {
+        assertEquals(listOf(null, 3, null), replies.map { it.k })
+        assertEquals(listOf(2, null, null), replies.map { it.children })
+    }
+
+    @Test
     fun sameParentDifferentAuthorsHaveDifferentKeys() {
         assertEquals(replies[0].nodeId, replies[2].nodeId)
         assertNotEquals(replies[0].key, replies[2].key)

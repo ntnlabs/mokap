@@ -9,7 +9,7 @@ class UserInfoParserTest {
     @Test
     fun readsSelfIdAndKWallet() {
         val info = UserInfoParser.parse(Fixtures.load("bookmarks.html", "https://kyberia.sk/id/19/"))
-        assertEquals(UserInfo(userId = 4242, kWallet = 1234), info)
+        assertEquals(UserInfo(userId = 4242, kWallet = 1234, tagline = "Vymyslené motto pre testy"), info)
     }
 
     @Test
