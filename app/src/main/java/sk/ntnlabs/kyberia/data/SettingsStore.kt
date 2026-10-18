@@ -35,6 +35,7 @@ class SettingsStore(context: Context) {
             putBoolean(ANIMATE_AVATARS, updated.animateAvatars)
             putBoolean(AVATARS_ONLY_WIFI, updated.avatarsOnlyWifi)
             putBoolean(LOGIN_BY_ID, updated.loginById)
+            putBoolean(HIDE_NSFW, updated.hideNsfw)
         }
         state.value = updated
     }
@@ -57,6 +58,7 @@ class SettingsStore(context: Context) {
             animateAvatars = prefs.getBoolean(ANIMATE_AVATARS, defaults.animateAvatars),
             avatarsOnlyWifi = prefs.getBoolean(AVATARS_ONLY_WIFI, defaults.avatarsOnlyWifi),
             loginById = prefs.getBoolean(LOGIN_BY_ID, defaults.loginById),
+            hideNsfw = prefs.getBoolean(HIDE_NSFW, defaults.hideNsfw),
         )
     }
 
@@ -79,5 +81,6 @@ class SettingsStore(context: Context) {
         const val ANIMATE_AVATARS = "animate_avatars"
         const val AVATARS_ONLY_WIFI = "avatars_only_wifi"
         const val LOGIN_BY_ID = "login_by_id"
+        const val HIDE_NSFW = "hide_nsfw"
     }
 }

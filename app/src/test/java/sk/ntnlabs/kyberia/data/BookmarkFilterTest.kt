@@ -22,6 +22,13 @@ class BookmarkFilterTest {
     )
 
     @Test
+    fun nsfwCanBeHidden() {
+        val list = listOf(bookmark(1, "Archív NSFW"), bookmark(2, "K SFW"), bookmark(3, "[nsfw] obrázky"))
+        assertEquals(listOf(2L), BookmarkFilter.apply(list, "", onlyNews = false, sort = BookmarkSort.ALPHABET, hideNsfw = true).map { it.id })
+        assertEquals(3, BookmarkFilter.apply(list, "", onlyNews = false, sort = BookmarkSort.ALPHABET).size)
+    }
+
+    @Test
     fun alphabetUsesSlovakCollation() {
         val titles = BookmarkFilter.apply(bookmarks, "", onlyNews = false, sort = BookmarkSort.ALPHABET).map { it.title }
         assertEquals(listOf("Áno alebo nie", "auto", "Cestovanie", "Čaj o piatej", "hory", "chata", "ukáž mi ju"), titles)

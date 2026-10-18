@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import sk.ntnlabs.kyberia.R
 import sk.ntnlabs.kyberia.data.BookmarkFilter
+import sk.ntnlabs.kyberia.data.Nsfw
 import sk.ntnlabs.kyberia.data.BookmarkSort
 import sk.ntnlabs.kyberia.data.SettingsStore
 import sk.ntnlabs.kyberia.parse.Bookmark
@@ -50,8 +51,8 @@ fun BookmarksScreen(viewModel: OverviewViewModel, settingsStore: SettingsStore, 
     val state = viewModel.state
     val settings by settingsStore.settings.collectAsStateWithLifecycle()
     var query by rememberSaveable { mutableStateOf("") }
-    val shown = remember(state.bookmarks, query, settings.bookmarksOnlyNews, settings.bookmarkSort) {
-        BookmarkFilter.apply(state.bookmarks, query, settings.bookmarksOnlyNews, settings.bookmarkSort)
+    val shown = remember(state.bookmarks, query, settings.bookmarksOnlyNews, settings.bookmarkSort, settings.hideNsfw) {
+        BookmarkFilter.apply(state.bookmarks, query, settings.bookmarksOnlyNews, settings.bookmarkSort, settings.hideNsfw)
     }
 
     Column(Modifier.fillMaxSize()) {
@@ -136,7 +137,7 @@ private fun BookmarkRow(bookmark: Bookmark, onClick: () -> Unit) {
     ).joinToString(" · ")
 
     ListItem(
-        headlineContent = { Text(bookmark.title, maxLines = 2, overflow = TextOverflow.Ellipsis) },
+        headlineContent = { Text(Nsfw.label(bookmark.title), maxLines = 2, overflow = TextOverflow.Ellipsis) },
         supportingContent = if (flags.isNotEmpty()) {
             { Text(flags, color = MaterialTheme.colorScheme.secondary) }
         } else {

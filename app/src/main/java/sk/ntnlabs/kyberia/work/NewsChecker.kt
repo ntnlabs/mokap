@@ -14,6 +14,7 @@ import sk.ntnlabs.kyberia.data.DiagnosticsStore
 import sk.ntnlabs.kyberia.data.LatestPage
 import sk.ntnlabs.kyberia.data.MailRepository
 import sk.ntnlabs.kyberia.data.NewsTracker
+import sk.ntnlabs.kyberia.data.Nsfw
 import sk.ntnlabs.kyberia.data.RefreshTimer
 import sk.ntnlabs.kyberia.data.SessionExpiredException
 import sk.ntnlabs.kyberia.data.SettingsStore
@@ -81,8 +82,10 @@ class NewsChecker(
         val increases = tracker.updateBookmarks(page.bookmarks)
         val friends = tracker.updateFriends(page.friends)
 
-        if (current.notifyReplies && replies.isNotEmpty()) Notifier.replies(context, replies)
-        if (current.notifyBookmarks && increases.isNotEmpty()) Notifier.bookmarks(context, increases)
+        val shownReplies = Nsfw.replies(replies, current.hideNsfw)
+        val shownIncreases = Nsfw.increases(increases, current.hideNsfw)
+        if (current.notifyReplies && shownReplies.isNotEmpty()) Notifier.replies(context, shownReplies)
+        if (current.notifyBookmarks && shownIncreases.isNotEmpty()) Notifier.bookmarks(context, shownIncreases)
         if (current.notifyFriends && friends.isNotEmpty()) Notifier.friendsOnline(context, friends)
         // Pošta je jedna malá požiadavka navyše – len keď o ňu používateľ stojí.
         if (current.notifyMail) checkMail()
