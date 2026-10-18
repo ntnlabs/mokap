@@ -12,7 +12,9 @@ zoradené, prefiltrované a s lokálnymi notifikáciami.
 |---|---|
 | Prihlásenie (natívne, heslo sa neukladá) | hotové, parser overený na skutočnej stránke |
 | Bookmarky (`/id/19/`) – A–Z (slovenské radenie) alebo podľa noviniek, filter „len s novinkami“, hľadanie bez diakritiky | hotové |
-| Odpovede na tvoje príspevky – vlastná záložka, animované avatary s diskovou cache | hotové |
+| Odpovede na tvoje príspevky – vlastná záložka, počet K a odpovedí, animované avatary s diskovou cache | hotové |
+| Last – 10 najnovších príspevkov na celej kyberii (z tej istej stránky, žiadna požiadavka navyše) | hotové |
+| Motto z titulku kyberie pod názvom záložky | hotové |
 | Notifikácie: odpovede, pošta, novinky v bookmarkoch, priateľ online | hotové, každá s vlastným kanálom a prepínačom |
 | Friends online – kde sú, nečinnosť, počet na záložke | hotové |
 | Nastavenia: téma (systém/svetlá/tmavá/tlmená), avatary (animácia, len cez Wi-Fi), interval kontrol 15–60 min, tichý režim, notifikácie, odhlásenie | hotové |

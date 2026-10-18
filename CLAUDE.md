@@ -21,7 +21,11 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
 - Prihlásenie: odhlásený `/id/19/` vráti „nemáš práva“ s čistým formulárom (multipart POST,
   `login`, `password`, `login_type=name`, `event=login`). Hlavná stránka sa na login nepoužíva.
 - `/id/19/` obsahuje aj blok „Last 10 user submissions children“ (`div.user_sub_child`): avatar
-  autora odpovede, odkaz na **tvoj** príspevok (nie na odpoveď) a úryvok textu.
+  autora odpovede, odkaz na **tvoj** príspevok (nie na odpoveď) a úryvok textu. Počítadlá pred `<br>`:
+  `[<span>1K</span>]` = počet K, `[<span>2</span>]` (bez K) = počet odpovedí pod odpoveďou.
+- Blok „Last“ (`div.last`) = 10 najnovších príspevkov na celej kyberii: avatar s `title="nick | čas - dátum"`,
+  odkaz na príspevok, „in“, odkaz na rodiča, čas, úryvok. Celý last je na `/id/35/`.
+- Titulok stránky je `<názov> :: <motto>`; motto sa strieda a appka ho ukazuje pod názvom záložky.
 - `/id/19/` má aj blok „Friends“ (`div.active_friend`): avatar+nick, `[odkaz]` na node, kde
   priateľ práve je, a čas (napr. `84m39s`). Avatary sú animované GIFy (Coil + disková cache).
 - Pošta: `GET /ajax/check_new_mail.php` (web ho volá raz za minútu) vráti
@@ -44,7 +48,8 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
 - Session sa zahodí **len** pri `PageKind.LOGGED_OUT` (prihlasovací formulár na stránke);
   `UNKNOWN` stránka je dočasná chyba. Výsledky kontrol ide do `DiagnosticsStore` (bez osobných údajov).
 - Čas pri priateľoch je **nečinnosť** (idle); zoznam je zoradený od najaktívnejšieho.
-- UI je pre mobil: každá oblasť má vlastnú záložku (Bookmarky, Odpovede, Pošta, K, Friends).
+- UI je pre mobil: každá oblasť má vlastnú záložku (Bookmarky, Odpovede, Last, Pošta, K, Friends),
+  v spodnej lište len ikony (popis pre čítačku). Pošta a K zatiaľ „Pracujeme na tom.“ + tlačidlo na web.
   Bookmarky predvolene A–Z (slovenský Collator); radenie/filter si appka pamätá v nastaveniach.
 - Téma „Tlmená“ = tmavá s nízkym jasom textu, farieb aj avatarov (`LocalDimImages`).
 - CI: `.github/workflows/android.yml` – na push/PR len gitleaks, lint a unit testy.

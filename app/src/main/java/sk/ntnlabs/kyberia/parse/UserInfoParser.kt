@@ -7,6 +7,8 @@ data class UserInfo(
     val userId: Long?,
     /** Zostatok K_wallet, ak ho stránka ukazuje. */
     val kWallet: Long?,
+    /** Text za „::“ v titulku stránky (napr. „Lucy in the Sky with Diamonds“) – kyberia ho strieda. */
+    val tagline: String? = null,
 )
 
 object UserInfoParser {
@@ -22,6 +24,7 @@ object UserInfoParser {
         val kWallet = document.selectFirst("table.module_k_wallet")
             ?.select("td")
             ?.firstNotNullOfOrNull { it.text().filterNot(Char::isWhitespace).toLongOrNull() }
-        return UserInfo(userId, kWallet)
+        val tagline = document.title().substringAfter(" :: ", "").trim().ifEmpty { null }
+        return UserInfo(userId, kWallet, tagline)
     }
 }

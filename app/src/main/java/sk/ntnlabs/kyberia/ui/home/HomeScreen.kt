@@ -36,7 +36,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
@@ -47,6 +49,7 @@ import sk.ntnlabs.kyberia.KyberiaUrls
 import sk.ntnlabs.kyberia.R
 import sk.ntnlabs.kyberia.ui.bookmarks.BookmarksScreen
 import sk.ntnlabs.kyberia.ui.friends.FriendsScreen
+import sk.ntnlabs.kyberia.ui.last.LastScreen
 import sk.ntnlabs.kyberia.ui.overview.OverviewViewModel
 import sk.ntnlabs.kyberia.ui.replies.RepliesScreen
 import sk.ntnlabs.kyberia.ui.settings.SettingsScreen
@@ -54,6 +57,7 @@ import sk.ntnlabs.kyberia.ui.settings.SettingsScreen
 private enum class Tab(@StringRes val label: Int, @DrawableRes val icon: Int) {
     BOOKMARKS(R.string.tab_bookmarks, R.drawable.ic_tab_bookmarks),
     REPLIES(R.string.tab_replies, R.drawable.ic_tab_replies),
+    LAST(R.string.tab_last, R.drawable.ic_tab_last),
     MAIL(R.string.tab_mail, R.drawable.ic_tab_mail),
     K(R.string.tab_k, R.drawable.ic_tab_k),
     FRIENDS(R.string.tab_friends, R.drawable.ic_tab_friends),
@@ -80,6 +84,7 @@ fun HomeScreen(container: AppContainer, requestedTab: String?, onTabHandled: () 
         if (container.settings.current.refreshOnOpen) overview.refreshIfStale()
     }
     val kWallet = overview.state.user?.kWallet
+    val tagline = overview.state.user?.tagline
     val friendsOnline = overview.state.friends.size
     // Čítanie nodov v appke príde neskôr; dovtedy sa node otvorí na webe.
     val openNode: (Long) -> Unit = { uriHandler.openUri(KyberiaUrls.node(it)) }
@@ -94,7 +99,22 @@ fun HomeScreen(container: AppContainer, requestedTab: String?, onTabHandled: () 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(tab.label)) },
+                title = {
+                    Column {
+                        Text(stringResource(tab.label))
+                        // Text z titulku kyberie („bookmarks :: …“), ktorý sa strieda.
+                        tagline?.let {
+                            Text(
+                                it,
+                                style = MaterialTheme.typography.labelSmall,
+                                fontStyle = FontStyle.Italic,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
+                    }
+                },
                 actions = {
                     if (kWallet != null) {
                         Text("K $kWallet", color = MaterialTheme.colorScheme.primary)
@@ -130,9 +150,10 @@ fun HomeScreen(container: AppContainer, requestedTab: String?, onTabHandled: () 
             when (tab) {
                 Tab.BOOKMARKS -> BookmarksScreen(overview, container.settings, onOpenNode = openNode)
                 Tab.REPLIES -> RepliesScreen(overview, onOpenNode = openNode)
+                Tab.LAST -> LastScreen(overview, onOpenNode = openNode, onOpenAll = { uriHandler.openUri(KyberiaUrls.LAST) })
                 Tab.FRIENDS -> FriendsScreen(overview, onOpenNode = openNode)
-                Tab.MAIL -> OnWeb(R.string.mail_on_web, R.string.mail_open) { uriHandler.openUri(KyberiaUrls.MAIL) }
-                Tab.K -> OnWeb(R.string.k_on_web, R.string.k_open) { uriHandler.openUri(KyberiaUrls.TOP_K) }
+                Tab.MAIL -> OnWeb(R.string.mail_open) { uriHandler.openUri(KyberiaUrls.MAIL) }
+                Tab.K -> OnWeb(R.string.k_open) { uriHandler.openUri(KyberiaUrls.TOP_K) }
             }
         }
     }
@@ -140,13 +161,13 @@ fun HomeScreen(container: AppContainer, requestedTab: String?, onTabHandled: () 
 
 /** Kým appka nevie stránku zobraziť sama, aspoň ju jedným ťuknutím otvorí na webe. */
 @Composable
-private fun OnWeb(@StringRes text: Int, @StringRes button: Int, onOpen: () -> Unit) {
+private fun OnWeb(@StringRes button: Int, onOpen: () -> Unit) {
     Column(
         Modifier.fillMaxSize().padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(stringResource(text), textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(stringResource(R.string.work_in_progress), textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Button(onClick = onOpen) { Text(stringResource(button)) }
     }
 }
