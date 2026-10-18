@@ -10,7 +10,7 @@ zoradené, prefiltrované a s lokálnymi notifikáciami.
 
 | Časť | Stav |
 |---|---|
-| Prihlásenie (natívne, heslo sa neukladá) | hotové, parser overený na skutočnej stránke |
+| Prihlásenie cez nick alebo ID (natívne, heslo sa neukladá) | hotové, parser overený na skutočnej stránke |
 | Bookmarky (`/id/19/`) – A–Z (slovenské radenie) alebo podľa noviniek, filter „len s novinkami“, hľadanie bez diakritiky | hotové |
 | Odpovede na tvoje príspevky – vlastná záložka, počet K a odpovedí, animované avatary s diskovou cache | hotové |
 | Last – 10 najnovších príspevkov na celej kyberii (z tej istej stránky, žiadna požiadavka navyše) | hotové |

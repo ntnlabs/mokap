@@ -47,6 +47,29 @@ class FormsTest {
     }
 
     @Test
+    fun loginByIdSwitchesTheRadio() {
+        val form = LoginFormParser.find(loginPage)!!
+        assertEquals("login_type", form.loginTypeField)
+        assertEquals(setOf(LoginType.NAME, LoginType.ID), form.loginTypes)
+        assertTrue(form.supports(LoginType.ID))
+        val fields = form.fill("4242", "secret", LoginType.ID)
+        assertEquals(listOf("id"), fields.filter { it.first == "login_type" }.map { it.second })
+        assertTrue("login" to "4242" in fields)
+    }
+
+    @Test
+    fun formWithoutTypeRadiosSupportsOnlyNick() {
+        val doc = Jsoup.parse(
+            """<form method="post" action="/x"><input name="user"><input type="password" name="pw"></form>""",
+            "https://kyberia.sk/",
+        )
+        val form = LoginFormParser.find(doc)!!
+        assertNull(form.loginTypeField)
+        assertFalse(form.supports(LoginType.ID))
+        assertEquals(setOf("user" to "u", "pw" to "p"), form.fill("u", "p", LoginType.ID).toSet())
+    }
+
+    @Test
     fun genericLoginFormKeepsHiddenAndCheckedFields() {
         val doc = Jsoup.parse(
             """

@@ -64,7 +64,7 @@ class MainActivity : ComponentActivity() {
                             LaunchedEffect(Unit) { container.scheduler.schedule() }
                             HomeScreen(container, requestedTab = tab, onTabHandled = { requestedTab.value = null })
                         } else {
-                            LoginScreen(viewModel(factory = LoginViewModel.factory(container.auth)))
+                            LoginScreen(viewModel(factory = LoginViewModel.factory(container.auth, container.settings)))
                         }
                     }
                 }

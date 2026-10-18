@@ -71,6 +71,9 @@ object Session {
     }
 }
 
+/** Kyberia vie prihlásiť podľa nicku alebo podľa ID – niektoré nicky sa do poľa napísať nedajú. */
+enum class LoginType(val value: String) { NAME("name"), ID("id") }
+
 class LoginForm(
     val action: String,
     val fields: List<Pair<String, String>>,
@@ -78,11 +81,20 @@ class LoginForm(
     val passwordField: String,
     val charset: Charset,
     val multipart: Boolean,
+    /** Názov rádia `name`/`id` a hodnoty, ktoré formulár naozaj ponúka. */
+    val loginTypeField: String? = null,
+    val loginTypes: Set<LoginType> = emptySet(),
 ) {
-    fun fill(username: String, password: String): List<Pair<String, String>> =
-        fields.filterNot { it.first == usernameField } +
+    fun supports(type: LoginType): Boolean = type == LoginType.NAME || type in loginTypes
+
+    fun fill(username: String, password: String, type: LoginType = LoginType.NAME): List<Pair<String, String>> {
+        // Typ prepíšeme, len keď ho formulár pozná; inak ostane, čo je na stránke predvolené.
+        val chosenType = loginTypeField?.takeIf { type in loginTypes }
+        return fields.filterNot { it.first == usernameField || it.first == chosenType } +
+            listOfNotNull(chosenType?.let { it to type.value }) +
             (usernameField to username) +
             (passwordField to password)
+    }
 }
 
 object LoginFormParser {
@@ -103,6 +115,15 @@ object LoginFormParser {
                 it.attr("name").isNotEmpty()
         }?.attr("name") ?: return null
         val fields = Forms.fields(form) + listOfNotNull(Forms.submitButton(form))
+        // Rádiá s hodnotami „name“ a „id“ (na kyberii `login_type`).
+        val typeRadios = controls.filter {
+            it.normalName() == "input" && it.attr("type").equals("radio", ignoreCase = true) &&
+                LoginType.entries.any { type -> type.value.equals(it.attr("value"), ignoreCase = true) }
+        }
+        val loginTypeField = typeRadios.firstOrNull()?.attr("name")?.takeIf { it.isNotEmpty() }
+        val loginTypes = typeRadios.filter { it.attr("name") == loginTypeField }
+            .mapNotNull { radio -> LoginType.entries.firstOrNull { it.value.equals(radio.attr("value"), ignoreCase = true) } }
+            .toSet()
         return LoginForm(
             action = Forms.action(form, document),
             fields = fields,
@@ -110,6 +131,8 @@ object LoginFormParser {
             passwordField = passwordField,
             charset = document.charset(),
             multipart = Forms.isMultipart(form),
+            loginTypeField = loginTypeField,
+            loginTypes = loginTypes,
         )
     }
 
