@@ -63,7 +63,8 @@ private fun LastRow(post: LastPost, onClick: () -> Unit) {
             )
         },
         // Úryvok povie viac než názvy typu „Re[6]: 16.10.…“.
-        headlineContent = { Text(Nsfw.label(post.snippet.ifEmpty { post.title }), maxLines = 3, overflow = TextOverflow.Ellipsis) },
+        // 🔞 len v názvoch nodov, nie v texte príspevku.
+        headlineContent = { Text(post.snippet.ifEmpty { Nsfw.label(post.title) }, maxLines = 3, overflow = TextOverflow.Ellipsis) },
         supportingContent = {
             Column {
                 Text(Nsfw.label(post.title), maxLines = 1, overflow = TextOverflow.Ellipsis)
