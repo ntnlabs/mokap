@@ -69,7 +69,7 @@
     <string name="settings_section_checks">Kontrola na pozadí</string>
     <string name="settings_interval">Ako často kontrolovať</string>
     <string name="settings_interval_value">každých %1$d min</string>
-    <string name="settings_interval_note">Android dovolí najčastejšie raz za 15 minút a pri šetrení batérie kontrolu aj odloží.</string>
+    <string name="settings_interval_note">Platí aj pre otvorenú appku – zelený pruh nad záložkami ukazuje, kedy sa obnoví. V pozadí Android dovolí najčastejšie raz za 15 minút a pri šetrení batérie kontrolu aj odloží.</string>
     <string name="settings_refresh_on_open">Obnoviť pri otvorení appky</string>
     <string name="settings_section_notify">Notifikácie</string>
     <string name="settings_notify_replies">Odpovede na moje príspevky</string>

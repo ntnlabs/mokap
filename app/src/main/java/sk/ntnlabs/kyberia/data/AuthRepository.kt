@@ -18,6 +18,7 @@ class AuthRepository(
     private val cookies: KyberiaCookieJar,
     private val tracker: NewsTracker,
     private val scheduler: CheckScheduler,
+    private val latest: LatestPage,
 ) {
     private val _loggedIn = MutableStateFlow(cookies.hasCookies())
     val loggedIn: StateFlow<Boolean> = _loggedIn.asStateFlow()
@@ -25,6 +26,7 @@ class AuthRepository(
     /** Heslo sa použije len v tomto volaní na odoslanie formulára, nikam sa neukladá. */
     suspend fun login(username: String, password: String, type: LoginType = LoginType.NAME): LoginResult {
         cookies.clear()
+        latest.clear()
         // Odhlásený /id/19/ ukáže čistý prihlasovací formulár (hlavná stránka je na parsovanie peklo).
         val page = client.get(KyberiaUrls.BOOKMARKS)
         val form = LoginFormParser.find(page.document)?.takeIf { it.supports(type) } ?: return LoginResult.FormNotFound
@@ -63,6 +65,7 @@ class AuthRepository(
     /** Server nás odhlásil alebo sa používateľ odhlásil. */
     fun sessionEnded() {
         cookies.clear()
+        latest.clear()
         tracker.reset()
         scheduler.cancel()
         _loggedIn.value = false

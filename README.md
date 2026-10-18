@@ -15,6 +15,7 @@ zoradené, prefiltrované a s lokálnymi notifikáciami.
 | Odpovede na tvoje príspevky – vlastná záložka, počet K a odpovedí, animované avatary s diskovou cache | hotové |
 | Last – 10 najnovších príspevkov na celej kyberii (z tej istej stránky, žiadna požiadavka navyše) | hotové |
 | Motto z titulku kyberie pod názvom záložky | hotové |
+| Zelený pruh nad záložkami do ďalšieho obnovenia, bodka na záložkách s novinkami | hotové |
 | Notifikácie: odpovede, pošta, novinky v bookmarkoch, priateľ online | hotové, každá s vlastným kanálom a prepínačom |
 | Friends online – kde sú, nečinnosť, počet na záložke | hotové |
 | Prepínač vo Friends: Priatelia / Všetci online (`/id/27/`) / Diskusie – kde je najviac ľudí (`/id/4830026/`), sťahuje sa len na požiadanie | hotové |

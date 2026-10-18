@@ -11,8 +11,10 @@ import sk.ntnlabs.kyberia.data.CheckEntry
 import sk.ntnlabs.kyberia.data.CheckResult
 import sk.ntnlabs.kyberia.data.CheckTrigger
 import sk.ntnlabs.kyberia.data.DiagnosticsStore
+import sk.ntnlabs.kyberia.data.LatestPage
 import sk.ntnlabs.kyberia.data.MailRepository
 import sk.ntnlabs.kyberia.data.NewsTracker
+import sk.ntnlabs.kyberia.data.RefreshTimer
 import sk.ntnlabs.kyberia.data.SessionExpiredException
 import sk.ntnlabs.kyberia.data.SettingsStore
 import sk.ntnlabs.kyberia.notify.Notifier
@@ -30,6 +32,7 @@ class NewsChecker(
     private val tracker: NewsTracker,
     private val settings: SettingsStore,
     private val diagnostics: DiagnosticsStore,
+    private val latest: LatestPage,
 ) {
     private val mutex = Mutex()
 
@@ -44,6 +47,19 @@ class NewsChecker(
         // V tichom režime kyberiu vôbec nekontrolujeme; novinky prídu po jeho skončení.
         if (settings.current.isQuiet(LocalTime.now().hour)) return true
         val now = System.currentTimeMillis()
+        val current = settings.current
+
+        // Otvorená appka stránku stiahla pred chvíľou (a novinky ukázala) – druhýkrát ju netreba; pošta je zvlášť.
+        // Počíta sa len načítanie v appke: WorkManager nespúšťa presne, vlastné behy by si navzájom prekážali.
+        val lastAppLoad = diagnostics.current.last
+            ?.takeIf { it.trigger == CheckTrigger.APP && it.result == CheckResult.OK }
+            ?.atMillis
+        if (trigger == CheckTrigger.SCHEDULED &&
+            RefreshTimer.recentlyLoaded(lastAppLoad, now, current.intervalMinutes * 60_000L)
+        ) {
+            if (current.notifyMail) checkMail()
+            return true
+        }
 
         val page = try {
             bookmarks.load()
@@ -58,13 +74,13 @@ class NewsChecker(
         }
 
         diagnostics.record(CheckEntry(now, CheckResult.OK, trigger))
+        latest.publish(page, now)
 
         // Stav sa aktualizuje vždy, aby po zapnutí notifikácie neprišla stará záplava.
         val replies = tracker.updateReplies(page.replies, page.user.userId)
         val increases = tracker.updateBookmarks(page.bookmarks)
         val friends = tracker.updateFriends(page.friends)
 
-        val current = settings.current
         if (current.notifyReplies && replies.isNotEmpty()) Notifier.replies(context, replies)
         if (current.notifyBookmarks && increases.isNotEmpty()) Notifier.bookmarks(context, increases)
         if (current.notifyFriends && friends.isNotEmpty()) Notifier.friendsOnline(context, friends)
