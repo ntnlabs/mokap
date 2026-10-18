@@ -18,7 +18,7 @@ zoradené, prefiltrované a s lokálnymi notifikáciami.
 | Nastavenia: téma (systém/svetlá/tmavá/tlmená), avatary (animácia, len cez Wi-Fi), interval kontrol 15–60 min, tichý režim, notifikácie, odhlásenie | hotové |
 | K_wallet a vlastné ID (SELF) | parsované z hlavičky |
 | Notifikácia o novej pošte (ľahký endpoint `check_new_mail.php`, otvorí poštu na webe) | hotové |
-| Čítanie pošty (`/id/24/`), K (`/id/8340566/`) | čaká na vzorky HTML |
+| Čítanie pošty (`/id/24/`), K (`/id/8340566/`) | zatiaľ záložka s tlačidlom na web |
 | Čítanie nodov priamo v appke | neskôr; zatiaľ sa node otvorí na webe |
 
 ## Ako to funguje
