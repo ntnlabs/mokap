@@ -5,7 +5,10 @@ import sk.ntnlabs.kyberia.parse.Hotspot
 import sk.ntnlabs.kyberia.parse.LastPost
 import sk.ntnlabs.kyberia.parse.Reply
 
-/** Diskusie s „NSFW“ v názve: slovo sa ukáže ako 🔞 a na želanie sa celé skryjú. Čistý Kotlin. */
+/**
+ * Nody s „NSFW“ **v názve** – slovo sa ukáže ako 🔞 a na želanie sa node skryje. Obsah ani rodič sa
+ * nekontrolujú: NSFW sa na kyberii dedí, takže všetko aj tak nechytíme, a v textoch by bolo priveľa omylov.
+ */
 object Nsfw {
 
     const val MARK = "🔞"
@@ -25,7 +28,7 @@ object Nsfw {
         if (hide) list.filterNot { matches(it.nodeTitle) } else list
 
     fun last(list: List<LastPost>, hide: Boolean): List<LastPost> =
-        if (hide) list.filterNot { matches(it.title, it.parentTitle) } else list
+        if (hide) list.filterNot { matches(it.title) } else list
 
     fun hotspots(list: List<Hotspot>, hide: Boolean): List<Hotspot> =
         if (hide) list.filterNot { matches(it.title) } else list

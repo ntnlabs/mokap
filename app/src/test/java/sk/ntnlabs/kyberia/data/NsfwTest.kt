@@ -27,10 +27,16 @@ class NsfwTest {
     }
 
     @Test
-    fun lastHidesByTitleOrParent() {
-        fun post(id: Long, title: String, parent: String?) = LastPost(id, title, null, "a", null, null, parent, null, "s")
-        val posts = listOf(post(1, "Re: ahoj", "Archív NSFW"), post(2, "NSFW vlákno", null), post(3, "vlaky", "doprava"))
-        assertEquals(listOf(3L), Nsfw.last(posts, hide = true).map { it.nodeId })
+    fun lastHidesOnlyByOwnTitle() {
+        fun post(id: Long, title: String, parent: String?, snippet: String = "s") =
+            LastPost(id, title, null, "a", null, null, parent, null, snippet)
+        val posts = listOf(
+            post(1, "Re: ahoj", "Archív NSFW"),
+            post(2, "NSFW vlákno", null),
+            post(3, "vlaky", "doprava", snippet = "toto je nsfw text"),
+        )
+        // Rodič ani obsah sa nekontrolujú – len názov samotného nodu.
+        assertEquals(listOf(1L, 3L), Nsfw.last(posts, hide = true).map { it.nodeId })
         assertEquals(3, Nsfw.last(posts, hide = false).size)
     }
 }

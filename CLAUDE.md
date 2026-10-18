@@ -61,8 +61,9 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
 - UI je pre mobil: každá oblasť má vlastnú záložku (Bookmarky, Odpovede, Last, Pošta, K, Friends),
   v spodnej lište len ikony (popis pre čítačku). Pošta a K zatiaľ „Pracujeme na tom.“ + tlačidlo na web.
   Bookmarky predvolene A–Z (slovenský Collator); radenie/filter si appka pamätá v nastaveniach.
-- NSFW: diskusia s „NSFW“ v názve (samostatné slovo, `Nsfw`) – slovo sa vždy ukazuje ako 🔞; prepínač
-  „Skryť NSFW“ ju vyradí zo zoznamov, notifikácií aj bodiek na záložkách.
+- NSFW: **len názov samotného nodu** obsahuje „NSFW“ (samostatné slovo, `Nsfw`) – nikdy obsah, úryvky
+  ani rodič (NSFW sa dedí, všetko aj tak nechytíme; v textoch priveľa omylov). V názvoch sa ukazuje 🔞;
+  prepínač „Skryť NSFW“ node vyradí zo zoznamov, notifikácií aj bodiek na záložkách.
 - Téma „Tlmená“ = tmavá s nízkym jasom textu, farieb aj avatarov (`LocalDimImages`).
 - CI: `.github/workflows/android.yml` – na push/PR len gitleaks, lint a unit testy.
   Gradle cache cez `setup-java` (`cache: gradle`); `gradle/actions` nepoužívať – od v6 má proprietárne

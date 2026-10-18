@@ -102,7 +102,7 @@
     <string name="settings_animate_avatars">Animované avatary</string>
     <string name="settings_avatars_only_wifi">Avatary sťahovať len cez Wi-Fi</string>
     <string name="settings_hide_nsfw">Skryť NSFW</string>
-    <string name="settings_hide_nsfw_note">Diskusie s „NSFW“ v názve zmiznú zo zoznamov a nepríde o nich notifikácia. Inak sa „NSFW“ ukazuje ako 🔞.</string>
+    <string name="settings_hide_nsfw_note">Nody s „NSFW“ v názve zmiznú zo zoznamov a nepríde o nich notifikácia. Kontroluje sa len názov, nie obsah ani nadradená diskusia. Inak sa „NSFW“ v názve ukazuje ako 🔞.</string>
     <string name="settings_avatars_note">Bez animácie sa ukáže len prvý obrázok GIFu – menej pamäte aj batérie. Na mobilných dátach sa pri druhom prepínači ukážu len už stiahnuté avatary.</string>
 
     <string name="replies_empty">Zatiaľ žiadne odpovede na tvoje príspevky.</string>
