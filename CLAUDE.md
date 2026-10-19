@@ -10,7 +10,9 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
 - **Žiadne súkromné údaje v gite**: emaily, nicky, user ID, príspevky, pošta, prihlasovacie údaje.
   Skutočné HTML stránky od používateľa sa používajú len lokálne na analýzu (mimo repa);
   do `app/src/test/resources/fixtures` idú výhradne umelé vzorky s vymyslenými dátami.
-- Appka **neukladá heslo**; drží len session cookies šifrované cez Android Keystore.
+- Appka **neukladá heslo**; drží len session cookies šifrované cez Android Keystore. Prihlasovacie polia
+  sú označené pre autofill (`ContentType.Username/Password`) – uložiť ich môže len správca hesiel
+  v telefóne so súhlasom používateľa, appka nie.
 - Požiadavky a cookies idú výhradne na `https://kyberia.sk` (`UrlPolicy`, `KyberiaCookieJar`).
 - Appka sa nevydáva za oficiálnu aplikáciu kyberie ani nepoužíva jej logo bez súhlasu.
 
@@ -64,6 +66,8 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
 - Session sa zahodí **len** pri `PageKind.LOGGED_OUT` (prihlasovací formulár na stránke);
   `UNKNOWN` stránka je dočasná chyba. Výsledky kontrol ide do `DiagnosticsStore` (bez osobných údajov).
 - Čas pri priateľoch je **nečinnosť** (idle); zoznam je zoradený od najaktívnejšieho.
+- Odkazy na web idú cez `Web.open` s `Browser.EXTRA_APPLICATION_ID` – Chromium prehliadače (Chrome, Brave)
+  ich otvárajú v tej istej karte namiesto novej.
 - UI je pre mobil: každá oblasť má vlastnú záložku (Bookmarky, Odpovede, Last, Pošta, K, Friends),
   v spodnej lište len ikony (popis pre čítačku). Pošta a K zatiaľ „Pracujeme na tom.“ + tlačidlo na web.
   Bookmarky predvolene A–Z (slovenský Collator); radenie/filter si appka pamätá v nastaveniach.

@@ -30,8 +30,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentType
+import androidx.compose.ui.platform.LocalAutofillManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.contentType
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -41,7 +46,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import sk.ntnlabs.kyberia.R
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun LoginScreen(viewModel: LoginViewModel) {
     var username by rememberSaveable { mutableStateOf("") }
@@ -52,7 +57,9 @@ fun LoginScreen(viewModel: LoginViewModel) {
     // ID je číslo – kým nie je, ani nemá zmysel posielať formulár.
     val usernameOk = if (state.byId) username.trim().let { it.isNotEmpty() && it.all(Char::isDigit) } else username.isNotBlank()
     val canSubmit = !state.loading && usernameOk && password.isNotEmpty()
-    val submit = { if (canSubmit) viewModel.login(username, password) }
+    // Appka heslo neukladá; po úspešnom prihlásení len ponúkne uloženie správcovi hesiel v telefóne.
+    val autofill = LocalAutofillManager.current
+    val submit = { if (canSubmit) viewModel.login(username, password, onSuccess = { autofill?.commit() }) }
 
     LaunchedEffect(state.error) {
         if (state.error != null) password = ""
@@ -99,7 +106,8 @@ fun LoginScreen(viewModel: LoginViewModel) {
             } else {
                 null
             },
-            modifier = Modifier.fillMaxWidth(),
+            // Správca hesiel (Google, Bitwarden…) vie pole vyplniť; ID je tiež prihlasovacie meno.
+            modifier = Modifier.fillMaxWidth().semantics { contentType = ContentType.Username },
         )
         Spacer(Modifier.height(8.dp))
         OutlinedTextField(
@@ -120,7 +128,7 @@ fun LoginScreen(viewModel: LoginViewModel) {
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { submit() }),
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().semantics { contentType = ContentType.Password },
         )
 
         state.error?.let {

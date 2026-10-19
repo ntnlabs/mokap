@@ -11,7 +11,6 @@ import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import androidx.core.net.toUri
 import sk.ntnlabs.kyberia.KyberiaUrls
 import sk.ntnlabs.kyberia.MainActivity
 import sk.ntnlabs.kyberia.R
@@ -19,6 +18,7 @@ import sk.ntnlabs.kyberia.data.Increase
 import sk.ntnlabs.kyberia.data.Nsfw
 import sk.ntnlabs.kyberia.parse.Friend
 import sk.ntnlabs.kyberia.parse.Reply
+import sk.ntnlabs.kyberia.ui.common.Web
 
 /**
  * Lokálne notifikácie – žiadny Firebase, žiadny server.
@@ -192,7 +192,7 @@ object Notifier {
         PendingIntent.getActivity(
             context,
             requestCode,
-            Intent(Intent.ACTION_VIEW, KyberiaUrls.node(nodeId).toUri()).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+            Web.intent(context, KyberiaUrls.node(nodeId)),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
 
