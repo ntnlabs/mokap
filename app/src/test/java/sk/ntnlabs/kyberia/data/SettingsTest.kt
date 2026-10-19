@@ -44,6 +44,11 @@ class SettingsTest {
     }
 
     @Test
+    fun nsfwHiddenByDefault() {
+        assertTrue(Settings().hideNsfw)
+    }
+
+    @Test
     fun intervalIsClampedToWhatAndroidAllows() {
         assertEquals(15, Settings.sanitizeInterval(10))
         assertEquals(15, Settings.sanitizeInterval(15))
