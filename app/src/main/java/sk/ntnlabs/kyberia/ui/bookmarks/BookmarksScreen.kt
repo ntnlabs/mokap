@@ -1,36 +1,43 @@
 package sk.ntnlabs.kyberia.ui.bookmarks
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Badge
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -53,6 +60,11 @@ fun BookmarksScreen(viewModel: OverviewViewModel, settingsStore: SettingsStore, 
     var query by rememberSaveable { mutableStateOf("") }
     val shown = remember(state.bookmarks, query, settings.bookmarksOnlyNews, settings.bookmarkSort, settings.hideNsfw) {
         BookmarkFilter.apply(state.bookmarks, query, settings.bookmarksOnlyNews, settings.bookmarkSort, settings.hideNsfw)
+    }
+    val listState = rememberLazyListState()
+    // Po zmene radenia, filtra alebo hľadania hore – inak človek stojí uprostred iného zoznamu.
+    LaunchedEffect(settings.bookmarkSort, settings.bookmarksOnlyNews, settings.hideNsfw, query) {
+        listState.scrollToItem(0)
     }
 
     Column(Modifier.fillMaxSize()) {
@@ -77,28 +89,39 @@ fun BookmarksScreen(viewModel: OverviewViewModel, settingsStore: SettingsStore, 
                 .fillMaxWidth()
                 .padding(start = 16.dp, end = 16.dp, top = 8.dp),
         )
-        // Na úzkom displeji sa čipy dajú posúvať do strany.
+        // Radenie = jedna z dvoch možností (segmenty), „len nové“ = zapínač – aby sa to nedalo pomýliť.
         Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .horizontalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp),
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
         ) {
-            FilterChip(
-                selected = settings.bookmarkSort == BookmarkSort.ALPHABET,
-                onClick = { settingsStore.update { it.copy(bookmarkSort = BookmarkSort.ALPHABET) } },
-                label = { Text(stringResource(R.string.bookmarks_sort_alphabet)) },
-            )
-            FilterChip(
-                selected = settings.bookmarkSort == BookmarkSort.NEWS,
-                onClick = { settingsStore.update { it.copy(bookmarkSort = BookmarkSort.NEWS) } },
-                label = { Text(stringResource(R.string.bookmarks_sort_news)) },
-            )
-            FilterChip(
-                selected = settings.bookmarksOnlyNews,
-                onClick = { settingsStore.update { it.copy(bookmarksOnlyNews = !it.bookmarksOnlyNews) } },
-                label = { Text(stringResource(R.string.bookmarks_only_news)) },
-            )
+            SingleChoiceSegmentedButtonRow(Modifier.weight(1f)) {
+                listOf(
+                    BookmarkSort.ALPHABET to R.string.bookmarks_sort_alphabet,
+                    BookmarkSort.NEWS to R.string.bookmarks_sort_news,
+                ).forEachIndexed { index, (sort, label) ->
+                    SegmentedButton(
+                        selected = settings.bookmarkSort == sort,
+                        onClick = { settingsStore.update { it.copy(bookmarkSort = sort) } },
+                        shape = SegmentedButtonDefaults.itemShape(index, count = 2),
+                    ) { Text(stringResource(label), maxLines = 1) }
+                }
+            }
+            Spacer(Modifier.width(12.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.toggleable(
+                    value = settings.bookmarksOnlyNews,
+                    role = Role.Switch,
+                    onValueChange = { on -> settingsStore.update { it.copy(bookmarksOnlyNews = on) } },
+                ),
+            ) {
+                Text(stringResource(R.string.bookmarks_only_news), style = MaterialTheme.typography.labelLarge)
+                Spacer(Modifier.width(8.dp))
+                // Klik rieši celý riadok (toggleable), prepínač je len obrázok stavu.
+                Switch(checked = settings.bookmarksOnlyNews, onCheckedChange = null)
+            }
         }
 
         PullToRefreshBox(
@@ -106,7 +129,7 @@ fun BookmarksScreen(viewModel: OverviewViewModel, settingsStore: SettingsStore, 
             onRefresh = viewModel::refresh,
             modifier = Modifier.fillMaxSize(),
         ) {
-            LazyColumn(Modifier.fillMaxSize()) {
+            LazyColumn(Modifier.fillMaxSize(), state = listState) {
                 when {
                     state.error -> item { LoadError(onRetry = viewModel::refresh) }
                     !state.loading && shown.isEmpty() -> item {
