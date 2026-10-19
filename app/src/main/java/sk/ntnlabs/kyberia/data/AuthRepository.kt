@@ -39,6 +39,8 @@ class AuthRepository(
         }
         _loggedIn.value = true
         scheduler.schedule()
+        // Prihlásenie je čerstvá požiadavka – strážca rátá od nej.
+        scheduler.touch()
         return LoginResult.Success
     }
 

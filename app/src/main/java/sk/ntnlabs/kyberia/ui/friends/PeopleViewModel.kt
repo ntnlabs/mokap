@@ -19,6 +19,7 @@ import sk.ntnlabs.kyberia.data.PeopleRepository
 import sk.ntnlabs.kyberia.data.SessionExpiredException
 import sk.ntnlabs.kyberia.parse.Friend
 import sk.ntnlabs.kyberia.parse.Populated
+import sk.ntnlabs.kyberia.work.CheckScheduler
 import sk.ntnlabs.kyberia.work.NewsChecker
 
 /** Priatelia idú z /id/19/ (OverviewViewModel); všetci a diskusie z vlastných stránok. */
@@ -36,6 +37,7 @@ class PeopleViewModel(
     private val repository: PeopleRepository,
     private val auth: AuthRepository,
     private val diagnostics: DiagnosticsStore,
+    private val scheduler: CheckScheduler,
 ) : ViewModel() {
 
     var state by mutableStateOf(PeopleUiState())
@@ -80,6 +82,7 @@ class PeopleViewModel(
                     PeopleMode.FRIENDS -> state
                 }
                 loadedAtMillis[mode] = System.currentTimeMillis()
+                scheduler.touch()
                 loaded.copy(loading = false)
             } catch (e: SessionExpiredException) {
                 diagnostics.record(
@@ -97,7 +100,7 @@ class PeopleViewModel(
         private const val STALE_AFTER_MILLIS = 60_000L
 
         fun factory(container: AppContainer) = viewModelFactory {
-            initializer { PeopleViewModel(container.people, container.auth, container.diagnostics) }
+            initializer { PeopleViewModel(container.people, container.auth, container.diagnostics, container.scheduler) }
         }
     }
 }

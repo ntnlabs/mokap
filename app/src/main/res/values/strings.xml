@@ -79,7 +79,7 @@
     <string name="settings_system_notifications">Systémové nastavenia notifikácií</string>
     <string name="settings_section_quiet">Tichý režim</string>
     <string name="settings_quiet">Tichý režim</string>
-    <string name="settings_quiet_note">V tichom režime appka kyberiu nekontroluje. Čo sa nazbiera, príde po jeho skončení.</string>
+    <string name="settings_quiet_note">V tichom režime nepríde žiadna notifikácia. Appka sa na kyberiu ozve len vtedy, keby ťa inak po 2 hodinách odhlásila. Čo sa nazbiera, príde po jeho skončení.</string>
     <string name="settings_quiet_from">Od</string>
     <string name="settings_quiet_to">Do</string>
     <string name="settings_section_account">Účet</string>
@@ -98,6 +98,7 @@
     <string name="diag_error">chyba: %1$s</string>
     <string name="diag_expired">kyberia ťa odhlásila (%1$s)</string>
     <string name="diag_app">v appke</string>
+    <string name="diag_keepalive">strážca session</string>
     <string name="settings_section_look">Vzhľad</string>
     <string name="settings_theme">Téma</string>
     <string name="theme_system">Podľa systému</string>

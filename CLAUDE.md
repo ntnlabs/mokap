@@ -48,13 +48,19 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
 - `parse/` a čistá logika v `data/` nesmú závisieť od Android API – majú JVM unit testy.
 - Notifikácie sú lokálne (WorkManager, interval 15–60 min z nastavení – 15 je minimum Androidu),
   žiadny Firebase. Každý typ má vlastný kanál; jednotlivé odpovede/fóra otvárajú node na webe.
-- Kontrolu robí `NewsChecker` (mutex), volá ho `CheckWorker`. Tichý režim = žiadna požiadavka.
+- Kontrolu robí `NewsChecker` (mutex), volá ho `CheckWorker` a strážca session (`SessionGuardReceiver`).
+- **Kyberia odhlási pri načítaní stránky, ak od predošlého ubehli > 2 h** (`LOGOUT_IDLE_SEC = 7200`,
+  `$_SESSION['last_request']` v zdrojákoch Kyberia-bloodline; AJAX pošty sa nepočíta). Android kontroly
+  v Doze/standby odkladá aj na hodiny → **strážca session**: jeden budík `setAndAllowWhileIdle` na
+  „posledná úspešná požiadavka + 100 min“, každé načítanie ho posunie. Pri bežných kontrolách sa nespustí
+  (0 požiadaviek navyše). Tichý režim = žiadne notifikácie; jediná požiadavka je strážca.
 - `LatestPage` = posledná /id/19/ v pamäti, zdieľaná kontrolou v pozadí aj appkou (čo stiahne jedna,
   ukáže druhá). Zelený pruh nad záložkami rastie do ďalšieho obnovenia (interval z nastavení); v otvorenej
   appke sa po naplnení obnoví sama. Kontrola v pozadí preskočí /id/19/, ak ju appka stiahla nedávno.
 - Bodka na záložke (Bookmarky, Odpovede, Last) = novinka od poslednej návštevy záložky (`TabChanges`).
-- **Žiadny keepalive** a žiadne zbytočné požiadavky – kyberia má obmedzený hosting; pri každej
-  novej funkcii zvažuj záťaž servera (1000 používateľov × interval).
+- **Žiadny pravidelný keepalive** a žiadne zbytočné požiadavky – kyberia má obmedzený hosting; pri každej
+  novej funkcii zvažuj záťaž servera (1000 používateľov × interval). Strážca session je výnimka len
+  pre prípad, keď by inak prišlo odhlásenie.
 - Session sa zahodí **len** pri `PageKind.LOGGED_OUT` (prihlasovací formulár na stránke);
   `UNKNOWN` stránka je dočasná chyba. Výsledky kontrol ide do `DiagnosticsStore` (bez osobných údajov).
 - Čas pri priateľoch je **nečinnosť** (idle); zoznam je zoradený od najaktívnejšieho.

@@ -2,7 +2,8 @@ package sk.ntnlabs.kyberia.data
 
 enum class CheckResult { OK, ERROR, EXPIRED }
 
-enum class CheckTrigger { SCHEDULED, APP }
+/** KEEPALIVE = strážca session ([SessionGuard]) – spustí sa, len keď Android dlho nepustil kontrolu. */
+enum class CheckTrigger { SCHEDULED, APP, KEEPALIVE }
 
 data class CheckEntry(
     val atMillis: Long,

@@ -28,6 +28,7 @@ import sk.ntnlabs.kyberia.parse.Friend
 import sk.ntnlabs.kyberia.parse.LastPost
 import sk.ntnlabs.kyberia.parse.Reply
 import sk.ntnlabs.kyberia.parse.UserInfo
+import sk.ntnlabs.kyberia.work.CheckScheduler
 import sk.ntnlabs.kyberia.work.NewsChecker
 
 data class OverviewUiState(
@@ -52,6 +53,7 @@ class OverviewViewModel(
     private val diagnostics: DiagnosticsStore,
     private val latest: LatestPage,
     private val settings: SettingsStore,
+    private val scheduler: CheckScheduler,
 ) : ViewModel() {
 
     var state by mutableStateOf(OverviewUiState())
@@ -83,6 +85,8 @@ class OverviewViewModel(
                 val now = System.currentTimeMillis()
                 diagnostics.record(CheckEntry(now, CheckResult.OK, CheckTrigger.APP))
                 latest.publish(page, now)
+                // Kyberia práve videla načítanie – strážca session sa posunie.
+                scheduler.touch()
                 state.copy(loading = false)
             } catch (e: SessionExpiredException) {
                 // Len keď kyberia naozaj ukázala prihlasovací formulár (pozri loggedInPage).
@@ -144,6 +148,7 @@ class OverviewViewModel(
                     container.diagnostics,
                     container.latestPage,
                     container.settings,
+                    container.scheduler,
                 )
             }
         }

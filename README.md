@@ -37,8 +37,10 @@ zoradené, prefiltrované a s lokálnymi notifikáciami.
   `/id/19/`, porovná ho s naposledy videným stavom a pri novinkách vytvorí lokálnu notifikáciu.
   Počet novej pošty zistí jednou malou požiadavkou na `/ajax/check_new_mail.php` (len ak je zapnutá).
   Ťuknutie na odpoveď/fórum otvorí daný node na webe. Žiadny Firebase, žiadny server.
-- **Bez keepalive:** zámerne – kyberia drží session dlho a appka nemá serveru pridávať záťaž.
-  V tichom režime sa nekontroluje vôbec.
+- **Strážca session:** kyberia odhlási, ak 2 hodiny nevidí načítanie stránky, a Android kontroly
+  v spánku odkladá aj na hodiny. Appka si preto natiahne jeden budík na „posledná požiadavka + 100 min“;
+  pri bežných kontrolách sa nikdy nespustí, takže server nedostane nič navyše. V tichom režime
+  nechodia notifikácie a jediná požiadavka je tento strážca.
 - **Odhlásenie** sa vyhodnotí len vtedy, keď kyberia ukáže prihlasovací formulár; chybové stránky
   (údržba, ochrana proti botom) sú dočasná chyba. Nastavenia → Diagnostika ukazuje posledné kontroly.
 - **UI:** Jetpack Compose, Material 3.
