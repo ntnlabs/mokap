@@ -33,14 +33,18 @@ class LoginViewModel(private val auth: AuthRepository, private val settings: Set
         settings.update { it.copy(loginById = byId) }
     }
 
-    fun login(username: String, password: String) {
+    /** [onSuccess] beží hneď po úspechu, kým je prihlasovacia obrazovka ešte na mieste (správca hesiel). */
+    fun login(username: String, password: String, onSuccess: () -> Unit = {}) {
         if (state.loading) return
         val byId = state.byId
         state = LoginUiState(loading = true, byId = byId)
         viewModelScope.launch {
             val error = try {
                 when (auth.login(username.trim(), password, if (byId) LoginType.ID else LoginType.NAME)) {
-                    LoginResult.Success -> null
+                    LoginResult.Success -> {
+                        onSuccess()
+                        null
+                    }
                     LoginResult.Rejected -> if (byId) R.string.login_rejected_id else R.string.login_rejected
                     LoginResult.FormNotFound -> R.string.login_form_not_found
                 }

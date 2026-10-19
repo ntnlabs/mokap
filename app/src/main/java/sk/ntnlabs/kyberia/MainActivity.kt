@@ -32,6 +32,10 @@ class MainActivity : ComponentActivity() {
     /** Záložka, ktorú si vyžiadala notifikácia; HomeScreen ju prepne a obnoví dáta. */
     private val requestedTab = MutableStateFlow<String?>(null)
 
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(AppLocale.wrap(newBase))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)

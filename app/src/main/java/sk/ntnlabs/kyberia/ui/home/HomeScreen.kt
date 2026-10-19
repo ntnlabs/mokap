@@ -38,7 +38,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
@@ -62,6 +61,7 @@ import sk.ntnlabs.kyberia.data.RefreshTimer
 import sk.ntnlabs.kyberia.data.SeenArea
 import sk.ntnlabs.kyberia.data.Settings
 import sk.ntnlabs.kyberia.ui.bookmarks.BookmarksScreen
+import sk.ntnlabs.kyberia.ui.common.Web
 import sk.ntnlabs.kyberia.ui.friends.FriendsScreen
 import sk.ntnlabs.kyberia.ui.friends.PeopleViewModel
 import sk.ntnlabs.kyberia.ui.last.LastScreen
@@ -83,7 +83,8 @@ private enum class Tab(@StringRes val label: Int, @DrawableRes val icon: Int, va
 fun HomeScreen(container: AppContainer, requestedTab: String?, onTabHandled: () -> Unit) {
     var tab by rememberSaveable { mutableStateOf(Tab.BOOKMARKS) }
     var settingsOpen by rememberSaveable { mutableStateOf(false) }
-    val uriHandler = LocalUriHandler.current
+    val context = LocalContext.current
+    val openWeb: (String) -> Unit = { Web.open(context, it) }
     val overview: OverviewViewModel = viewModel(factory = OverviewViewModel.factory(container))
     val people: PeopleViewModel = viewModel(factory = PeopleViewModel.factory(container))
 
@@ -107,7 +108,7 @@ fun HomeScreen(container: AppContainer, requestedTab: String?, onTabHandled: () 
     val tagline = overview.state.user?.tagline
     val friendsOnline = overview.state.friends.size
     // Čítanie nodov v appke príde neskôr; dovtedy sa node otvorí na webe.
-    val openNode: (Long) -> Unit = { uriHandler.openUri(KyberiaUrls.node(it)) }
+    val openNode: (Long) -> Unit = { openWeb(KyberiaUrls.node(it)) }
 
     NotificationPermissionRequest()
 
@@ -177,10 +178,10 @@ fun HomeScreen(container: AppContainer, requestedTab: String?, onTabHandled: () 
             when (tab) {
                 Tab.BOOKMARKS -> BookmarksScreen(overview, container.settings, onOpenNode = openNode)
                 Tab.REPLIES -> RepliesScreen(overview, settings.hideNsfw, onOpenNode = openNode)
-                Tab.LAST -> LastScreen(overview, settings.hideNsfw, onOpenNode = openNode, onOpenAll = { uriHandler.openUri(KyberiaUrls.LAST) })
+                Tab.LAST -> LastScreen(overview, settings.hideNsfw, onOpenNode = openNode, onOpenAll = { openWeb(KyberiaUrls.LAST) })
                 Tab.FRIENDS -> FriendsScreen(overview, people, settings.hideNsfw, onOpenNode = openNode)
-                Tab.MAIL -> OnWeb(R.string.mail_open) { uriHandler.openUri(KyberiaUrls.MAIL) }
-                Tab.K -> OnWeb(R.string.k_open) { uriHandler.openUri(KyberiaUrls.TOP_K) }
+                Tab.MAIL -> OnWeb(R.string.mail_open) { openWeb(KyberiaUrls.MAIL) }
+                Tab.K -> OnWeb(R.string.k_open) { openWeb(KyberiaUrls.TOP_K) }
             }
         }
     }

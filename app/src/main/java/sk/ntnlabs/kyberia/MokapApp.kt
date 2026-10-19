@@ -29,6 +29,11 @@ class MokapApp : Application(), SingletonImageLoader.Factory {
 
     val container: AppContainer by lazy { AppContainer(this) }
 
+    // Aj notifikácie z pozadia musia počítať po slovensky („2 nové príspevky“).
+    override fun attachBaseContext(base: Context) {
+        super.attachBaseContext(AppLocale.wrap(base))
+    }
+
     override fun onCreate() {
         super.onCreate()
         Notifier.createChannels(this)
