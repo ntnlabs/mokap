@@ -16,7 +16,7 @@ zoradené, prefiltrované a s lokálnymi notifikáciami.
 | Last – 10 najnovších príspevkov na celej kyberii (z tej istej stránky, žiadna požiadavka navyše) | hotové |
 | Motto z titulku kyberie pod názvom záložky | hotové |
 | Zelený pruh nad záložkami do ďalšieho obnovenia, bodka na záložkách s novinkami | hotové |
-| NSFW: „NSFW“ v názvoch ako 🔞, prepínač „Skryť NSFW“ (zoznamy aj notifikácie) | hotové |
+| NSFW: „NSFW“ v názvoch ako 🔞, prepínač „Skryť NSFW“, predvolene zapnutý (zoznamy aj notifikácie) | hotové |
 | Notifikácie: odpovede, pošta, novinky v bookmarkoch, priateľ online | hotové, každá s vlastným kanálom a prepínačom |
 | Friends online – kde sú, nečinnosť, počet na záložke | hotové |
 | Prepínač vo Friends: Priatelia / Všetci online (`/id/27/`) / Diskusie – kde je najviac ľudí (`/id/4830026/`), sťahuje sa len na požiadanie | hotové |

@@ -23,7 +23,7 @@ data class Settings(
     /** Posledný spôsob prihlásenia (nick/ID) – len voľba, nick ani ID sa neukladajú. */
     val loginById: Boolean = false,
     /** Skryť diskusie s „NSFW“ v názve (zoznamy, notifikácie, bodky na záložkách). */
-    val hideNsfw: Boolean = false,
+    val hideNsfw: Boolean = true,
 ) {
     fun isQuiet(hour: Int): Boolean = quietEnabled && QuietHours.contains(quietFromHour, quietToHour, hour)
 
