@@ -88,6 +88,12 @@
     <string name="diag_last_ok">Posledná úspešná</string>
     <string name="diag_last_logout">Posledné odhlásenie</string>
     <string name="diag_never">zatiaľ nikdy</string>
+    <string name="diag_ok_before">predtým naposledy OK %1$s (%2$s pred odhlásením)</string>
+    <string name="diag_cookie">Session cookie</string>
+    <string name="diag_cookie_none">žiadna</string>
+    <string name="diag_cookie_session">bez dátumu – appka ju sama nezahodí</string>
+    <string name="diag_cookie_until">platí do %1$s</string>
+    <string name="diag_history">História kontrol (najnovšie hore)</string>
     <string name="diag_ok">OK</string>
     <string name="diag_error">chyba: %1$s</string>
     <string name="diag_expired">kyberia ťa odhlásila (%1$s)</string>

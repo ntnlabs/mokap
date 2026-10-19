@@ -44,6 +44,7 @@ import sk.ntnlabs.kyberia.R
 import sk.ntnlabs.kyberia.data.CheckEntry
 import sk.ntnlabs.kyberia.data.CheckResult
 import sk.ntnlabs.kyberia.data.CheckTrigger
+import sk.ntnlabs.kyberia.data.Durations
 import sk.ntnlabs.kyberia.data.Settings
 import sk.ntnlabs.kyberia.data.ThemeMode
 
@@ -164,8 +165,32 @@ fun SettingsScreen(container: AppContainer, onBack: () -> Unit) {
             InfoRow(stringResource(R.string.diag_last_ok), diagnostics.lastOkMillis?.let(::time) ?: never)
             InfoRow(
                 stringResource(R.string.diag_last_logout),
-                diagnostics.lastExpired?.let { "${time(it.atMillis)} – ${describe(it)}" } ?: never,
+                diagnostics.lastExpired?.let { expired ->
+                    val before = diagnostics.okBeforeExpiredMillis?.let { ok ->
+                        "\n" + stringResource(R.string.diag_ok_before, time(ok), Durations.short((expired.atMillis - ok) / 1000))
+                    }.orEmpty()
+                    "${time(expired.atMillis)} – ${describe(expired)}$before"
+                } ?: never,
             )
+            val cookies = remember(diagnostics) { container.cookieExpiry() }
+            InfoRow(
+                stringResource(R.string.diag_cookie),
+                when {
+                    cookies.count == 0 -> stringResource(R.string.diag_cookie_none)
+                    cookies.earliestMillis == null -> stringResource(R.string.diag_cookie_session)
+                    else -> stringResource(R.string.diag_cookie_until, time(cookies.earliestMillis))
+                },
+            )
+            if (diagnostics.history.isNotEmpty()) {
+                // Najnovšie hore; „+X“ = koľko času ubehlo od predchádzajúcej kontroly.
+                val lines = diagnostics.history.mapIndexed { index, entry ->
+                    val gap = diagnostics.history.getOrNull(index - 1)?.let { previous ->
+                        " · +" + Durations.short((entry.atMillis - previous.atMillis) / 1000)
+                    }.orEmpty()
+                    "${time(entry.atMillis)} – ${describe(entry)}$gap"
+                }.asReversed()
+                InfoRow(stringResource(R.string.diag_history), lines.joinToString("\n"))
+            }
 
             SectionHeader(stringResource(R.string.settings_section_account))
             ListItem(

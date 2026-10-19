@@ -20,6 +20,33 @@ class DiagnosticsTest {
     }
 
     @Test
+    fun historyIsCappedAndRemembersOkBeforeLogout() {
+        var diagnostics = Diagnostics()
+        repeat(Diagnostics.HISTORY_SIZE + 5) { i ->
+            diagnostics = diagnostics.record(CheckEntry(i * 1_000L, CheckResult.OK, CheckTrigger.SCHEDULED))
+        }
+        assertEquals(Diagnostics.HISTORY_SIZE, diagnostics.history.size)
+        assertEquals(5_000L, diagnostics.history.first().atMillis)
+
+        val expired = diagnostics.record(CheckEntry(99_000, CheckResult.EXPIRED, CheckTrigger.APP, "login"))
+        assertEquals(diagnostics.lastOkMillis, expired.okBeforeExpiredMillis)
+        // Ďalšie OK po prihlásení údaj pred odhlásením neprepíše.
+        assertEquals(expired.okBeforeExpiredMillis, expired.record(CheckEntry(100_000, CheckResult.OK, CheckTrigger.APP)).okBeforeExpiredMillis)
+    }
+
+    @Test
+    fun historyCodecRoundTripsAndCleansDetail() {
+        val history = listOf(
+            CheckEntry(1_000, CheckResult.OK, CheckTrigger.SCHEDULED),
+            CheckEntry(2_000, CheckResult.ERROR, CheckTrigger.APP, "timeout\nna\tsieti"),
+        )
+        val decoded = CheckHistoryCodec.decode(CheckHistoryCodec.encode(history))
+        assertEquals(history[0], decoded[0])
+        assertEquals("timeout na sieti", decoded[1].detail)
+        assertEquals(emptyList<CheckEntry>(), CheckHistoryCodec.decode(""))
+    }
+
+    @Test
     fun recordKeepsLastOkAndLastExpired() {
         val ok = CheckEntry(1_000, CheckResult.OK, CheckTrigger.SCHEDULED)
         val error = CheckEntry(2_000, CheckResult.ERROR, CheckTrigger.APP, "timeout")

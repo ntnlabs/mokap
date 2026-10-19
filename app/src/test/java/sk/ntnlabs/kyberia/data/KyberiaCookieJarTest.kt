@@ -47,6 +47,19 @@ class KyberiaCookieJarTest {
     }
 
     @Test
+    fun expiryReportsEarliestDatedCookieOnly() {
+        val now = System.currentTimeMillis()
+        val jar = KyberiaCookieJar(MemoryStorage()) { now }
+        assertEquals(CookieExpiry(0, null), jar.expiry())
+        jar.saveFromResponse(kyberia, listOf(cookie(kyberia, "sid=abc; Path=/")))
+        assertEquals(CookieExpiry(1, null), jar.expiry())
+        jar.saveFromResponse(kyberia, listOf(cookie(kyberia, "pref=1; Max-Age=3600")))
+        val expiry = jar.expiry()
+        assertEquals(2, expiry.count)
+        assertTrue(requireNotNull(expiry.earliestMillis) > now)
+    }
+
+    @Test
     fun dropsExpiredCookies() {
         var now = System.currentTimeMillis()
         val jar = KyberiaCookieJar(MemoryStorage()) { now }
