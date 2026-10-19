@@ -31,9 +31,9 @@
 
     <string name="bookmarks_search">Hľadať v bookmarkoch</string>
     <string name="bookmarks_search_clear">Vymazať hľadanie</string>
-    <string name="bookmarks_only_news">Len s novinkami</string>
+    <string name="bookmarks_only_news">Len nové</string>
     <string name="bookmarks_sort_alphabet">A–Z</string>
-    <string name="bookmarks_sort_news">Podľa noviniek</string>
+    <string name="bookmarks_sort_news">Novinky</string>
     <string name="bookmarks_nothing_new">V bookmarkoch nič nové.</string>
     <string name="bookmarks_nothing_found">Nič sa nenašlo.</string>
     <string name="bookmarks_load_error">Bookmarky sa nepodarilo načítať.</string>
