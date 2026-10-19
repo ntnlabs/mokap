@@ -69,14 +69,15 @@ class AppContainer(context: Context) {
 
     /** Len na diagnostiku – dokedy platia cookies, nie ich obsah. */
     fun cookieExpiry() = cookieJar.expiry()
+
     val settings = SettingsStore(context)
-    val scheduler = CheckScheduler(context, settings)
+    val diagnostics = DiagnosticsStore(context)
+    val scheduler = CheckScheduler(context, settings, diagnostics)
     val newsTracker = NewsTracker(context)
     val latestPage = LatestPage()
     val auth = AuthRepository(client, cookieJar, newsTracker, scheduler, latestPage)
     val bookmarks = BookmarksRepository(client)
     val mail = MailRepository(client)
     val people = PeopleRepository(client)
-    val diagnostics = DiagnosticsStore(context)
-    val checker = NewsChecker(context, auth, bookmarks, mail, newsTracker, settings, diagnostics, latestPage)
+    val checker = NewsChecker(context, auth, bookmarks, mail, newsTracker, settings, diagnostics, latestPage, scheduler)
 }

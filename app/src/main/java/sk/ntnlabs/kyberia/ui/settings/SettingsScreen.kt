@@ -217,6 +217,7 @@ private fun describe(entry: CheckEntry): String {
     return when (entry.trigger) {
         CheckTrigger.SCHEDULED -> text
         CheckTrigger.APP -> "$text (${stringResource(R.string.diag_app)})"
+        CheckTrigger.KEEPALIVE -> "$text (${stringResource(R.string.diag_keepalive)})"
     }
 }
 

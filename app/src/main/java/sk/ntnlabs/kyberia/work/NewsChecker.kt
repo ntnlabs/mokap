@@ -34,6 +34,7 @@ class NewsChecker(
     private val settings: SettingsStore,
     private val diagnostics: DiagnosticsStore,
     private val latest: LatestPage,
+    private val scheduler: CheckScheduler,
 ) {
     private val mutex = Mutex()
 
@@ -45,10 +46,12 @@ class NewsChecker(
     /** Vráti false pri dočasnej chybe (treba skúsiť znova). */
     suspend fun run(trigger: CheckTrigger): Boolean = mutex.withLock {
         if (!auth.loggedIn.value) return true
-        // V tichom režime kyberiu vôbec nekontrolujeme; novinky prídu po jeho skončení.
-        if (settings.current.isQuiet(LocalTime.now().hour)) return true
-        val now = System.currentTimeMillis()
         val current = settings.current
+        // V tichom režime len strážca session: jedna požiadavka, aby kyberia po 2 h neodhlásila.
+        // Bez notifikácií a bez posunu „videného“ – novinky z noci prídu po skončení tichého režimu.
+        val quiet = current.isQuiet(LocalTime.now().hour)
+        if (quiet && trigger != CheckTrigger.KEEPALIVE) return true
+        val now = System.currentTimeMillis()
 
         // Otvorená appka stránku stiahla pred chvíľou (a novinky ukázala) – druhýkrát ju netreba; pošta je zvlášť.
         // Počíta sa len načítanie v appke: WorkManager nespúšťa presne, vlastné behy by si navzájom prekážali.
@@ -76,6 +79,8 @@ class NewsChecker(
 
         diagnostics.record(CheckEntry(now, CheckResult.OK, trigger))
         latest.publish(page, now)
+        scheduler.touch()
+        if (quiet) return true
 
         // Stav sa aktualizuje vždy, aby po zapnutí notifikácie neprišla stará záplava.
         val replies = tracker.updateReplies(page.replies, page.user.userId)
