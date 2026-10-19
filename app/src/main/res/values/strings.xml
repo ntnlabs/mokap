@@ -52,16 +52,16 @@
     <string name="populated_empty">Práve sa nikde nediskutuje.</string>
     <string name="populated_header_plain">Tu sa práve diskutuje</string>
     <plurals name="populated_header">
-        <item quantity="one">Tu sa práve diskutuje · %d človek online</item>
-        <item quantity="few">Tu sa práve diskutuje · %d ľudia online</item>
-        <item quantity="many">Tu sa práve diskutuje · %d človeka online</item>
-        <item quantity="other">Tu sa práve diskutuje · %d ľudí online</item>
+        <item quantity="one">Tu sa práve diskutuje · %d kybčanko online</item>
+        <item quantity="few">Tu sa práve diskutuje · %d kybčankovia online</item>
+        <item quantity="many">Tu sa práve diskutuje · %d kybčanka online</item>
+        <item quantity="other">Tu sa práve diskutuje · %d kybčankov online</item>
     </plurals>
     <plurals name="people_count">
-        <item quantity="one">%d človek</item>
-        <item quantity="few">%d ľudia</item>
-        <item quantity="many">%d človeka</item>
-        <item quantity="other">%d ľudí</item>
+        <item quantity="one">%d kybčanko</item>
+        <item quantity="few">%d kybčankovia</item>
+        <item quantity="many">%d kybčanka</item>
+        <item quantity="other">%d kybčankov</item>
     </plurals>
 
     <string name="settings_title">Nastavenia</string>
