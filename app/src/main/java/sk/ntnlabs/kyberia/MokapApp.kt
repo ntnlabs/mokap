@@ -66,6 +66,9 @@ class AppContainer(context: Context) {
     )
 
     val imageCallFactory = client.imageCallFactory
+
+    /** Len na diagnostiku – dokedy platia cookies, nie ich obsah. */
+    fun cookieExpiry() = cookieJar.expiry()
     val settings = SettingsStore(context)
     val scheduler = CheckScheduler(context, settings)
     val newsTracker = NewsTracker(context)

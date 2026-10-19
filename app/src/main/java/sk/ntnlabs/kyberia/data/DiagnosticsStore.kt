@@ -24,6 +24,8 @@ class DiagnosticsStore(context: Context) {
             writeEntry(LAST, updated.last)
             writeEntry(EXPIRED, updated.lastExpired)
             updated.lastOkMillis?.let { putLong(LAST_OK, it) }
+            updated.okBeforeExpiredMillis?.let { putLong(OK_BEFORE_EXPIRED, it) }
+            putString(HISTORY, CheckHistoryCodec.encode(updated.history))
         }
         state.value = updated
     }
@@ -32,6 +34,8 @@ class DiagnosticsStore(context: Context) {
         last = readEntry(LAST),
         lastOkMillis = prefs.getLong(LAST_OK, 0L).takeIf { it > 0 },
         lastExpired = readEntry(EXPIRED),
+        okBeforeExpiredMillis = prefs.getLong(OK_BEFORE_EXPIRED, 0L).takeIf { it > 0 },
+        history = prefs.getString(HISTORY, null)?.let(CheckHistoryCodec::decode).orEmpty(),
     )
 
     private fun SharedPreferences.Editor.writeEntry(prefix: String, entry: CheckEntry?) {
@@ -54,5 +58,7 @@ class DiagnosticsStore(context: Context) {
         const val LAST = "last"
         const val EXPIRED = "expired"
         const val LAST_OK = "last_ok"
+        const val OK_BEFORE_EXPIRED = "ok_before_expired"
+        const val HISTORY = "history"
     }
 }

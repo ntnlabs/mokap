@@ -6,6 +6,9 @@ import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import sk.ntnlabs.kyberia.UrlPolicy
 
+/** Na diagnostiku: koľko cookies appka drží a kedy najskôr niektorá vyprší – bez názvov a hodnôt. */
+data class CookieExpiry(val count: Int, val earliestMillis: Long?)
+
 /** Úložisko pre serializované cookies; abstrakcia kvôli JVM testom. */
 interface CookieStorage {
     fun read(): String?
@@ -46,6 +49,13 @@ class KyberiaCookieJar(
     fun hasCookies(): Boolean {
         prune()
         return cookies.isNotEmpty()
+    }
+
+    /** Cookies bez dátumu (session) sa do [CookieExpiry.earliestMillis] nerátajú. */
+    @Synchronized
+    fun expiry(): CookieExpiry {
+        prune()
+        return CookieExpiry(cookies.size, cookies.values.filter { it.persistent }.minOfOrNull { it.expiresAt })
     }
 
     @Synchronized
