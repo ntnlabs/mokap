@@ -61,6 +61,9 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   ukáže druhá). Zelený pruh nad záložkami rastie do ďalšieho obnovenia (interval z nastavení); v otvorenej
   appke sa po naplnení obnoví sama. Kontrola v pozadí preskočí /id/19/, ak ju appka stiahla nedávno.
 - Bodka na záložke (Bookmarky, Odpovede, Last) = novinka od poslednej návštevy záložky (`TabChanges`).
+- **Výpadok siete alebo kyberie je bežný stav** – appka naň reaguje pasívne (strážca to skúsi znova, pri odhlásení
+  notifikácia). Žiadne obchádzanie DNS (DoH, Cloudflare, cache IP) a žiadne automatické prihlasovanie
+  (ani heslom zo správcu hesiel) – rozhodnutie používateľa.
 - **Žiadny pravidelný keepalive** a žiadne zbytočné požiadavky – kyberia má obmedzený hosting; pri každej
   novej funkcii zvažuj záťaž servera (1000 používateľov × interval). Strážca session je výnimka len
   pre prípad, keď by inak prišlo odhlásenie.
