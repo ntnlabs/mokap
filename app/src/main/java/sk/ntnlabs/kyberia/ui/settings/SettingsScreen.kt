@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -156,17 +158,34 @@ fun SettingsScreen(container: AppContainer, onBack: () -> Unit) {
             )
             Note(stringResource(R.string.settings_quiet_note))
 
-            SectionHeader(stringResource(R.string.settings_section_account))
-            ListItem(
-                headlineContent = { Text(stringResource(R.string.logout), color = MaterialTheme.colorScheme.error) },
-                modifier = Modifier.clickable { scope.launch { container.auth.logout() } },
-            )
-
             // Verzia a diagnostika bežne netreba – zbalené, kým ich používateľ nerozbalí.
             var advanced by rememberSaveable { mutableStateOf(false) }
             ExpandableHeader(stringResource(R.string.settings_section_advanced), advanced) { advanced = !advanced }
             if (advanced) {
                 DiagnosticsRows(container)
+            }
+
+            SectionHeader(stringResource(R.string.settings_section_account))
+            // Odhlásenie je drahý omyl (heslo znova) – až po potvrdení.
+            var confirmLogout by remember { mutableStateOf(false) }
+            ListItem(
+                headlineContent = { Text(stringResource(R.string.logout), color = MaterialTheme.colorScheme.error) },
+                modifier = Modifier.clickable { confirmLogout = true },
+            )
+            if (confirmLogout) {
+                AlertDialog(
+                    onDismissRequest = { confirmLogout = false },
+                    title = { Text(stringResource(R.string.logout_confirm)) },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            confirmLogout = false
+                            scope.launch { container.auth.logout() }
+                        }) { Text(stringResource(R.string.logout), color = MaterialTheme.colorScheme.error) }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { confirmLogout = false }) { Text(stringResource(R.string.cancel)) }
+                    },
+                )
             }
         }
     }
