@@ -175,8 +175,12 @@ fun SettingsScreen(container: AppContainer, onBack: () -> Unit) {
             var advanced by rememberSaveable { mutableStateOf(false) }
             ExpandableHeader(stringResource(R.string.settings_section_advanced), advanced) { advanced = !advanced }
             if (advanced) {
-                val version = stringResource(R.string.settings_version_value, BuildConfig.APP_VERSION, BuildConfig.CODENAME)
-                InfoRow(stringResource(R.string.settings_version), if (BuildConfig.DEBUG) "$version · debug" else version)
+                // „Verzia: 0.7.0114“ a pod tým kódové meno v zátvorke.
+                val version = if (BuildConfig.DEBUG) "${BuildConfig.APP_VERSION} · debug" else BuildConfig.APP_VERSION
+                InfoRow(
+                    stringResource(R.string.settings_version, version),
+                    stringResource(R.string.settings_version_codename, BuildConfig.CODENAME),
+                )
                 val never = stringResource(R.string.diag_never)
                 InfoRow(stringResource(R.string.diag_last_check), diagnostics.last?.let { "${time(it.atMillis)} – ${describe(it)}" } ?: never)
                 InfoRow(stringResource(R.string.diag_last_ok), diagnostics.lastOkMillis?.let(::time) ?: never)
