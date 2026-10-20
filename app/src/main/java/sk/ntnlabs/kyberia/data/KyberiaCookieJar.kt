@@ -26,13 +26,19 @@ class KyberiaCookieJar(
 
     private val cookies = LinkedHashMap<String, Cookie>()
 
+    /**
+     * Po konci session sa cookies z odpovedí, ktoré ešte bežali, neukladajú – inak by appka
+     * po reštarte vyzerala prihlásená so zbytočnou cookie. Znova ich prijme až [clear] pri prihlásení.
+     */
+    private var accepting = true
+
     init {
         restore()
     }
 
     @Synchronized
     override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
-        if (!UrlPolicy.isKyberiaHost(url.host)) return
+        if (!UrlPolicy.isKyberiaHost(url.host) || !accepting) return
         cookies.filterNot { it.name in UNNEEDED }.forEach { this.cookies[key(it)] = it }
         prune()
         persist()
@@ -58,8 +64,18 @@ class KyberiaCookieJar(
         return CookieExpiry(cookies.size, cookies.values.filter { it.persistent }.minOfOrNull { it.expiresAt })
     }
 
+    /** Čistý štart pred prihlásením – cookies sa odteraz zase ukladajú. */
     @Synchronized
     fun clear() {
+        accepting = true
+        cookies.clear()
+        storage.write(null)
+    }
+
+    /** Session skončila (odhlásenie): zahodí cookies a ďalšie neprijme až do [clear]. */
+    @Synchronized
+    fun endSession() {
+        accepting = false
         cookies.clear()
         storage.write(null)
     }

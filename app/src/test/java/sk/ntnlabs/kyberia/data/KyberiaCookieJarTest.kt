@@ -56,6 +56,22 @@ class KyberiaCookieJarTest {
     }
 
     @Test
+    fun afterSessionEndIgnoresLateCookiesUntilNextLogin() {
+        val storage = MemoryStorage()
+        val jar = KyberiaCookieJar(storage)
+        jar.saveFromResponse(kyberia, listOf(cookie(kyberia, "sid=abc; Path=/")))
+        jar.endSession()
+        // Odpoveď požiadavky, ktorá bežala súčasne s odhlásením, nesmie session „oživiť“.
+        jar.saveFromResponse(kyberia, listOf(cookie(kyberia, "sid=late; Path=/")))
+        assertFalse(jar.hasCookies())
+        assertFalse(KyberiaCookieJar(storage).hasCookies())
+
+        jar.clear()
+        jar.saveFromResponse(kyberia, listOf(cookie(kyberia, "sid=next; Path=/")))
+        assertTrue(jar.hasCookies())
+    }
+
+    @Test
     fun ignoresCookiesFromOtherSites() {
         val jar = KyberiaCookieJar(MemoryStorage())
         jar.saveFromResponse(foreign, listOf(cookie(foreign, "track=1")))

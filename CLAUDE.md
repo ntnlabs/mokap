@@ -69,6 +69,10 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   `LogoutDetail`: odhlásenie pri nečinnosti kyberia robí presmerovaním na `/` (`logout.inc`), zmiznutá session
   ukáže login bez presmerovania. Diagnostika sa nemaže a je dostupná aj z prihlasovacej obrazovky.
 - Cookie jar zahadzuje `jabber_login` a `jabber_password` (web ich nastavuje pri prihlásení, druhá je MD5 z hesla).
+  Po konci session (`endSession`) neprijíma cookies až do ďalšieho prihlásenia (`clear`) – odpoveď súbežnej
+  požiadavky by inak session po reštarte „oživila“.
+- Chyba kontroly na pozadí zapíše do diagnostiky aj stav siete (`NetworkProbe`: bez siete / zablokovaná pre appku,
+  Doze, šetriče, standby bucket) – „Unable to resolve host“ inak nerozlíši offline telefón od zákazu Androidu.
 - Čas pri priateľoch je **nečinnosť** (idle); zoznam je zoradený od najaktívnejšieho.
 - Appka beží vždy so slovenským locale (`AppLocale` v `attachBaseContext` aplikácie aj aktivity) – inak by
   Android vyberal tvar plurálu podľa jazyka telefónu („2 ľudí“ v anglickom telefóne).
