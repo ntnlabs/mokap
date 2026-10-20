@@ -25,7 +25,8 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   nepoužíva. Appka ponúka Nick/ID (niektoré nicky sa napísať nedajú); pamätá si len voľbu, nie nick/ID.
 - `/id/19/` obsahuje aj blok „Last 10 user submissions children“ (`div.user_sub_child`): avatar
   autora odpovede, odkaz na **tvoj** príspevok (nie na odpoveď) a úryvok textu. Počítadlá pred `<br>`:
-  `[<span>1K</span>]` = počet K, `[<span>2</span>]` (bez K) = počet odpovedí pod odpoveďou.
+  `[<span>1K</span>]` = počet K, `[<span>2</span>]` (bez K) = počet odpovedí pod odpoveďou. Odpoveď novšia ako
+  posledná návšteva /id/19/ má pred odkazom ešte `<a class=most_important>NEW</a>` (/id/3579407/) – nie je to príspevok.
 - Blok „Last“ (`div.last`) = 10 najnovších príspevkov na celej kyberii: avatar s `title="nick | čas - dátum"`,
   odkaz na príspevok, „in“, odkaz na rodiča, čas, úryvok. Celý last je na `/id/35/`.
 - Titulok stránky je `<názov> :: <motto>`; motto sa strieda a appka ho ukazuje pod názvom záložky.
