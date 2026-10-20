@@ -6,7 +6,9 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -27,8 +29,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -40,6 +45,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlinx.coroutines.launch
 import sk.ntnlabs.kyberia.AppContainer
+import sk.ntnlabs.kyberia.BuildConfig
 import sk.ntnlabs.kyberia.R
 import sk.ntnlabs.kyberia.data.CheckEntry
 import sk.ntnlabs.kyberia.data.CheckResult
@@ -159,44 +165,50 @@ fun SettingsScreen(container: AppContainer, onBack: () -> Unit) {
             )
             Note(stringResource(R.string.settings_quiet_note))
 
-            SectionHeader(stringResource(R.string.settings_section_diagnostics))
-            val never = stringResource(R.string.diag_never)
-            InfoRow(stringResource(R.string.diag_last_check), diagnostics.last?.let { "${time(it.atMillis)} – ${describe(it)}" } ?: never)
-            InfoRow(stringResource(R.string.diag_last_ok), diagnostics.lastOkMillis?.let(::time) ?: never)
-            InfoRow(
-                stringResource(R.string.diag_last_logout),
-                diagnostics.lastExpired?.let { expired ->
-                    val before = diagnostics.okBeforeExpiredMillis?.let { ok ->
-                        "\n" + stringResource(R.string.diag_ok_before, time(ok), Durations.short((expired.atMillis - ok) / 1000))
-                    }.orEmpty()
-                    "${time(expired.atMillis)} – ${describe(expired)}$before"
-                } ?: never,
-            )
-            val cookies = remember(diagnostics) { container.cookieExpiry() }
-            InfoRow(
-                stringResource(R.string.diag_cookie),
-                when {
-                    cookies.count == 0 -> stringResource(R.string.diag_cookie_none)
-                    cookies.earliestMillis == null -> stringResource(R.string.diag_cookie_session)
-                    else -> stringResource(R.string.diag_cookie_until, time(cookies.earliestMillis))
-                },
-            )
-            if (diagnostics.history.isNotEmpty()) {
-                // Najnovšie hore; „+X“ = koľko času ubehlo od predchádzajúcej kontroly.
-                val lines = diagnostics.history.mapIndexed { index, entry ->
-                    val gap = diagnostics.history.getOrNull(index - 1)?.let { previous ->
-                        " · +" + Durations.short((entry.atMillis - previous.atMillis) / 1000)
-                    }.orEmpty()
-                    "${time(entry.atMillis)} – ${describe(entry)}$gap"
-                }.asReversed()
-                InfoRow(stringResource(R.string.diag_history), lines.joinToString("\n"))
-            }
-
             SectionHeader(stringResource(R.string.settings_section_account))
             ListItem(
                 headlineContent = { Text(stringResource(R.string.logout), color = MaterialTheme.colorScheme.error) },
                 modifier = Modifier.clickable { scope.launch { container.auth.logout() } },
             )
+
+            // Verzia a diagnostika bežne netreba – zbalené, kým ich používateľ nerozbalí.
+            var advanced by rememberSaveable { mutableStateOf(false) }
+            ExpandableHeader(stringResource(R.string.settings_section_advanced), advanced) { advanced = !advanced }
+            if (advanced) {
+                val version = stringResource(R.string.settings_version_value, BuildConfig.APP_VERSION, BuildConfig.CODENAME)
+                InfoRow(stringResource(R.string.settings_version), if (BuildConfig.DEBUG) "$version · debug" else version)
+                val never = stringResource(R.string.diag_never)
+                InfoRow(stringResource(R.string.diag_last_check), diagnostics.last?.let { "${time(it.atMillis)} – ${describe(it)}" } ?: never)
+                InfoRow(stringResource(R.string.diag_last_ok), diagnostics.lastOkMillis?.let(::time) ?: never)
+                InfoRow(
+                    stringResource(R.string.diag_last_logout),
+                    diagnostics.lastExpired?.let { expired ->
+                        val before = diagnostics.okBeforeExpiredMillis?.let { ok ->
+                            "\n" + stringResource(R.string.diag_ok_before, time(ok), Durations.short((expired.atMillis - ok) / 1000))
+                        }.orEmpty()
+                        "${time(expired.atMillis)} – ${describe(expired)}$before"
+                    } ?: never,
+                )
+                val cookies = remember(diagnostics) { container.cookieExpiry() }
+                InfoRow(
+                    stringResource(R.string.diag_cookie),
+                    when {
+                        cookies.count == 0 -> stringResource(R.string.diag_cookie_none)
+                        cookies.earliestMillis == null -> stringResource(R.string.diag_cookie_session)
+                        else -> stringResource(R.string.diag_cookie_until, time(cookies.earliestMillis))
+                    },
+                )
+                if (diagnostics.history.isNotEmpty()) {
+                    // Najnovšie hore; „+X“ = koľko času ubehlo od predchádzajúcej kontroly.
+                    val lines = diagnostics.history.mapIndexed { index, entry ->
+                        val gap = diagnostics.history.getOrNull(index - 1)?.let { previous ->
+                            " · +" + Durations.short((entry.atMillis - previous.atMillis) / 1000)
+                        }.orEmpty()
+                        "${time(entry.atMillis)} – ${describe(entry)}$gap"
+                    }.asReversed()
+                    InfoRow(stringResource(R.string.diag_history), lines.joinToString("\n"))
+                }
+            }
         }
     }
 }
@@ -250,6 +262,31 @@ private fun SectionHeader(text: String) {
         color = MaterialTheme.colorScheme.primary,
         modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 4.dp),
     )
+}
+
+@Composable
+private fun ExpandableHeader(text: String, expanded: Boolean, onToggle: () -> Unit) {
+    HorizontalDivider()
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onToggle)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+    ) {
+        Text(
+            text,
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.weight(1f),
+        )
+        Icon(
+            painterResource(R.drawable.ic_expand_more),
+            contentDescription = stringResource(if (expanded) R.string.settings_collapse else R.string.settings_expand),
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.rotate(if (expanded) 180f else 0f),
+        )
+    }
 }
 
 @Composable

@@ -1,3 +1,4 @@
+import java.util.Locale
 import java.util.Properties
 
 plugins {
@@ -18,6 +19,20 @@ fun signingValue(envName: String, propName: String): String? =
 
 val releaseStoreFile = signingValue("MOKAP_KEYSTORE_FILE", "storeFile")
 
+// Verzia major.minor.build: major, minor a kódové meno sú ručne vo version.properties,
+// build je číslo behu CI – dostane ho len job apk (MOKAP_BUILD_NUMBER), inde je 0,
+// aby sa BuildConfig pri bežných kontrolách nemenil a fungovala build cache.
+val versionProperties = Properties().apply {
+    load(providers.fileContents(rootProject.layout.projectDirectory.file("version.properties")).asText.get().reader())
+}
+val versionMajor = versionProperties.getProperty("major").trim().toInt()
+val versionMinor = versionProperties.getProperty("minor").trim().toInt()
+val versionBuild = providers.environmentVariable("MOKAP_BUILD_NUMBER").orNull?.toIntOrNull() ?: 0
+val versionCodename = versionProperties.getProperty("codename").trim()
+val appVersion = String.format(Locale.ROOT, "%d.%d.%03d", versionMajor, versionMinor, versionBuild)
+
+fun javaString(value: String): String = "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
+
 android {
     namespace = "sk.ntnlabs.kyberia"
     compileSdk = 37
@@ -26,8 +41,12 @@ android {
         applicationId = "sk.ntnlabs.kyberia"
         minSdk = 29
         targetSdk = 36
-        versionCode = 1
-        versionName = "0.1.0"
+        // Musí stále rásť, inak Android aktualizáciu odmietne.
+        versionCode = versionMajor * 10_000_000 + versionMinor * 100_000 + versionBuild
+        versionName = appVersion
+        // Bez prípony „-debug“ – tú pridáva len debug build do versionName.
+        buildConfigField("String", "APP_VERSION", javaString(appVersion))
+        buildConfigField("String", "CODENAME", javaString(versionCodename))
     }
 
     signingConfigs {
