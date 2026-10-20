@@ -66,6 +66,9 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   pre prípad, keď by inak prišlo odhlásenie.
 - Session sa zahodí **len** pri `PageKind.LOGGED_OUT` (prihlasovací formulár na stránke);
   `UNKNOWN` stránka je dočasná chyba. Výsledky kontrol ide do `DiagnosticsStore` (bez osobných údajov).
+  `LogoutDetail`: odhlásenie pri nečinnosti kyberia robí presmerovaním na `/` (`logout.inc`), zmiznutá session
+  ukáže login bez presmerovania. Diagnostika sa nemaže a je dostupná aj z prihlasovacej obrazovky.
+- Cookie jar zahadzuje `jabber_login` a `jabber_password` (web ich nastavuje pri prihlásení, druhá je MD5 z hesla).
 - Čas pri priateľoch je **nečinnosť** (idle); zoznam je zoradený od najaktívnejšieho.
 - Appka beží vždy so slovenským locale (`AppLocale` v `attachBaseContext` aplikácie aj aktivity) – inak by
   Android vyberal tvar plurálu podľa jazyka telefónu („2 ľudí“ v anglickom telefóne).

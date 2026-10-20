@@ -20,7 +20,6 @@ import sk.ntnlabs.kyberia.data.SessionExpiredException
 import sk.ntnlabs.kyberia.parse.Friend
 import sk.ntnlabs.kyberia.parse.Populated
 import sk.ntnlabs.kyberia.work.CheckScheduler
-import sk.ntnlabs.kyberia.work.NewsChecker
 
 /** Priatelia idú z /id/19/ (OverviewViewModel); všetci a diskusie z vlastných stránok. */
 enum class PeopleMode { FRIENDS, EVERYONE, POPULATED }
@@ -86,7 +85,7 @@ class PeopleViewModel(
                 loaded.copy(loading = false)
             } catch (e: SessionExpiredException) {
                 diagnostics.record(
-                    CheckEntry(System.currentTimeMillis(), CheckResult.EXPIRED, CheckTrigger.APP, NewsChecker.LOGIN_SHOWN),
+                    CheckEntry(System.currentTimeMillis(), CheckResult.EXPIRED, CheckTrigger.APP, e.detail),
                 )
                 auth.sessionEnded()
                 PeopleUiState()

@@ -29,7 +29,6 @@ import sk.ntnlabs.kyberia.parse.LastPost
 import sk.ntnlabs.kyberia.parse.Reply
 import sk.ntnlabs.kyberia.parse.UserInfo
 import sk.ntnlabs.kyberia.work.CheckScheduler
-import sk.ntnlabs.kyberia.work.NewsChecker
 
 data class OverviewUiState(
     val loading: Boolean = false,
@@ -91,7 +90,7 @@ class OverviewViewModel(
             } catch (e: SessionExpiredException) {
                 // Len keď kyberia naozaj ukázala prihlasovací formulár (pozri loggedInPage).
                 diagnostics.record(
-                    CheckEntry(System.currentTimeMillis(), CheckResult.EXPIRED, CheckTrigger.APP, NewsChecker.LOGIN_SHOWN),
+                    CheckEntry(System.currentTimeMillis(), CheckResult.EXPIRED, CheckTrigger.APP, e.detail),
                 )
                 auth.sessionEnded()
                 OverviewUiState()

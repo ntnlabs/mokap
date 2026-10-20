@@ -33,6 +33,29 @@ class KyberiaCookieJarTest {
     }
 
     @Test
+    fun dropsPasswordDerivedJabberCookies() {
+        val storage = MemoryStorage()
+        KyberiaCookieJar(storage).saveFromResponse(
+            kyberia,
+            listOf(
+                cookie(kyberia, "sid=abc; Path=/"),
+                cookie(kyberia, "jabber_login=x; Path=/"),
+                cookie(kyberia, "jabber_password=0123abcd; Path=/"),
+            ),
+        )
+        assertEquals(listOf("sid"), KyberiaCookieJar(storage).loadForRequest(kyberia).map { it.name })
+        assertFalse(storage.value.orEmpty().contains("jabber"))
+    }
+
+    @Test
+    fun dropsJabberCookiesStoredByOlderVersion() {
+        val storage = MemoryStorage("kyberia.sk\tsid=abc; path=/\nkyberia.sk\tjabber_password=0123abcd; path=/")
+        val jar = KyberiaCookieJar(storage)
+        assertEquals(listOf("sid"), jar.loadForRequest(kyberia).map { it.name })
+        assertFalse(storage.value.orEmpty().contains("jabber"))
+    }
+
+    @Test
     fun ignoresCookiesFromOtherSites() {
         val jar = KyberiaCookieJar(MemoryStorage())
         jar.saveFromResponse(foreign, listOf(cookie(foreign, "track=1")))

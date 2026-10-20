@@ -38,11 +38,6 @@ class NewsChecker(
 ) {
     private val mutex = Mutex()
 
-    companion object {
-        /** Detail do diagnostiky: kyberia namiesto stránky ukázala prihlasovací formulár. */
-        const val LOGIN_SHOWN = "na stránke bol login"
-    }
-
     /** Vráti false pri dočasnej chybe (treba skúsiť znova). */
     suspend fun run(trigger: CheckTrigger): Boolean = mutex.withLock {
         if (!auth.loggedIn.value) return true
@@ -68,7 +63,7 @@ class NewsChecker(
         val page = try {
             bookmarks.load()
         } catch (e: SessionExpiredException) {
-            diagnostics.record(CheckEntry(now, CheckResult.EXPIRED, trigger, LOGIN_SHOWN))
+            diagnostics.record(CheckEntry(now, CheckResult.EXPIRED, trigger, e.detail))
             auth.sessionEnded()
             Notifier.sessionExpired(context)
             return true
