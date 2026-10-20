@@ -14,6 +14,9 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -24,6 +27,7 @@ import sk.ntnlabs.kyberia.ui.common.rememberMeteredNetwork
 import sk.ntnlabs.kyberia.ui.home.HomeScreen
 import sk.ntnlabs.kyberia.ui.login.LoginScreen
 import sk.ntnlabs.kyberia.ui.login.LoginViewModel
+import sk.ntnlabs.kyberia.ui.settings.DiagnosticsScreen
 import sk.ntnlabs.kyberia.ui.theme.MokapTheme
 import sk.ntnlabs.kyberia.ui.theme.isDarkTheme
 
@@ -68,7 +72,15 @@ class MainActivity : ComponentActivity() {
                             LaunchedEffect(Unit) { container.scheduler.schedule() }
                             HomeScreen(container, requestedTab = tab, onTabHandled = { requestedTab.value = null })
                         } else {
-                            LoginScreen(viewModel(factory = LoginViewModel.factory(container.auth, container.settings)))
+                            var diagnostics by rememberSaveable { mutableStateOf(false) }
+                            if (diagnostics) {
+                                DiagnosticsScreen(container, onBack = { diagnostics = false })
+                            } else {
+                                LoginScreen(
+                                    viewModel(factory = LoginViewModel.factory(container.auth, container.settings)),
+                                    onOpenDiagnostics = { diagnostics = true },
+                                )
+                            }
                         }
                     }
                 }

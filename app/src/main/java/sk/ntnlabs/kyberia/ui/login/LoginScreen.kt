@@ -22,6 +22,7 @@ import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -48,7 +49,7 @@ import sk.ntnlabs.kyberia.R
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
-fun LoginScreen(viewModel: LoginViewModel) {
+fun LoginScreen(viewModel: LoginViewModel, onOpenDiagnostics: () -> Unit) {
     var username by rememberSaveable { mutableStateOf("") }
     // Heslo zámerne nie je v rememberSaveable – nesmie skončiť v uloženom stave aktivity.
     var password by remember { mutableStateOf("") }
@@ -151,5 +152,9 @@ fun LoginScreen(viewModel: LoginViewModel) {
             style = MaterialTheme.typography.bodySmall,
             textAlign = TextAlign.Center,
         )
+        // Diagnostika aj bez prihlásenia – inak by nebolo vidieť, prečo kyberia odhlásila.
+        TextButton(onClick = onOpenDiagnostics, enabled = !state.loading) {
+            Text(stringResource(R.string.login_diagnostics))
+        }
     }
 }

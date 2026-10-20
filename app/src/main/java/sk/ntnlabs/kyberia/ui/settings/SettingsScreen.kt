@@ -39,18 +39,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlinx.coroutines.launch
 import sk.ntnlabs.kyberia.AppContainer
-import sk.ntnlabs.kyberia.BuildConfig
 import sk.ntnlabs.kyberia.R
-import sk.ntnlabs.kyberia.data.CheckEntry
-import sk.ntnlabs.kyberia.data.CheckResult
-import sk.ntnlabs.kyberia.data.CheckTrigger
-import sk.ntnlabs.kyberia.data.Durations
 import sk.ntnlabs.kyberia.data.Settings
 import sk.ntnlabs.kyberia.data.ThemeMode
 
@@ -58,7 +50,6 @@ import sk.ntnlabs.kyberia.data.ThemeMode
 @Composable
 fun SettingsScreen(container: AppContainer, onBack: () -> Unit) {
     val settings by container.settings.settings.collectAsStateWithLifecycle()
-    val diagnostics by container.diagnostics.diagnostics.collectAsStateWithLifecycle()
     val store = container.settings
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -175,75 +166,13 @@ fun SettingsScreen(container: AppContainer, onBack: () -> Unit) {
             var advanced by rememberSaveable { mutableStateOf(false) }
             ExpandableHeader(stringResource(R.string.settings_section_advanced), advanced) { advanced = !advanced }
             if (advanced) {
-                // „Verzia: 0.7.0114“ a pod tým kódové meno v zátvorke.
-                val version = if (BuildConfig.DEBUG) "${BuildConfig.APP_VERSION} · debug" else BuildConfig.APP_VERSION
-                InfoRow(
-                    stringResource(R.string.settings_version, version),
-                    stringResource(R.string.settings_version_codename, BuildConfig.CODENAME),
-                )
-                val never = stringResource(R.string.diag_never)
-                InfoRow(stringResource(R.string.diag_last_check), diagnostics.last?.let { "${time(it.atMillis)} – ${describe(it)}" } ?: never)
-                InfoRow(stringResource(R.string.diag_last_ok), diagnostics.lastOkMillis?.let(::time) ?: never)
-                InfoRow(
-                    stringResource(R.string.diag_last_logout),
-                    diagnostics.lastExpired?.let { expired ->
-                        val before = diagnostics.okBeforeExpiredMillis?.let { ok ->
-                            "\n" + stringResource(R.string.diag_ok_before, time(ok), Durations.short((expired.atMillis - ok) / 1000))
-                        }.orEmpty()
-                        "${time(expired.atMillis)} – ${describe(expired)}$before"
-                    } ?: never,
-                )
-                val cookies = remember(diagnostics) { container.cookieExpiry() }
-                InfoRow(
-                    stringResource(R.string.diag_cookie),
-                    when {
-                        cookies.count == 0 -> stringResource(R.string.diag_cookie_none)
-                        cookies.earliestMillis == null -> stringResource(R.string.diag_cookie_session)
-                        else -> stringResource(R.string.diag_cookie_until, time(cookies.earliestMillis))
-                    },
-                )
-                if (diagnostics.history.isNotEmpty()) {
-                    // Najnovšie hore; „+X“ = koľko času ubehlo od predchádzajúcej kontroly.
-                    val lines = diagnostics.history.mapIndexed { index, entry ->
-                        val gap = diagnostics.history.getOrNull(index - 1)?.let { previous ->
-                            " · +" + Durations.short((entry.atMillis - previous.atMillis) / 1000)
-                        }.orEmpty()
-                        "${time(entry.atMillis)} – ${describe(entry)}$gap"
-                    }.asReversed()
-                    InfoRow(stringResource(R.string.diag_history), lines.joinToString("\n"))
-                }
+                DiagnosticsRows(container)
             }
         }
     }
 }
 
 private val HOURS = (0..23).toList()
-
-private val TIME_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("d.M. HH:mm").withZone(ZoneId.systemDefault())
-
-private fun time(millis: Long): String = TIME_FORMAT.format(Instant.ofEpochMilli(millis))
-
-@Composable
-private fun describe(entry: CheckEntry): String {
-    val text = when (entry.result) {
-        CheckResult.OK -> stringResource(R.string.diag_ok)
-        CheckResult.ERROR -> stringResource(R.string.diag_error, entry.detail)
-        CheckResult.EXPIRED -> stringResource(R.string.diag_expired, entry.detail)
-    }
-    return when (entry.trigger) {
-        CheckTrigger.SCHEDULED -> text
-        CheckTrigger.APP -> "$text (${stringResource(R.string.diag_app)})"
-        CheckTrigger.KEEPALIVE -> "$text (${stringResource(R.string.diag_keepalive)})"
-    }
-}
-
-@Composable
-private fun InfoRow(label: String, value: String) {
-    ListItem(
-        headlineContent = { Text(label) },
-        supportingContent = { Text(value, color = MaterialTheme.colorScheme.onSurfaceVariant) },
-    )
-}
 
 @Composable
 private fun themeLabel(mode: ThemeMode): String = stringResource(

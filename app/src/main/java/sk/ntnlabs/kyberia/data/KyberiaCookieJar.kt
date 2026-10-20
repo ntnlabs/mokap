@@ -33,7 +33,7 @@ class KyberiaCookieJar(
     @Synchronized
     override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
         if (!UrlPolicy.isKyberiaHost(url.host)) return
-        cookies.forEach { this.cookies[key(it)] = it }
+        cookies.filterNot { it.name in UNNEEDED }.forEach { this.cookies[key(it)] = it }
         prune()
         persist()
     }
@@ -74,14 +74,26 @@ class KyberiaCookieJar(
     }
 
     private fun restore() {
+        var dropped = false
         storage.read()?.lineSequence()?.forEach { line ->
             val parts = line.split('\t', limit = 2)
             if (parts.size != 2) return@forEach
             val url = "https://${parts[0]}/".toHttpUrlOrNull() ?: return@forEach
-            Cookie.parse(url, parts[1])?.let { cookies[key(it)] = it }
+            val cookie = Cookie.parse(url, parts[1]) ?: return@forEach
+            if (cookie.name in UNNEEDED) dropped = true else cookies[key(cookie)] = cookie
         }
         prune()
+        // Zahodí aj to, čo uložila staršia verzia appky.
+        if (dropped) persist()
     }
 
     private fun key(cookie: Cookie) = "${cookie.name}|${cookie.domain}|${cookie.path}"
+
+    private companion object {
+        /**
+         * Web ich pri prihlásení nastavuje pre jabber chat; `jabber_password` je odvodený z hesla.
+         * Appka ich nepotrebuje a heslo (ani nič z neho) nedrží.
+         */
+        val UNNEEDED = setOf("jabber_login", "jabber_password")
+    }
 }
