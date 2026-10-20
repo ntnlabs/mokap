@@ -29,7 +29,7 @@ val versionMajor = versionProperties.getProperty("major").trim().toInt()
 val versionMinor = versionProperties.getProperty("minor").trim().toInt()
 val versionBuild = providers.environmentVariable("MOKAP_BUILD_NUMBER").orNull?.toIntOrNull() ?: 0
 val versionCodename = versionProperties.getProperty("codename").trim()
-val appVersion = String.format(Locale.ROOT, "%d.%d.%03d", versionMajor, versionMinor, versionBuild)
+val appVersion = String.format(Locale.ROOT, "%d.%d.%04d", versionMajor, versionMinor, versionBuild)
 
 fun javaString(value: String): String = "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
 
