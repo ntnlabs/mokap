@@ -154,7 +154,7 @@ fun LoginScreen(viewModel: LoginViewModel, onOpenDiagnostics: () -> Unit) {
         )
         // Diagnostika aj bez prihlásenia – inak by nebolo vidieť, prečo kyberia odhlásila.
         TextButton(onClick = onOpenDiagnostics, enabled = !state.loading) {
-            Text(stringResource(R.string.login_diagnostics))
+            Text(stringResource(R.string.for_developers))
         }
     }
 }

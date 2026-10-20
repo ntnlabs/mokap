@@ -42,7 +42,7 @@ zoradené, prefiltrované a s lokálnymi notifikáciami.
   pri bežných kontrolách sa nikdy nespustí, takže server nedostane nič navyše. V tichom režime
   nechodia notifikácie a jediná požiadavka je tento strážca.
 - **Odhlásenie** sa vyhodnotí len vtedy, keď kyberia ukáže prihlasovací formulár; chybové stránky
-  (údržba, ochrana proti botom) sú dočasná chyba. Nastavenia → Pokročilé (aj „Diagnostika a verzia“ na prihlasovacej obrazovke) ukazuje verziu,
+  (údržba, ochrana proti botom) sú dočasná chyba. Nastavenia → Pokročilé (aj „Pre developerov“ na prihlasovacej obrazovke) ukazuje verziu,
   posledné kontroly a či kyberia pri odhlásení presmerovala (nečinnosť) alebo session len zmizla.
 - **UI:** Jetpack Compose, Material 3.
 

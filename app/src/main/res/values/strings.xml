@@ -12,14 +12,16 @@
     <string name="login_button">Prihlásiť</string>
     <string name="login_show_password">Ukázať heslo</string>
     <string name="login_hide_password">Skryť heslo</string>
-    <string name="login_privacy_note">Heslo ide len na kyberia.sk a appka si ho nikde neukladá. Ak chceš, zapamätá si ho správca hesiel v telefóne.</string>
-    <string name="login_diagnostics">Diagnostika a verzia</string>
+    <string name="login_privacy_note">Aplikácia heslo neukladá.</string>
+    <string name="for_developers">Pre developerov</string>
     <string name="login_rejected">Prihlásenie nevyšlo. Skontroluj nick a heslo.</string>
     <string name="login_rejected_id">Prihlásenie nevyšlo. Skontroluj ID a heslo.</string>
     <string name="login_form_not_found">Nenašla som prihlasovací formulár. Kyberia asi zmenila stránku.</string>
     <string name="login_network_error">Kyberia neodpovedá. Skús to o chvíľu.</string>
 
     <string name="logout">Odhlásiť</string>
+    <string name="logout_confirm">Odhlásiť sa z kyberie?</string>
+    <string name="cancel">Zrušiť</string>
     <string name="tab_mail">Pošta</string>
     <string name="tab_bookmarks">Bookmarky</string>
     <string name="tab_replies">Odpovede</string>

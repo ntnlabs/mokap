@@ -43,7 +43,7 @@ fun DiagnosticsScreen(container: AppContainer, onBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.settings_section_advanced)) },
+                title = { Text(stringResource(R.string.for_developers)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(painterResource(R.drawable.ic_back), contentDescription = stringResource(R.string.settings_back))
