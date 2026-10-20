@@ -76,6 +76,9 @@ jobs:
           java-version: "17"
           cache: gradle
       - name: Build debug and release
+        # Tretia časť verzie (0.7.112) = číslo behu tohto workflowu.
+        env:
+          MOKAP_BUILD_NUMBER: ${{ github.run_number }}
         run: ./gradlew assembleDebug assembleRelease
       - name: Permission audit
         run: |

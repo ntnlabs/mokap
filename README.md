@@ -42,7 +42,7 @@ zoradené, prefiltrované a s lokálnymi notifikáciami.
   pri bežných kontrolách sa nikdy nespustí, takže server nedostane nič navyše. V tichom režime
   nechodia notifikácie a jediná požiadavka je tento strážca.
 - **Odhlásenie** sa vyhodnotí len vtedy, keď kyberia ukáže prihlasovací formulár; chybové stránky
-  (údržba, ochrana proti botom) sú dočasná chyba. Nastavenia → Diagnostika ukazuje posledné kontroly.
+  (údržba, ochrana proti botom) sú dočasná chyba. Nastavenia → Pokročilé ukazuje verziu a posledné kontroly.
 - **UI:** Jetpack Compose, Material 3.
 
 ## Build
@@ -58,6 +58,10 @@ Požiadavky: JDK 17+, Android SDK (compileSdk 37).
 CI pri každom pushi spúšťa len gitleaks, lint a unit testy. APK sa vyrába iba na požiadanie:
 GitHub → Actions → **Android CI** → **Run workflow**, alebo push tagu `apk-*`
 (napr. `apk-2026-10-17`); výsledok je artefakt `mokap-debug-apk`.
+
+Verzia má tvar `major.minor.build` (napr. `0.7.112`) a kódové meno. Major, minor a meno sú
+vo [`version.properties`](version.properties) a menia sa ručne; build je číslo behu CI (job `apk`),
+lokálne `000`.
 
 ## Release podpisovanie (secrets mimo gitu)
 

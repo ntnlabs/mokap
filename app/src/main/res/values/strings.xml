@@ -83,7 +83,11 @@
     <string name="settings_quiet_from">Od</string>
     <string name="settings_quiet_to">Do</string>
     <string name="settings_section_account">Účet</string>
-    <string name="settings_section_diagnostics">Diagnostika</string>
+    <string name="settings_section_advanced">Pokročilé</string>
+    <string name="settings_expand">Rozbaliť</string>
+    <string name="settings_collapse">Zbaliť</string>
+    <string name="settings_version">Verzia</string>
+    <string name="settings_version_value">%1$s „%2$s“</string>
     <string name="diag_last_check">Posledná kontrola</string>
     <string name="diag_last_ok">Posledná úspešná</string>
     <string name="diag_last_logout">Posledné odhlásenie</string>
