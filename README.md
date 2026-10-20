@@ -59,9 +59,9 @@ CI pri každom pushi spúšťa len gitleaks, lint a unit testy. APK sa vyrába i
 GitHub → Actions → **Android CI** → **Run workflow**, alebo push tagu `apk-*`
 (napr. `apk-2026-10-17`); výsledok je artefakt `mokap-debug-apk`.
 
-Verzia má tvar `major.minor.build` (napr. `0.7.112`) a kódové meno. Major, minor a meno sú
+Verzia má tvar `major.minor.build` (napr. `0.7.0112`) a kódové meno. Major, minor a meno sú
 vo [`version.properties`](version.properties) a menia sa ručne; build je číslo behu CI (job `apk`),
-lokálne `000`.
+lokálne `0000`.
 
 ## Release podpisovanie (secrets mimo gitu)
 
