@@ -66,7 +66,7 @@ class AuthRepository(
 
     /** Server nás odhlásil alebo sa používateľ odhlásil. */
     fun sessionEnded() {
-        cookies.clear()
+        cookies.endSession()
         latest.clear()
         tracker.reset()
         scheduler.cancel()

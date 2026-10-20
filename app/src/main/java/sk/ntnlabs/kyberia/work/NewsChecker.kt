@@ -68,7 +68,10 @@ class NewsChecker(
             Notifier.sessionExpired(context)
             return true
         } catch (e: IOException) {
-            diagnostics.record(CheckEntry(now, CheckResult.ERROR, trigger, e.message ?: e.javaClass.simpleName))
+            // K chybe aj stav siete – offline telefón a sieť zakázaná Androidom vyzerajú rovnako („Unable to resolve host“).
+            val network = runCatching { NetworkProbe.conditions(context).describe() }.getOrNull()
+            val reason = e.message ?: e.javaClass.simpleName
+            diagnostics.record(CheckEntry(now, CheckResult.ERROR, trigger, listOfNotNull(reason, network).joinToString(" · ")))
             return false
         }
 
