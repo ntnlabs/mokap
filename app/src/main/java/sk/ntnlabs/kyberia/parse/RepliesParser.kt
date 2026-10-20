@@ -27,9 +27,13 @@ data class Reply(
 /**
  * Každá položka je `div.user_sub_child`:
  * `<a href=/id/AUTOR/><img title=nick></a> <a href=/id/PRÍSPEVOK title=názov>…</a> [<span>1K</span>] [<span>N</span>] <br> úryvok`
+ *
+ * Odpoveď novšia ako posledná návšteva /id/19/ má pred odkazom na príspevok ešte
+ * `<a class=most_important href=/id/3579407/>NEW</a>:` – pri ďalšom načítaní zmizne.
  */
 object RepliesParser {
 
+    private const val NEW_MARK = "most_important"
     private val K = Regex("""(\d+)\s*K""", RegexOption.IGNORE_CASE)
     private val COUNT = Regex("""\d+""")
 
@@ -37,7 +41,9 @@ object RepliesParser {
         document.select("div.user_sub_child").mapNotNull { item ->
             val links = item.children().filter { it.normalName() == "a" }
             val avatar = links.firstOrNull { it.selectFirst("img") != null }
-            val node = links.firstOrNull { it.selectFirst("img") == null } ?: return@mapNotNull null
+            // Bez značky „NEW“ – inak by sa tá istá odpoveď pri ďalšom načítaní tvárila ako nová.
+            val node = links.firstOrNull { it.selectFirst("img") == null && !it.hasClass(NEW_MARK) }
+                ?: return@mapNotNull null
             val nodeId = NodeText.nodeId(node.attr("href")) ?: return@mapNotNull null
             val image = avatar?.selectFirst("img")
             val lines = NodeText.lines(item)

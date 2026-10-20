@@ -1,5 +1,6 @@
 package sk.ntnlabs.kyberia.parse
 
+import org.jsoup.Jsoup
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
@@ -44,6 +45,29 @@ class RepliesParserTest {
     fun sameParentDifferentAuthorsHaveDifferentKeys() {
         assertEquals(replies[0].nodeId, replies[2].nodeId)
         assertNotEquals(replies[0].key, replies[2].key)
+    }
+
+    @Test
+    fun newMarkerIsNotMyPost() {
+        // Tá istá odpoveď pri dvoch načítaniach: prvýkrát so značkou „NEW“, potom bez nej.
+        fun page(marker: String) = RepliesParser.parse(
+            Jsoup.parse(
+                """<div class="user_sub_child">
+                  <a href="/id/503/" title=""><img alt="gama" title="gama" src="/images/nodes/5/0/503.gif"></a>
+                  $marker
+                  <a href="/id/2003" title="Môj príspevok">Môj príspevok</a>
+                  [<span class="most_important">1K</span>] <br />&nbsp;čerstvá odpoveď
+                </div>""",
+                "https://kyberia.sk/id/19/",
+            ),
+        ).single()
+
+        val fresh = page("""<a class="most_important" href="/id/3579407/" style="color:#ff0000">NEW</a>:""")
+        val seen = page("")
+        assertEquals(2003L, fresh.nodeId)
+        assertEquals("Môj príspevok", fresh.nodeTitle)
+        assertEquals(1, fresh.k)
+        assertEquals(seen.key, fresh.key)
     }
 
     @Test
