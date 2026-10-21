@@ -61,6 +61,10 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   ukáže druhá). Zelený pruh nad záložkami rastie do ďalšieho obnovenia (interval z nastavení); v otvorenej
   appke sa po naplnení obnoví sama. Kontrola v pozadí preskočí /id/19/, ak ju appka stiahla nedávno.
 - Bodka na záložke (Bookmarky, Odpovede, Last) = novinka od poslednej návštevy záložky (`TabChanges`).
+- **Cieľ je telefón v predvolenom stave** (šetrič dát, optimalizácia batérie, Doze) – appka v ňom nesmie skolabovať
+  (falošné odhlásenia, zlé notifikácie, zbytočné budenie). Výnimky od používateľa (dáta, batéria) ju môžu len zlepšiť;
+  appka o nich informuje a radí, ale nepočíta s nimi. Strážca po chybe siete skúša znova len do termínu odhlásenia
+  (`SessionGuard.retryAfter`), potom už nič – odhlásenie zistí kontrola so sieťou alebo appka pri otvorení.
 - **Výpadok siete alebo kyberie je bežný stav** – appka naň reaguje pasívne (strážca to skúsi znova, pri odhlásení
   notifikácia). Žiadne obchádzanie DNS (DoH, Cloudflare, cache IP) a žiadne automatické prihlasovanie
   (ani heslom zo správcu hesiel) – rozhodnutie používateľa.
