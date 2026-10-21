@@ -26,8 +26,11 @@ class SessionGuardReceiver : BroadcastReceiver() {
             try {
                 ok = container.checker.run(CheckTrigger.KEEPALIVE)
             } finally {
-                // Úspešné načítanie strážcu posunie samo; bez siete skús o chvíľu znova, kým kyberia neodhlási.
-                if (!ok && container.auth.loggedIn.value) container.scheduler.touch(SessionGuard.RETRY_MILLIS)
+                // Úspešné načítanie strážcu posunie samo; bez siete skús znova, len kým to ešte môže session zachrániť.
+                if (!ok && container.auth.loggedIn.value) {
+                    SessionGuard.retryAfter(container.diagnostics.current.lastOkMillis, System.currentTimeMillis())
+                        ?.let(container.scheduler::touch)
+                }
                 pending.finish()
             }
         }

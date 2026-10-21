@@ -21,4 +21,15 @@ object SessionGuard {
     /** Za ako dlho má strážca zasiahnuť, keď poslednú úspešnú požiadavku videla kyberia v [lastOkMillis]. */
     fun delayAfter(lastOkMillis: Long?, nowMillis: Long): Long =
         if (lastOkMillis == null) DELAY_MILLIS else (lastOkMillis + DELAY_MILLIS - nowMillis).coerceIn(MIN_DELAY_MILLIS, DELAY_MILLIS)
+
+    /**
+     * Kedy skúsiť strážcu znova, keď nevyšla sieť. null = od poslednej úspešnej požiadavky ubehli 2 h,
+     * kyberia už odhlásila – ďalšie pokusy by len budili telefón (napr. celý deň so šetričom dát).
+     * Odhlásenie potom zistí bežná kontrola, keď bude sieť, alebo appka pri otvorení.
+     */
+    fun retryAfter(lastOkMillis: Long?, nowMillis: Long): Long? {
+        if (lastOkMillis == null) return RETRY_MILLIS
+        val left = lastOkMillis + SERVER_IDLE_LOGOUT_MILLIS - nowMillis
+        return if (left <= MIN_DELAY_MILLIS) null else minOf(RETRY_MILLIS, left - MIN_DELAY_MILLIS)
+    }
 }
