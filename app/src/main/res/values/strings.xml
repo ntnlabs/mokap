@@ -135,6 +135,10 @@
     <string name="channel_account">Účet</string>
     <string name="notify_session_expired_title">Odhlásilo ťa z kyberie</string>
     <string name="notify_session_expired_text">Prihlás sa znova, inak neprídu notifikácie.</string>
+    <string name="notify_session_expired_data_saver">Šetrič dát mokapu na pozadí zakázal sieť, takže kyberia ho po 2 h odhlásila. Povoľ mu neobmedzené dáta a prihlás sa znova.</string>
+    <string name="allow_unrestricted_data">Povoliť dáta</string>
+    <string name="settings_data_saver">Šetrič dát blokuje mokap na pozadí</string>
+    <string name="settings_data_saver_note">Na mobilných dátach sa kontroly ani strážca session nedostanú na kyberiu a po 2 h ťa odhlási. Ťukni a povoľ mokapu neobmedzené dáta.</string>
     <string name="notify_reply_from">Odpoveď od %1$s</string>
     <string name="notify_friend_online">%1$s je online</string>
     <string name="notify_mail_title">Nová pošta</string>

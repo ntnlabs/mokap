@@ -3,10 +3,13 @@ package sk.ntnlabs.kyberia.work
 import android.app.ActivityManager
 import android.app.usage.UsageStatsManager
 import android.content.Context
+import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.NetworkInfo
 import android.os.PowerManager
+import android.provider.Settings
+import androidx.core.net.toUri
 import sk.ntnlabs.kyberia.data.NetState
 import sk.ntnlabs.kyberia.data.NetworkConditions
 
@@ -20,11 +23,24 @@ object NetworkProbe {
             network = network(connectivity),
             deviceIdle = power.isDeviceIdleMode,
             powerSave = power.isPowerSaveMode,
-            dataSaver = connectivity.restrictBackgroundStatus == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED,
+            dataSaver = dataSaverBlocks(context),
             backgroundRestricted = context.getSystemService(ActivityManager::class.java).isBackgroundRestricted,
             standbyBucket = context.getSystemService(UsageStatsManager::class.java).appStandbyBucket,
         )
     }
+
+    /**
+     * Šetrič dát je zapnutý a mokap nemá výnimku – na meranej sieti (mobilné dáta) appka na pozadí
+     * nedosiahne kyberiu, strážca session nepomôže a po 2 h príde odhlásenie.
+     */
+    fun dataSaverBlocks(context: Context): Boolean =
+        context.getSystemService(ConnectivityManager::class.java).restrictBackgroundStatus ==
+            ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED
+
+    /** Systémové nastavenie „neobmedzené dáta“ priamo pre mokap. */
+    fun unrestrictedDataIntent(context: Context): Intent =
+        Intent(Settings.ACTION_IGNORE_BACKGROUND_DATA_RESTRICTIONS_SETTINGS, "package:${context.packageName}".toUri())
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
     // Zablokovanú sieť ukáže len NetworkInfo – activeNetwork vtedy vráti null, ako keby siete nebolo.
     @Suppress("DEPRECATION")

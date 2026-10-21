@@ -10,6 +10,9 @@ import coil3.disk.directory
 import coil3.gif.AnimatedImageDecoder
 import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import coil3.request.crossfade
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.launch
 import sk.ntnlabs.kyberia.data.AuthRepository
 import sk.ntnlabs.kyberia.data.BookmarksRepository
 import sk.ntnlabs.kyberia.data.DiagnosticsStore
@@ -37,6 +40,10 @@ class MokapApp : Application(), SingletonImageLoader.Factory {
     override fun onCreate() {
         super.onCreate()
         Notifier.createChannels(this)
+        // Fórum prečítané na webe zruší svoju notifikáciu – pri každej /id/19/, z appky aj z pozadia.
+        MainScope().launch {
+            container.latestPage.flow.filterNotNull().collect { Notifier.cancelReadBookmarks(this@MokapApp, it.page.bookmarks) }
+        }
     }
 
     /** Avatary: animované GIFy a disková cache, aby sa 2MB GIF neťahal pri každom zobrazení. */
