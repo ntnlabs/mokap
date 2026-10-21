@@ -2,6 +2,7 @@ package sk.ntnlabs.kyberia.notify
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -16,9 +17,11 @@ import sk.ntnlabs.kyberia.MainActivity
 import sk.ntnlabs.kyberia.R
 import sk.ntnlabs.kyberia.data.Increase
 import sk.ntnlabs.kyberia.data.Nsfw
+import sk.ntnlabs.kyberia.parse.Bookmark
 import sk.ntnlabs.kyberia.parse.Friend
 import sk.ntnlabs.kyberia.parse.Reply
 import sk.ntnlabs.kyberia.ui.common.Web
+import sk.ntnlabs.kyberia.work.NetworkProbe
 
 /**
  * Lokálne notifikácie – žiadny Firebase, žiadny server.
@@ -95,8 +98,12 @@ object Notifier {
         }
     }
 
-    /** Jedna notifikácia s počtom neprečítaných a tým, kto písal naposledy; ťuknutie otvorí poštu na webe. */
-    fun mail(context: Context, unread: Int, lastFrom: String?) {
+    /**
+     * Jedna notifikácia s počtom neprečítaných a tým, kto písal naposledy; ťuknutie otvorí poštu na webe.
+     * [silent] = časť pošty je prečítaná – len opraví číslo v notifikácii, ak ešte visí, bez zvuku.
+     */
+    fun mail(context: Context, unread: Int, lastFrom: String?, silent: Boolean = false) {
+        if (silent && !isActive(context, ID_MAIL)) return
         val title = lastFrom?.let { context.getString(R.string.notify_mail_from, it) }
             ?: context.getString(R.string.notify_mail_title)
         post(
@@ -108,6 +115,7 @@ object Notifier {
                 title,
                 context.resources.getQuantityString(R.plurals.notify_mail_unread, unread, unread),
             ).setNumber(unread)
+                .setSilent(silent)
                 .setContentIntent(openWeb(context, ID_MAIL, KyberiaUrls.MAIL_ID)),
         )
     }
@@ -119,21 +127,23 @@ object Notifier {
     fun bookmarks(context: Context, increases: List<Increase>) {
         increases.take(MAX_ITEMS).forEach { increase ->
             val bookmark = increase.bookmark
-            val id = ID_BOOKMARK_BASE + bookmark.id.mod(ID_RANGE)
-            val added = context.resources.getQuantityString(R.plurals.notify_bookmark_new, increase.added, increase.added)
+            val id = bookmarkId(bookmark.id)
+            // Celkový počet nových vo fóre (ako „N NEW Child“ na webe), nie prírastok – notifikácia prepíše tú staršiu.
+            val count = bookmark.newChildren
+            val text = context.resources.getQuantityString(R.plurals.notify_bookmark_new, count, count)
             post(
                 context,
                 id,
                 // Názov fóra je to hlavné, počet stačí pod ním.
-                builder(context, CHANNEL_BOOKMARKS, Nsfw.label(bookmark.title), added)
+                builder(context, CHANNEL_BOOKMARKS, Nsfw.label(bookmark.title), text)
                     .setGroup(GROUP_BOOKMARKS)
                     .setContentIntent(openWeb(context, id, bookmark.id)),
             )
         }
         if (increases.size > 1) {
-            val total = increases.sumOf { it.added }
+            val total = increases.sumOf { it.bookmark.newChildren }
             val title = context.resources.getQuantityString(R.plurals.notify_bookmarks_title, total, total)
-            val lines = increases.map { "+${it.added}  ${Nsfw.label(it.bookmark.title)}" }
+            val lines = increases.map { "${it.bookmark.newChildren}  ${Nsfw.label(it.bookmark.title)}" }
             post(
                 context,
                 ID_BOOKMARKS,
@@ -144,6 +154,19 @@ object Notifier {
                     .setContentIntent(openApp(context, MainActivity.TAB_BOOKMARKS)),
             )
         }
+    }
+
+    /** Fórum prečítané na webe – jeho notifikácia už neplatí; keď neostane žiadna, zmizne aj súhrn. */
+    fun cancelReadBookmarks(context: Context, bookmarks: List<Bookmark>) {
+        val manager = NotificationManagerCompat.from(context)
+        val active = activeIds(context)
+        val unread = bookmarks.filter { it.newChildren > 0 }.map { bookmarkId(it.id) }.toSet()
+        val read = bookmarks.filter { it.newChildren == 0 }.map { bookmarkId(it.id) }
+            .filter { it in active && it !in unread }.toSet()
+        if (read.isEmpty()) return
+        read.forEach(manager::cancel)
+        val left = active.any { it in ID_BOOKMARK_BASE until ID_BOOKMARK_BASE + ID_RANGE && it !in read }
+        if (!left) manager.cancel(ID_BOOKMARKS)
     }
 
     fun friendsOnline(context: Context, friends: List<Friend>) {
@@ -164,18 +187,40 @@ object Notifier {
         post(context, ID_FRIENDS, notification.setContentIntent(openApp(context, MainActivity.TAB_FRIENDS)))
     }
 
-    fun sessionExpired(context: Context) {
-        post(
-            context,
-            ID_SESSION,
-            builder(
-                context,
-                CHANNEL_ACCOUNT,
-                context.getString(R.string.notify_session_expired_title),
-                context.getString(R.string.notify_session_expired_text),
-            ).setContentIntent(openApp(context, tab = null)),
+    /** [dataSaverBlocks] = šetrič dát appke na pozadí zakázal sieť – povie to a ponúkne povolenie. */
+    fun sessionExpired(context: Context, dataSaverBlocks: Boolean) {
+        val text = context.getString(
+            if (dataSaverBlocks) R.string.notify_session_expired_data_saver else R.string.notify_session_expired_text,
         )
+        val builder = builder(context, CHANNEL_ACCOUNT, context.getString(R.string.notify_session_expired_title), text)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+            .setContentIntent(openApp(context, tab = null))
+        if (dataSaverBlocks) {
+            builder.addAction(
+                0,
+                context.getString(R.string.allow_unrestricted_data),
+                PendingIntent.getActivity(
+                    context,
+                    ID_SESSION,
+                    NetworkProbe.unrestrictedDataIntent(context),
+                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+                ),
+            )
+        }
+        post(context, ID_SESSION, builder)
     }
+
+    /** Po prihlásení stará „Odhlásilo ťa“ už neplatí. */
+    fun cancelSessionExpired(context: Context) {
+        NotificationManagerCompat.from(context).cancel(ID_SESSION)
+    }
+
+    private fun bookmarkId(id: Long) = ID_BOOKMARK_BASE + id.mod(ID_RANGE)
+
+    private fun activeIds(context: Context): Set<Int> =
+        context.getSystemService(NotificationManager::class.java).activeNotifications.map { it.id }.toSet()
+
+    private fun isActive(context: Context, id: Int) = id in activeIds(context)
 
     private fun builder(context: Context, channel: String, title: String, text: String?) =
         NotificationCompat.Builder(context, channel)

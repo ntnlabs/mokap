@@ -36,12 +36,12 @@ class NewsTracker(context: Context) {
         return previous?.let { FriendNews.cameOnline(it, friends) }.orEmpty()
     }
 
-    /** Koľko neprečítaných správ pribudlo od minulej kontroly. */
+    /** Uloží počet neprečítaných a vráti predošlý; null = prvá kontrola (len základ, nič nehlásiť). */
     @Synchronized
-    fun updateMail(unread: Int): Int {
+    fun updateMail(unread: Int): Int? {
         val previous = if (prefs.contains(KEY_MAIL)) prefs.getInt(KEY_MAIL, 0) else null
         prefs.edit { putInt(KEY_MAIL, unread) }
-        return previous?.let { MailNews.added(it, unread) } ?: 0
+        return previous
     }
 
     /**

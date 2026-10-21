@@ -1,5 +1,6 @@
 package sk.ntnlabs.kyberia.ui.settings
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.provider.Settings as AndroidSettings
 import androidx.activity.compose.BackHandler
@@ -40,6 +41,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.util.Locale
 import kotlinx.coroutines.launch
@@ -47,6 +50,7 @@ import sk.ntnlabs.kyberia.AppContainer
 import sk.ntnlabs.kyberia.R
 import sk.ntnlabs.kyberia.data.Settings
 import sk.ntnlabs.kyberia.data.ThemeMode
+import sk.ntnlabs.kyberia.work.NetworkProbe
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -98,6 +102,27 @@ fun SettingsScreen(container: AppContainer, onBack: () -> Unit) {
             Note(stringResource(R.string.settings_hide_nsfw_note))
 
             SectionHeader(stringResource(R.string.settings_section_checks))
+            // Šetrič dát bez výnimky pre mokap = na mobilných dátach kontroly na pozadí neprejdú; overí sa pri každom návrate.
+            var dataSaverBlocks by remember { mutableStateOf(false) }
+            LifecycleResumeEffect(Unit) {
+                dataSaverBlocks = NetworkProbe.dataSaverBlocks(context)
+                onPauseOrDispose {}
+            }
+            if (dataSaverBlocks) {
+                ListItem(
+                    headlineContent = { Text(stringResource(R.string.settings_data_saver), color = MaterialTheme.colorScheme.error) },
+                    supportingContent = { Text(stringResource(R.string.settings_data_saver_note)) },
+                    modifier = Modifier.clickable {
+                        try {
+                            context.startActivity(NetworkProbe.unrestrictedDataIntent(context))
+                        } catch (e: ActivityNotFoundException) {
+                            context.startActivity(
+                                Intent(AndroidSettings.ACTION_APPLICATION_DETAILS_SETTINGS, "package:${context.packageName}".toUri()),
+                            )
+                        }
+                    },
+                )
+            }
             ChoiceRow(
                 label = stringResource(R.string.settings_interval),
                 value = stringResource(R.string.settings_interval_value, settings.intervalMinutes),

@@ -12,6 +12,7 @@ import sk.ntnlabs.kyberia.data.CheckResult
 import sk.ntnlabs.kyberia.data.CheckTrigger
 import sk.ntnlabs.kyberia.data.DiagnosticsStore
 import sk.ntnlabs.kyberia.data.LatestPage
+import sk.ntnlabs.kyberia.data.MailNews
 import sk.ntnlabs.kyberia.data.MailRepository
 import sk.ntnlabs.kyberia.data.NewsTracker
 import sk.ntnlabs.kyberia.data.Nsfw
@@ -65,7 +66,7 @@ class NewsChecker(
         } catch (e: SessionExpiredException) {
             diagnostics.record(CheckEntry(now, CheckResult.EXPIRED, trigger, e.detail))
             auth.sessionEnded()
-            Notifier.sessionExpired(context)
+            Notifier.sessionExpired(context, runCatching { NetworkProbe.dataSaverBlocks(context) }.getOrDefault(false))
             return true
         } catch (e: IOException) {
             // K chybe aj stav siete – offline telefón a sieť zakázaná Androidom vyzerajú rovnako („Unable to resolve host“).
@@ -103,10 +104,11 @@ class NewsChecker(
             return
         }
         if (check !is MailCheck.Unread) return
-        val added = tracker.updateMail(check.count)
+        val previous = tracker.updateMail(check.count) ?: return // prvá kontrola len nastaví základ
         when {
             check.count == 0 -> Notifier.cancelMail(context) // prečítané na webe
-            added > 0 -> Notifier.mail(context, check.count, check.lastFrom)
+            MailNews.added(previous, check.count) > 0 -> Notifier.mail(context, check.count, check.lastFrom)
+            check.count < previous -> Notifier.mail(context, check.count, check.lastFrom, silent = true)
         }
     }
 }

@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import sk.ntnlabs.kyberia.notify.Notifier
 import sk.ntnlabs.kyberia.ui.common.AvatarOptions
 import sk.ntnlabs.kyberia.ui.common.LocalAvatarOptions
 import sk.ntnlabs.kyberia.ui.common.rememberMeteredNetwork
@@ -68,8 +69,12 @@ class MainActivity : ComponentActivity() {
                         val loggedIn by container.auth.loggedIn.collectAsStateWithLifecycle()
                         val tab by requestedTab.collectAsStateWithLifecycle()
                         if (loggedIn) {
-                            // Ak systém plán kontrol zrušil (napr. force stop), obnov ho.
-                            LaunchedEffect(Unit) { container.scheduler.schedule() }
+                            LaunchedEffect(Unit) {
+                                // Ak systém plán kontrol zrušil (napr. force stop), obnov ho.
+                                container.scheduler.schedule()
+                                // Prihlásený – stará notifikácia „Odhlásilo ťa“ už neplatí.
+                                Notifier.cancelSessionExpired(this@MainActivity)
+                            }
                             HomeScreen(container, requestedTab = tab, onTabHandled = { requestedTab.value = null })
                         } else {
                             var diagnostics by rememberSaveable { mutableStateOf(false) }

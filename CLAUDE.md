@@ -74,6 +74,11 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
 - Cookie jar zahadzuje `jabber_login` a `jabber_password` (web ich nastavuje pri prihlásení, druhá je MD5 z hesla).
   Po konci session (`endSession`) neprijíma cookies až do ďalšieho prihlásenia (`clear`) – odpoveď súbežnej
   požiadavky by inak session po reštarte „oživila“.
+- **Šetrič dát** bez výnimky pre mokap zakáže appke na pozadí sieť na mobilných dátach – strážca session vtedy nepomôže.
+  Appka to len oznámi (riadok v nastaveniach, text a tlačidlo v notifikácii o odhlásení) a otvorí systémové
+  „neobmedzené dáta“ (`NetworkProbe.unrestrictedDataIntent`); sama nič neobchádza.
+- Notifikácie ukazujú stav, nie prírastok: fórum celkový počet nových (ako „N NEW Child“), prečítané fórum svoju
+  notifikáciu zruší, pošta pri čiastočnom prečítaní potichu opraví číslo; po prihlásení zmizne stará „Odhlásilo ťa“.
 - Chyba kontroly na pozadí zapíše do diagnostiky aj stav siete (`NetworkProbe`: bez siete / zablokovaná pre appku,
   Doze, šetriče, standby bucket) – „Unable to resolve host“ inak nerozlíši offline telefón od zákazu Androidu.
 - Čas pri priateľoch je **nečinnosť** (idle); zoznam je zoradený od najaktívnejšieho.
