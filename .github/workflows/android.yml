@@ -1,8 +1,10 @@
 name: Android CI
 
 # Push / PR: len kontroly (gitleaks, lint, unit testy) – žiadne APK.
-# APK sa vyrába iba na požiadanie: Actions → Android CI → Run workflow,
+# APK a AAB sa vyrábajú iba na požiadanie: Actions → Android CI → Run workflow,
 # alebo push tagu apk-* (napr. apk-2026-10-17) – tak sa dá buildnúť aj z inej vetvy než main.
+# Podpísaný release (AAB pre Google Play) len keď sú v repe secrets MOKAP_KEYSTORE_BASE64,
+# MOKAP_KEYSTORE_PASSWORD, MOKAP_KEY_ALIAS, MOKAP_KEY_PASSWORD (upload key, nikdy nie v gite).
 on:
   push:
     branches: ["**"]
@@ -64,7 +66,7 @@ jobs:
           retention-days: 7
 
   apk:
-    name: Build APK (len na požiadanie)
+    name: Build APK a AAB (len na požiadanie)
     if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/apk-')
     needs: [secrets-scan, checks]
     runs-on: ubuntu-latest
@@ -75,11 +77,28 @@ jobs:
           distribution: temurin
           java-version: "17"
           cache: gradle
+      # Upload keystore len do dočasného adresára runnera; bez secrets ostane release nepodpísaný.
+      - name: Upload keystore zo secrets
+        env:
+          KEYSTORE_BASE64: ${{ secrets.MOKAP_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            printf '%s' "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload.jks"
+            echo "MOKAP_KEYSTORE_FILE=$RUNNER_TEMP/upload.jks" >> "$GITHUB_ENV"
+          else
+            echo "::notice::Bez secretu MOKAP_KEYSTORE_BASE64 – release APK/AAB nebude podpísaný a AAB sa nenahrá."
+          fi
       - name: Build debug and release
         # Tretia časť verzie (0.7.0112) = číslo behu tohto workflowu.
         env:
           MOKAP_BUILD_NUMBER: ${{ github.run_number }}
-        run: ./gradlew assembleDebug assembleRelease
+          MOKAP_KEYSTORE_PASSWORD: ${{ secrets.MOKAP_KEYSTORE_PASSWORD }}
+          MOKAP_KEY_ALIAS: ${{ secrets.MOKAP_KEY_ALIAS }}
+          MOKAP_KEY_PASSWORD: ${{ secrets.MOKAP_KEY_PASSWORD }}
+        run: ./gradlew assembleDebug assembleRelease bundleRelease
+      - name: Zmazať keystore
+        if: always()
+        run: rm -f "$RUNNER_TEMP/upload.jks"
       - name: Permission audit
         run: |
           APK=$(ls app/build/outputs/apk/release/*.apk | head -n1)
@@ -94,6 +113,21 @@ jobs:
         with:
           name: mokap-debug-apk
           path: app/build/outputs/apk/debug/*.apk
+          retention-days: 14
+      # Nepodpísaný AAB Play odmietne – nahrá sa len overený; odtlačok sedí s „Upload key“ v Play Console.
+      - name: Overiť podpis AAB
+        if: env.MOKAP_KEYSTORE_FILE != ''
+        run: |
+          AAB=$(ls app/build/outputs/bundle/release/*.aab | head -n1)
+          jarsigner -verify "$AAB" | tee "$RUNNER_TEMP/verify.txt"
+          grep -q "jar verified" "$RUNNER_TEMP/verify.txt"
+          keytool -printcert -jarfile "$AAB" | grep -E "SHA256:"
+      - name: Upload release AAB (Google Play)
+        if: env.MOKAP_KEYSTORE_FILE != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: mokap-release-aab
+          path: app/build/outputs/bundle/release/*.aab
           retention-days: 14
       - name: Upload reports
         if: failure()

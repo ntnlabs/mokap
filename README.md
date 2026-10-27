@@ -81,6 +81,29 @@ keyPassword=...
 Bez nich vznikne nepodpísaný release build. Na Google Play používame Play App Signing –
 lokálny kľúč je len *upload key*.
 
+### AAB pre Google Play z CI
+
+Job `apk` (len na požiadanie) vyrobí aj `bundleRelease` a nahrá artefakt `mokap-release-aab` –
+iba ak sú v GitHube (Settings → Secrets and variables → Actions) tieto repository secrets:
+
+| Secret | Obsah |
+|---|---|
+| `MOKAP_KEYSTORE_BASE64` | upload keystore v base64 |
+| `MOKAP_KEYSTORE_PASSWORD` | heslo keystoru |
+| `MOKAP_KEY_ALIAS` | alias kľúča (napr. `upload`) |
+| `MOKAP_KEY_PASSWORD` | heslo kľúča (pri PKCS12 rovnaké ako heslo keystoru) |
+
+Upload kľúč si vyrob sám, mimo repa (keytool je v každom JDK aj v Android Studiu):
+
+```sh
+keytool -genkeypair -v -keystore mokap-upload.jks -alias upload -keyalg RSA -keysize 4096 -validity 10000
+base64 -w0 mokap-upload.jks        # Linux; macOS: base64 -i mokap-upload.jks
+```
+
+Keystore aj heslá si zálohuj (napr. v správcovi hesiel). Keystore sa v CI rozbalí len do dočasného
+adresára runnera a po builde sa zmaže; CI overí podpis AAB a vypíše SHA-256 certifikátu na porovnanie
+s „Upload key certificate“ v Play Console.
+
 ## Pravidlá
 
 - žiadne secrets ani súkromné údaje v gite (CI to kontroluje cez gitleaks)
