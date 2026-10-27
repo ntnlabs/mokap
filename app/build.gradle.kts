@@ -70,6 +70,8 @@ android {
             )
             // Bez keystore vznikne nepodpísaný release build.
             signingConfig = signingConfigs.findByName("release")
+            // Native kód je len z AndroidX (graphics-path pre Compose); symboly idú do AAB pre Play (pády a ANR).
+            ndk { debugSymbolLevel = "SYMBOL_TABLE" }
         }
         debug {
             applicationIdSuffix = ".debug"
