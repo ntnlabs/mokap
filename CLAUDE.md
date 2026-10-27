@@ -110,3 +110,6 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
 - **APK sa builduje iba so súhlasom používateľa.** Pred každým buildom APK sa najprv opýtaj;
   build spúšťa job `apk` cez `workflow_dispatch` (Actions → Android CI → Run workflow) alebo
   push tagu `apk-*`; vyrobí debug aj release APK, vypíše audit oprávnení a nahrá `mokap-debug-apk`.
+  S repository secrets `MOKAP_KEYSTORE_BASE64` + `MOKAP_KEYSTORE_PASSWORD`/`MOKAP_KEY_ALIAS`/`MOKAP_KEY_PASSWORD`
+  podpíše release upload kľúčom a nahrá aj `mokap-release-aab` (Google Play, Play App Signing). Upload kľúč
+  vyrába a drží používateľ – nikdy nejde cez Clauda, do gitu ani do logov.
