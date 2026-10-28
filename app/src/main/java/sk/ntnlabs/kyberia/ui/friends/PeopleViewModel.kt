@@ -70,7 +70,7 @@ class PeopleViewModel(
 
     fun refresh() {
         val mode = state.mode
-        if (mode == PeopleMode.FRIENDS || state.loading) return
+        if (mode == PeopleMode.FRIENDS || state.loading || !auth.loggedIn.value) return
         state = state.copy(loading = true, error = false)
         viewModelScope.launch {
             state = try {
