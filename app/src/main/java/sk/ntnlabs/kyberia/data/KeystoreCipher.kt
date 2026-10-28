@@ -18,6 +18,7 @@ class KeystoreCipher(private val alias: String) {
     }
 
     fun decrypt(data: ByteArray): ByteArray {
+        require(data.size > IV_SIZE) { "Šifrované dáta sú príliš krátke" }
         val cipher = Cipher.getInstance(TRANSFORMATION)
         cipher.init(Cipher.DECRYPT_MODE, key(), GCMParameterSpec(TAG_BITS, data, 0, IV_SIZE))
         return cipher.doFinal(data, IV_SIZE, data.size - IV_SIZE)

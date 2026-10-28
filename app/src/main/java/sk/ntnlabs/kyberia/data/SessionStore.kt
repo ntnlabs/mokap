@@ -3,7 +3,6 @@ package sk.ntnlabs.kyberia.data
 import android.content.Context
 import android.util.Base64
 import androidx.core.content.edit
-import java.security.GeneralSecurityException
 
 /** Session cookies šifrované kľúčom z Android Keystore, uložené v SharedPreferences. */
 class SessionStore(context: Context) : CookieStorage {
@@ -15,25 +14,24 @@ class SessionStore(context: Context) : CookieStorage {
         val encoded = prefs.getString(KEY_COOKIES, null) ?: return null
         return try {
             String(cipher.decrypt(Base64.decode(encoded, Base64.NO_WRAP)), Charsets.UTF_8)
-        } catch (e: GeneralSecurityException) {
-            // Kľúč zmizol (napr. reset zámku obrazovky) – session je stratená, treba sa prihlásiť.
-            prefs.edit { remove(KEY_COOKIES) }
-            null
-        } catch (e: IllegalArgumentException) {
+        } catch (e: Exception) {
+            // Kľúč zmizol (reset zámku obrazovky), poškodené dáta alebo chyba Keystore u výrobcu
+            // (ProviderException, IOException) – session je stratená, treba sa prihlásiť. Pádom pri štarte nikdy.
             prefs.edit { remove(KEY_COOKIES) }
             null
         }
     }
 
     override fun write(value: String?) {
-        prefs.edit {
-            if (value.isNullOrEmpty()) {
-                remove(KEY_COOKIES)
-            } else {
-                val encrypted = cipher.encrypt(value.toByteArray(Charsets.UTF_8))
-                putString(KEY_COOKIES, Base64.encodeToString(encrypted, Base64.NO_WRAP))
+        val encoded = value?.takeIf { it.isNotEmpty() }?.let {
+            try {
+                Base64.encodeToString(cipher.encrypt(it.toByteArray(Charsets.UTF_8)), Base64.NO_WRAP)
+            } catch (e: Exception) {
+                // Bez Keystore sa cookies neuložia vôbec (nikdy nešifrované) – session ostane len v pamäti.
+                null
             }
         }
+        prefs.edit { if (encoded == null) remove(KEY_COOKIES) else putString(KEY_COOKIES, encoded) }
     }
 
     private companion object {
