@@ -14,6 +14,9 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   sú označené pre autofill (`ContentType.Username/Password`) – uložiť ich môže len správca hesiel
   v telefóne so súhlasom používateľa, appka nie.
 - Požiadavky a cookies idú výhradne na `https://kyberia.sk` (`UrlPolicy`, `KyberiaCookieJar`).
+  Certificate pinning zámerne nie (kyberia mení certifikáty mimo nás – pin by appku zabil všetkým);
+  cleartext aj používateľské CA sú pri targetSdk 36 vypnuté predvolene, network security config netreba.
+  Zlyhanie Keystore (`SessionStore`) = stratená session a nové prihlásenie, nikdy pád ani nešifrované uloženie.
 - Appka sa nevydáva za oficiálnu aplikáciu kyberie ani nepoužíva jej logo bez súhlasu.
 
 ## Štruktúra kyberie
