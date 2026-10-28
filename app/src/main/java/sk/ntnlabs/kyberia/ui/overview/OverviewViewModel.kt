@@ -72,7 +72,9 @@ class OverviewViewModel(
     }
 
     fun refresh() {
-        if (state.loading) return
+        // Po odhlásení na pozadí môže ešte stará obrazovka pri návrate (ON_START) zavolať obnovenie
+        // skôr, ako sa prepne na login – bez session nemá zmysel ťahať stránku ani hlásiť „odhlásenie“ znova.
+        if (state.loading || !auth.loggedIn.value) return
         state = state.copy(loading = true, error = false)
         viewModelScope.launch {
             state = try {
