@@ -24,6 +24,8 @@ data class Settings(
     val loginById: Boolean = false,
     /** Skryť diskusie s „NSFW“ v názve (zoznamy, notifikácie, bodky na záložkách). */
     val hideNsfw: Boolean = true,
+    /** Sťahovať bookmarky cez node „používa MOKAP“ – priatelia uvidia, že si v mokape. */
+    val showPresence: Boolean = true,
 ) {
     fun isQuiet(hour: Int): Boolean = quietEnabled && QuietHours.contains(quietFromHour, quietToHour, hour)
 

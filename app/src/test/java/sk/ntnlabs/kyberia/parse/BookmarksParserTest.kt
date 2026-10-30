@@ -10,6 +10,15 @@ class BookmarksParserTest {
     private val bookmarks = BookmarksParser.parse(Fixtures.load("bookmarks.html", "https://kyberia.sk/id/19/"))
 
     @Test
+    fun recognizesBookmarksTemplate() {
+        // Node „používa MOKAP“ sa použije, len keď naozaj vyrenderoval to, čo /id/19/.
+        assertTrue(BookmarksParser.isBookmarksPage(Fixtures.load("bookmarks.html", "https://kyberia.sk/id/19/")))
+        assertFalse(BookmarksParser.isBookmarksPage(Fixtures.load("people.html", "https://kyberia.sk/id/27/")))
+        assertFalse(BookmarksParser.isBookmarksPage(Fixtures.load("populated.html", "https://kyberia.sk/id/4830026/")))
+        assertFalse(BookmarksParser.isBookmarksPage(Fixtures.load("login.html", "https://kyberia.sk/id/19/")))
+    }
+
+    @Test
     fun parsesAllEntries() {
         assertEquals(listOf(1001L, 1002L, 1003L, 1004L, 1005L, 1006L), bookmarks.map { it.id })
     }

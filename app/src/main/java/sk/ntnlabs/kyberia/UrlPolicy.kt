@@ -46,5 +46,12 @@ object KyberiaUrls {
     /** Ľahký endpoint, ktorý web volá kvôli počtu novej pošty. */
     const val MAIL_CHECK = "$BASE/ajax/check_new_mail.php"
 
+    /**
+     * Node „používa MOKAP“ so šablónou ako /id/19/: tie isté dáta, ale každé zobrazenie nodu nastaví
+     * „kde je“, takže priatelia uvidia mokap namiesto bookmarkov. null = node zatiaľ nie je, sťahuje sa /id/19/.
+     */
+    val PRESENCE_ID: Long? = null
+    val PRESENCE: String? = PRESENCE_ID?.let(::node)
+
     fun node(id: Long): String = "$BASE/id/$id/"
 }

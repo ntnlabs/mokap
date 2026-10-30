@@ -36,6 +36,7 @@ class SettingsStore(context: Context) {
             putBoolean(AVATARS_ONLY_WIFI, updated.avatarsOnlyWifi)
             putBoolean(LOGIN_BY_ID, updated.loginById)
             putBoolean(HIDE_NSFW, updated.hideNsfw)
+            putBoolean(SHOW_PRESENCE, updated.showPresence)
         }
         state.value = updated
     }
@@ -59,6 +60,7 @@ class SettingsStore(context: Context) {
             avatarsOnlyWifi = prefs.getBoolean(AVATARS_ONLY_WIFI, defaults.avatarsOnlyWifi),
             loginById = prefs.getBoolean(LOGIN_BY_ID, defaults.loginById),
             hideNsfw = prefs.getBoolean(HIDE_NSFW, defaults.hideNsfw),
+            showPresence = prefs.getBoolean(SHOW_PRESENCE, defaults.showPresence),
         )
     }
 
@@ -82,5 +84,6 @@ class SettingsStore(context: Context) {
         const val AVATARS_ONLY_WIFI = "avatars_only_wifi"
         const val LOGIN_BY_ID = "login_by_id"
         const val HIDE_NSFW = "hide_nsfw"
+        const val SHOW_PRESENCE = "show_presence"
     }
 }
