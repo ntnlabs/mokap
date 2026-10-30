@@ -43,6 +43,12 @@ object BookmarksParser {
             Bookmark(id, link.text().trim(), newChildren, descendants, changed)
         }.distinctBy { it.id }
 
+    /**
+     * Stránka so šablónou /id/19/ – blok Last (10 najnovších príspevkov celej kyberie) je tam vždy,
+     * na iných stránkach (people, populated, bežný node) nie.
+     */
+    fun isBookmarksPage(document: Document): Boolean = document.selectFirst("div.last") != null
+
     /** Najprv najviac nových odpovedí, potom novinky hlbšie, potom zmenené, nakoniec zvyšok. */
     fun sortByNews(bookmarks: List<Bookmark>): List<Bookmark> =
         bookmarks.sortedWith(

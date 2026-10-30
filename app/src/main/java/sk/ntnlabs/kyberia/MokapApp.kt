@@ -88,7 +88,7 @@ class AppContainer(context: Context) {
     val newsTracker = NewsTracker(context)
     val latestPage = LatestPage()
     val auth = AuthRepository(client, cookieJar, newsTracker, scheduler, latestPage)
-    val bookmarks = BookmarksRepository(client)
+    val bookmarks = BookmarksRepository(client) { settings.current.showPresence }
     val mail = MailRepository(client)
     val people = PeopleRepository(client)
     val checker = NewsChecker(context, auth, bookmarks, mail, newsTracker, settings, diagnostics, latestPage, scheduler)

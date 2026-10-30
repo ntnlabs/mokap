@@ -47,6 +47,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.util.Locale
 import kotlinx.coroutines.launch
 import sk.ntnlabs.kyberia.AppContainer
+import sk.ntnlabs.kyberia.KyberiaUrls
 import sk.ntnlabs.kyberia.R
 import sk.ntnlabs.kyberia.data.Settings
 import sk.ntnlabs.kyberia.data.ThemeMode
@@ -191,6 +192,12 @@ fun SettingsScreen(container: AppContainer, onBack: () -> Unit) {
             }
 
             SectionHeader(stringResource(R.string.settings_section_account))
+            if (KyberiaUrls.PRESENCE != null) {
+                SwitchRow(stringResource(R.string.settings_presence), settings.showPresence) { on ->
+                    store.update { it.copy(showPresence = on) }
+                }
+                Note(stringResource(R.string.settings_presence_note))
+            }
             // Odhlásenie je drahý omyl (heslo znova) – až po potvrdení.
             var confirmLogout by remember { mutableStateOf(false) }
             ListItem(
