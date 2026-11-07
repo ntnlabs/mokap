@@ -47,8 +47,8 @@ object KyberiaUrls {
     const val MAIL_CHECK = "$BASE/ajax/check_new_mail.php"
 
     /**
-     * Node „používa MOKAP“ so šablónou ako /id/19/: tie isté dáta, ale každé zobrazenie nodu nastaví
-     * „kde je“, takže priatelia uvidia mokap namiesto bookmarkov. null = node zatiaľ nie je, sťahuje sa /id/19/.
+     * Node „používa MOKAP“: načíta sa na konci každého obnovenia, aby „kde je“ ukazovalo mokap
+     * namiesto bookmarkov ([sk.ntnlabs.kyberia.data.Presence]). null = node zatiaľ nie je.
      */
     val PRESENCE_ID: Long? = null
     val PRESENCE: String? = PRESENCE_ID?.let(::node)

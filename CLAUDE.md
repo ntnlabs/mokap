@@ -41,10 +41,10 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   ľudia vo verejných nodoch / online. Appka to spočíta ako „Tu sa práve diskutuje“.
 - People a populated sa sťahujú **len na požiadanie** (prepínač vo Friends), nikdy v pozadí.
 - „Kde je“ (`user_action`) nastaví kyberia pri **každom** zobrazení nodu (`display.inc`) na jeho názov.
-  Node „používa MOKAP“ (`KyberiaUrls.PRESENCE_ID`, vlastník si mu nastavil šablónu ako /id/19/) appka sťahuje
-  namiesto /id/19/ – tie isté dáta, 0 požiadaviek navyše, priatelia vidia mokap. Prepínač v nastaveniach
-  (predvolene zapnutý). Keď node nevyrenderuje bookmarky (`BookmarksParser.isBookmarksPage` = `div.last`),
-  v tej istej kontrole sa stiahne /id/19/ a node sa do konca behu appky nepoužije (prázdne zoznamy = záplava).
+  `Presence` na konci každého obnovenia (appka, pozadie, strážca, people/populated) načíta prázdny node
+  „používa MOKAP“ (`KyberiaUrls.PRESENCE_ID`), aby priatelia videli mokap namiesto „bookmarks“. Výnimka z pravidla
+  o požiadavkách – rozhodnutie používateľa: +1 malá požiadavka na obnovenie, prepínač v nastaveniach (predvolene
+  zapnutý). Chyba pri ňom obnovenie nepokazí. Node so šablónou /id/19/ nefunguje (živá /id/19/ má prispôsobiteľnú šablónu).
 - Pošta: `GET /ajax/check_new_mail.php` (web ho volá raz za minútu) vráti
   `<počet nových>;<nick posledného odosielateľa>;…` alebo `offline`. Nick ide len do notifikácie
   („Nová pošta od …“), nikam sa neukladá; posledné pole nemá overený význam. `offline` session
