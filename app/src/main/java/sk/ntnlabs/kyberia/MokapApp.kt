@@ -22,6 +22,7 @@ import sk.ntnlabs.kyberia.data.LatestPage
 import sk.ntnlabs.kyberia.data.MailRepository
 import sk.ntnlabs.kyberia.data.NewsTracker
 import sk.ntnlabs.kyberia.data.PeopleRepository
+import sk.ntnlabs.kyberia.data.Presence
 import sk.ntnlabs.kyberia.data.SessionStore
 import sk.ntnlabs.kyberia.data.SettingsStore
 import sk.ntnlabs.kyberia.notify.Notifier
@@ -88,8 +89,9 @@ class AppContainer(context: Context) {
     val newsTracker = NewsTracker(context)
     val latestPage = LatestPage()
     val auth = AuthRepository(client, cookieJar, newsTracker, scheduler, latestPage)
-    val bookmarks = BookmarksRepository(client) { settings.current.showPresence }
+    private val presence = Presence(client) { settings.current.showPresence }
+    val bookmarks = BookmarksRepository(client, presence)
     val mail = MailRepository(client)
-    val people = PeopleRepository(client)
+    val people = PeopleRepository(client, presence)
     val checker = NewsChecker(context, auth, bookmarks, mail, newsTracker, settings, diagnostics, latestPage, scheduler)
 }
