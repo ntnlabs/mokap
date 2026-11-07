@@ -50,5 +50,7 @@ class UrlPolicyTest {
     fun nodeUrls() {
         assertEquals("https://kyberia.sk/id/19/", KyberiaUrls.BOOKMARKS)
         assertEquals("https://kyberia.sk/id/42/", KyberiaUrls.node(42))
+        // Node „používa MOKAP“ musí byť na kyberii, inak by ho klient vôbec nepustil.
+        assertTrue(UrlPolicy.isInternal(requireNotNull(KyberiaUrls.PRESENCE)))
     }
 }

@@ -50,7 +50,7 @@ object KyberiaUrls {
      * Node „používa MOKAP“: načíta sa na konci každého obnovenia, aby „kde je“ ukazovalo mokap
      * namiesto bookmarkov ([sk.ntnlabs.kyberia.data.Presence]). null = node zatiaľ nie je.
      */
-    val PRESENCE_ID: Long? = null
+    val PRESENCE_ID: Long? = 9346589L
     val PRESENCE: String? = PRESENCE_ID?.let(::node)
 
     fun node(id: Long): String = "$BASE/id/$id/"
