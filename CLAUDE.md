@@ -142,4 +142,4 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   podpíše release upload kľúčom a nahrá aj `mokap-release-aab` (Google Play, Play App Signing). Upload kľúč
   vyrába a drží používateľ – nikdy nejde cez Clauda, do gitu ani do logov. Release AAB nesie aj R8 mapovanie
   a native symboly (`ndk.debugSymbolLevel = SYMBOL_TABLE`; native kód je len z AndroidX) – Play netreba nič dohrávať.
-  NDK dáva job `apk` z runnera (`MOKAP_NDK_PATH` → `ndkPath`); krok „Overiť symboly v AAB“ zlyhá, ak v AAB chýbajú.
+  NDK dáva job `apk` z runnera (`MOKAP_NDK_PATH`/`MOKAP_NDK_VERSION` → `ndkPath`/`ndkVersion` – AGP chce, aby sedeli); krok „Overiť symboly v AAB“ zlyhá, ak v AAB chýbajú.

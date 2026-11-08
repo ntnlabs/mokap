@@ -94,8 +94,11 @@ jobs:
           NDK="${ANDROID_NDK_HOME:-${ANDROID_NDK_LATEST_HOME:-}}"
           [ -f "$NDK/source.properties" ] || NDK=$(ls -d "$ANDROID_HOME"/ndk/*/ 2>/dev/null | sort -V | tail -n1)
           if [ -z "$NDK" ] || [ ! -f "$NDK/source.properties" ]; then echo "::error::Runner nemá NDK"; exit 1; fi
-          grep Pkg.Revision "$NDK/source.properties"
+          ls "$ANDROID_HOME/ndk" || true
+          VERSION=$(sed -n 's/^Pkg\.Revision *= *//p' "$NDK/source.properties" | tr -d '[:space:]')
+          echo "NDK $VERSION: ${NDK%/}"
           echo "MOKAP_NDK_PATH=${NDK%/}" >> "$GITHUB_ENV"
+          echo "MOKAP_NDK_VERSION=$VERSION" >> "$GITHUB_ENV"
       - name: Build debug and release
         # Tretia časť verzie (0.7.0112) = číslo behu tohto workflowu.
         env:
