@@ -26,6 +26,7 @@ import sk.ntnlabs.kyberia.data.SettingsStore
 import sk.ntnlabs.kyberia.parse.Bookmark
 import sk.ntnlabs.kyberia.parse.Friend
 import sk.ntnlabs.kyberia.parse.LastPost
+import sk.ntnlabs.kyberia.parse.MyK
 import sk.ntnlabs.kyberia.parse.Reply
 import sk.ntnlabs.kyberia.parse.UserInfo
 import sk.ntnlabs.kyberia.work.CheckScheduler
@@ -37,6 +38,8 @@ data class OverviewUiState(
     val friends: List<Friend> = emptyList(),
     val last: List<LastPost> = emptyList(),
     val user: UserInfo? = null,
+    /** Tvoje príspevky s K za poslednú hodinu (blok na /id/19/). */
+    val myK: List<MyK> = emptyList(),
     val error: Boolean = false,
     /** Kedy sa naposledy stiahla /id/19/ – v appke alebo kontrolou v pozadí. */
     val loadedAtMillis: Long? = null,
@@ -129,6 +132,7 @@ class OverviewViewModel(
             friends = page.friends.sortedBy { it.timeSeconds ?: Long.MAX_VALUE },
             last = page.last,
             user = page.user,
+            myK = page.myK,
             loadedAtMillis = loaded.atMillis,
             // Skryté NSFW diskusie bodku nezapnú.
             changed = settings.current.hideNsfw.let { hide ->

@@ -51,7 +51,15 @@
     </plurals>
     <string name="work_in_progress">Pracujeme na tom.</string>
     <string name="mail_open">Otvoriť poštu na webe</string>
-    <string name="k_open">Otvoriť top K na webe</string>
+    <string name="k_mode_mine">Tvoje K</string>
+    <string name="k_mode_top">Top K</string>
+    <string name="k_mine_header">Za poslednú hodinu</string>
+    <string name="k_mine_empty">Za poslednú hodinu ti nikto nedal K.</string>
+    <string name="k_added">+%1$d K</string>
+    <string name="k_total">spolu %1$d K</string>
+    <string name="k_top_empty">Top K je teraz prázdne.</string>
+    <string name="k_top_error">Top K sa nepodarilo načítať. Potiahni dole a skús znova.</string>
+    <string name="k_top_web">Top K na webe</string>
 
     <string name="bookmarks_search">Hľadať v bookmarkoch</string>
     <string name="bookmarks_search_clear">Vymazať hľadanie</string>
