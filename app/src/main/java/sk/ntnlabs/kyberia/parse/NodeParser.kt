@@ -34,6 +34,8 @@ data class NodePage(
     val children: List<NodeChild>,
     /** Počet priamych odpovedí na kyberii – na stránke ich býva menej (kyberia ich stránkuje). */
     val childrenTotal: Int?,
+    /** Formulár na odpoveď; null = bez práva zápisu (alebo ho kyberia neukázala). */
+    val replyForm: ReplyForm? = null,
 )
 
 /**
@@ -65,6 +67,7 @@ object NodeParser {
             content = document.selectFirst("div#topic")?.let { ContentParser.parse(it) }.orEmpty(),
             children = document.select("li.lvl").mapNotNull(::child),
             childrenTotal = info?.text()?.let { TOTAL_CHILDREN.find(it) }?.groupValues?.get(1)?.toIntOrNull(),
+            replyForm = ReplyFormParser.parse(document),
         )
     }
 
