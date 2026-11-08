@@ -34,6 +34,12 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   posledná návšteva /id/19/ má pred odkazom ešte `<a class=most_important>NEW</a>` (/id/3579407/) – nie je to príspevok.
 - Blok „Last“ (`div.last`) = 10 najnovších príspevkov na celej kyberii: avatar s `title="nick | čas - dátum"`,
   odkaz na príspevok, „in“, odkaz na rodiča, čas, úryvok. Celý last je na `/id/35/`.
+- **K** (`KParser`, `KScreen`): „Tvoje K“ = blok `div.module_your_k_nodes` na /id/19/ (`get_temp_k`):
+  `<span class=most_important>N k</span> <a href=/id/ID/>názov</a> Mk <br>` (za hodinu / celkovo). Interval sa posiela
+  len POST-om a kyberia ho neukladá – GET /id/19/ dá vždy 1 h; appka zatiaľ len tú (iný interval = možno nastavenie neskôr).
+  „Top K“ = /id/8340566/: `div.item` s `div.icon-k` (avatar, „24 k“) a `div.title` (`<a>`príspevok, „in“ `<a>`rodič,
+  „by“ `<a>`autor, „created: …“, „- 3ch“) + `div.content`. Sťahuje sa **len pri prepnutí na Top K** (staršie ako 5 min),
+  nikdy v pozadí; po ňom `Presence`.
 - Titulok stránky je `<názov> :: <motto>`; motto sa strieda a appka ho ukazuje pod názvom záložky.
 - `/id/19/` má aj blok „Friends“ (`div.active_friend`): avatar+nick, `[odkaz]` na node, kde
   priateľ práve je, a čas (napr. `84m39s`). Avatary sú animované GIFy (Coil + disková cache).
@@ -113,7 +119,7 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
 - Odkazy na web idú cez `Web.open` s `Browser.EXTRA_APPLICATION_ID` – Chromium prehliadače (Chrome, Brave)
   ich otvárajú v tej istej karte namiesto novej.
 - UI je pre mobil: každá oblasť má vlastnú záložku (Bookmarky, Odpovede, Last, Pošta, K, Friends),
-  v spodnej lište len ikony (popis pre čítačku). Pošta a K zatiaľ „Pracujeme na tom.“ + tlačidlo na web.
+  v spodnej lište len ikony (popis pre čítačku). Pošta zatiaľ „Pracujeme na tom.“ + tlačidlo na web.
   Bookmarky predvolene A–Z (slovenský Collator); radenie/filter si appka pamätá v nastaveniach.
 - NSFW: **len názov samotného nodu** obsahuje „NSFW“ (samostatné slovo, `Nsfw`) – nikdy obsah, úryvky
   ani rodič (NSFW sa dedí, všetko aj tak nechytíme; v textoch priveľa omylov). V názvoch sa ukazuje 🔞;

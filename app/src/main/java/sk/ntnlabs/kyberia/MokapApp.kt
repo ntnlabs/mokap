@@ -24,6 +24,7 @@ import sk.ntnlabs.kyberia.data.MailRepository
 import sk.ntnlabs.kyberia.data.NewsTracker
 import sk.ntnlabs.kyberia.data.NodeRepository
 import sk.ntnlabs.kyberia.data.PeopleRepository
+import sk.ntnlabs.kyberia.data.TopKRepository
 import sk.ntnlabs.kyberia.data.Presence
 import sk.ntnlabs.kyberia.data.SessionStore
 import sk.ntnlabs.kyberia.data.SettingsStore
@@ -96,6 +97,7 @@ class AppContainer(context: Context) {
     val mail = MailRepository(client)
     val people = PeopleRepository(client, presence)
     val nodes = NodeRepository(client)
+    val topK = TopKRepository(client, presence)
 
     /** Cudzie obrázky a náhľady videí v príspevkoch – len so zapnutým nastavením; vlastný klient bez cookies. */
     val externalImages: ImageLoader by lazy {

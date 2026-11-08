@@ -7,6 +7,8 @@ import sk.ntnlabs.kyberia.parse.Friend
 import sk.ntnlabs.kyberia.parse.FriendsParser
 import sk.ntnlabs.kyberia.parse.LastParser
 import sk.ntnlabs.kyberia.parse.LastPost
+import sk.ntnlabs.kyberia.parse.MyK
+import sk.ntnlabs.kyberia.parse.MyKParser
 import sk.ntnlabs.kyberia.parse.RepliesParser
 import sk.ntnlabs.kyberia.parse.Reply
 import sk.ntnlabs.kyberia.parse.UserInfo
@@ -19,6 +21,8 @@ class BookmarksPage(
     val friends: List<Friend>,
     val last: List<LastPost>,
     val user: UserInfo,
+    /** Tvoje príspevky, ktoré za poslednú hodinu dostali K. */
+    val myK: List<MyK> = emptyList(),
 )
 
 class BookmarksRepository(private val client: KyberiaClient, private val presence: Presence? = null) {
@@ -33,6 +37,7 @@ class BookmarksRepository(private val client: KyberiaClient, private val presenc
             friends = FriendsParser.parse(document),
             last = LastParser.parse(document),
             user = UserInfoParser.parse(document),
+            myK = MyKParser.parse(document),
         )
     }
 }

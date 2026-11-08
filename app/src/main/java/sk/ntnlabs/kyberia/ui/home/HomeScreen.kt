@@ -64,6 +64,8 @@ import sk.ntnlabs.kyberia.ui.bookmarks.BookmarksScreen
 import sk.ntnlabs.kyberia.ui.common.Web
 import sk.ntnlabs.kyberia.ui.friends.FriendsScreen
 import sk.ntnlabs.kyberia.ui.friends.PeopleViewModel
+import sk.ntnlabs.kyberia.ui.k.KScreen
+import sk.ntnlabs.kyberia.ui.k.TopKViewModel
 import sk.ntnlabs.kyberia.ui.last.LastScreen
 import sk.ntnlabs.kyberia.ui.node.NodeScreen
 import sk.ntnlabs.kyberia.ui.node.NodesViewModel
@@ -100,6 +102,7 @@ fun HomeScreen(
     val openWeb: (String) -> Unit = { Web.open(context, it) }
     val overview: OverviewViewModel = viewModel(factory = OverviewViewModel.factory(container))
     val people: PeopleViewModel = viewModel(factory = PeopleViewModel.factory(container))
+    val topK: TopKViewModel = viewModel(factory = TopKViewModel.factory(container))
 
     // Otvorené z notifikácie: prepni na správnu záložku a stiahni čerstvé dáta.
     LaunchedEffect(requestedTab) {
@@ -129,6 +132,7 @@ fun HomeScreen(
     val tagline = overview.state.user?.tagline
     val friendsOnline = overview.state.friends.size
     val openNode: (Long) -> Unit = { nodeStack += it }
+    val externalImages = if (settings.showExternalMedia) container.externalImages else null
 
     NotificationPermissionRequest()
 
@@ -136,7 +140,7 @@ fun HomeScreen(
         NodeScreen(
             nodes,
             nodeStack.last(),
-            externalImages = if (settings.showExternalMedia) container.externalImages else null,
+            externalImages = externalImages,
             onBack = { nodeStack = nodeStack.copyOf(nodeStack.size - 1) },
             onOpenNode = openNode,
         )
@@ -212,7 +216,7 @@ fun HomeScreen(
                 Tab.LAST -> LastScreen(overview, settings.hideNsfw, onOpenNode = openNode, onOpenAll = { openWeb(KyberiaUrls.LAST) })
                 Tab.FRIENDS -> FriendsScreen(overview, people, settings.hideNsfw, onOpenNode = openNode)
                 Tab.MAIL -> OnWeb(R.string.mail_open) { openWeb(KyberiaUrls.MAIL) }
-                Tab.K -> OnWeb(R.string.k_open) { openWeb(KyberiaUrls.TOP_K) }
+                Tab.K -> KScreen(overview, topK, settings.hideNsfw, externalImages, onOpenNode = openNode, onOpenWeb = openWeb)
             }
         }
     }
