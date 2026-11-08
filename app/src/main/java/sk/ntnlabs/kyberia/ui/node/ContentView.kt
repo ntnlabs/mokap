@@ -29,30 +29,52 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import coil3.ImageLoader
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
+import coil3.compose.SubcomposeAsyncImage
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import java.net.URI
 import sk.ntnlabs.kyberia.R
 import sk.ntnlabs.kyberia.parse.ContentBlock
+import sk.ntnlabs.kyberia.parse.Embeds
 import sk.ntnlabs.kyberia.parse.TextSpan
 import sk.ntnlabs.kyberia.ui.common.LocalAvatarOptions
 import sk.ntnlabs.kyberia.ui.theme.LocalDimImages
 
 /**
- * Obsah príspevku z [ContentBlock]: text s odkazmi, obrázky z kyberie; cudzie obrázky a videá
- * len ako odkaz – appka mimo kyberie nič nesťahuje.
+ * Obsah príspevku z [ContentBlock]: text s odkazmi a obrázky z kyberie. Cudzie obrázky a náhľady videí
+ * len s [externalImages] (nastavenie, predvolene vypnuté) – inak odkaz; video sa vždy otvorí mimo appky.
  */
 @Composable
-fun ContentView(blocks: List<ContentBlock>, onLink: (String) -> Unit, modifier: Modifier = Modifier) {
+fun ContentView(
+    blocks: List<ContentBlock>,
+    onLink: (String) -> Unit,
+    externalImages: ImageLoader?,
+    modifier: Modifier = Modifier,
+) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         blocks.forEach { block ->
             when (block) {
                 is ContentBlock.Text -> Text(annotated(block.spans, onLink), style = MaterialTheme.typography.bodyMedium)
-                is ContentBlock.Image ->
-                    if (block.internal) KyberiaImage(block.url) else MediaLink(R.string.node_image, block.url, onLink)
-                is ContentBlock.Embed -> MediaLink(R.string.node_embed, block.url, onLink)
+                is ContentBlock.Image -> when {
+                    block.internal -> KyberiaImage(block.url)
+                    externalImages != null -> ExternalImage(block.url, externalImages) { MediaLink(R.string.node_image, block.url, onLink) }
+                    else -> MediaLink(R.string.node_image, block.url, onLink)
+                }
+                is ContentBlock.Embed -> {
+                    val target = Embeds.openUrl(block.url)
+                    val thumbnail = Embeds.thumbnail(block.url)
+                    if (externalImages != null && thumbnail != null) {
+                        Column(Modifier.clickable { onLink(target) }, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            ExternalImage(thumbnail, externalImages) {}
+                            MediaLink(R.string.node_embed, target, onLink)
+                        }
+                    } else {
+                        MediaLink(R.string.node_embed, target, onLink)
+                    }
+                }
             }
         }
     }
@@ -96,6 +118,28 @@ private fun KyberiaImage(url: String) {
         contentScale = ContentScale.Fit,
         colorFilter = if (LocalDimImages.current) DIM else null,
         modifier = Modifier.fillMaxWidth().heightIn(max = 480.dp).clip(RoundedCornerShape(6.dp)),
+    )
+}
+
+/** Cudzí obrázok – zvlášť klient bez cookies; keď sa nenačíta (http, chyba), ukáže sa [fallback]. */
+@Composable
+private fun ExternalImage(url: String, loader: ImageLoader, fallback: @Composable () -> Unit) {
+    val options = LocalAvatarOptions.current
+    val context = LocalPlatformContext.current
+    val request = remember(url, options.network) {
+        ImageRequest.Builder(context)
+            .data(url)
+            .apply { if (!options.network) networkCachePolicy(CachePolicy.DISABLED) }
+            .build()
+    }
+    SubcomposeAsyncImage(
+        model = request,
+        contentDescription = null,
+        imageLoader = loader,
+        contentScale = ContentScale.Fit,
+        colorFilter = if (LocalDimImages.current) DIM else null,
+        modifier = Modifier.fillMaxWidth().heightIn(max = 480.dp).clip(RoundedCornerShape(6.dp)),
+        error = { fallback() },
     )
 }
 

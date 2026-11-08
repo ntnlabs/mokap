@@ -26,6 +26,8 @@ data class Settings(
     val hideNsfw: Boolean = true,
     /** Na konci obnovenia načítať node „používa MOKAP“ – priatelia uvidia, že si v mokape. */
     val showPresence: Boolean = true,
+    /** Obrázky a náhľady videí z cudzích stránok v príspevkoch – cudzí server uvidí IP, preto predvolene nie. */
+    val showExternalMedia: Boolean = false,
 ) {
     fun isQuiet(hour: Int): Boolean = quietEnabled && QuietHours.contains(quietFromHour, quietToHour, hour)
 

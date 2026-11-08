@@ -14,6 +14,8 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   sú označené pre autofill (`ContentType.Username/Password`) – uložiť ich môže len správca hesiel
   v telefóne so súhlasom používateľa, appka nie.
 - Požiadavky a cookies idú výhradne na `https://kyberia.sk` (`UrlPolicy`, `KyberiaCookieJar`).
+  Jediná výnimka – rozhodnutie používateľa: nastavenie „Obrázky a videá z iných stránok“ (predvolene **vypnuté**)
+  načíta cudzie obrázky a náhľady YouTube v príspevkoch cez `ExternalHttp` – samostatný klient bez cookies, len https.
   Certificate pinning zámerne nie (kyberia mení certifikáty mimo nás – pin by appku zabil všetkým);
   cleartext aj používateľské CA sú pri targetSdk 36 vypnuté predvolene, network security config netreba.
   Zlyhanie Keystore (`SessionStore`) = stratená session a nové prihlásenie, nikdy pád ani nešifrované uloženie.
@@ -50,7 +52,9 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   vnorené `li.lvl.levelN` (`node_header`: `node_login`, `node_header_created`, `node_header_k`, `node_header_new`;
   `node_body` bez `small.mood`). Obsah sa **nevykresľuje ako HTML**: `ContentParser` → bloky (text s tučným/šikmým/
   odkazmi, obrázok, embed); skripty a `javascript:` vypadnú, cudzie obrázky a iframe sú len odkaz (nič mimo kyberie
-  sa nesťahuje), odkazy na `/id/N` otvárajú node v appke. Jedna požiadavka na otvorenie, po nej žiadna `Presence`
+  sa nesťahuje, ak to používateľ nezapne), odkazy na `/id/N` otvárajú node v appke; video ide na stránku YouTube
+  (`Embeds.openUrl`, nie embed). Vlákno do 3 úrovní (`ThreadView`), hlbšie ako „↳ N ďalších odpovedí“ = otvorí sa
+  node tej odpovede; automatické názvy („Re[2]: …“, dátum) sa nezobrazujú. Jedna požiadavka na otvorenie, po nej žiadna `Presence`
   (ručné kliknutie = skutočné „kde je“); kyberia stránkuje odpovede (32 nodov vlákna) – staršie zatiaľ na webe.
   `NodesViewModel` drží len nody zo zásobníka v `HomeScreen`. Formulár `formular` (fáza 2 – komentovanie): `event=add`,
   `node_content`, `node_parent`, `anticsrf`, odpoveď na konkrétnu odpoveď cez `node_chosen[]` (`add.inc`).

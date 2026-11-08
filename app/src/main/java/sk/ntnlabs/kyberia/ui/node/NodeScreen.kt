@@ -25,6 +25,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -35,10 +36,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil3.ImageLoader
 import sk.ntnlabs.kyberia.KyberiaUrls
 import sk.ntnlabs.kyberia.R
 import sk.ntnlabs.kyberia.UrlPolicy
 import sk.ntnlabs.kyberia.data.Nsfw
+import sk.ntnlabs.kyberia.data.ThreadItem
+import sk.ntnlabs.kyberia.data.ThreadView
 import sk.ntnlabs.kyberia.parse.NodeChild
 import sk.ntnlabs.kyberia.parse.NodePage
 import sk.ntnlabs.kyberia.ui.common.Avatar
@@ -50,7 +54,13 @@ import sk.ntnlabs.kyberia.ui.common.Web
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NodeScreen(nodes: NodesViewModel, nodeId: Long, onBack: () -> Unit, onOpenNode: (Long) -> Unit) {
+fun NodeScreen(
+    nodes: NodesViewModel,
+    nodeId: Long,
+    externalImages: ImageLoader?,
+    onBack: () -> Unit,
+    onOpenNode: (Long) -> Unit,
+) {
     LaunchedEffect(nodeId) { nodes.open(nodeId) }
     val state = nodes.state(nodeId)
     val context = LocalContext.current
@@ -83,7 +93,7 @@ fun NodeScreen(nodes: NodesViewModel, nodeId: Long, onBack: () -> Unit, onOpenNo
         Box(Modifier.fillMaxSize().padding(padding)) {
             when {
                 page != null -> PullToRefreshBox(isRefreshing = state.loading, onRefresh = { nodes.load(nodeId) }) {
-                    NodeContent(page, openLink, onOpenNode, onMore = { openWeb(KyberiaUrls.node(nodeId)) })
+                    NodeContent(page, openLink, externalImages, onOpenNode, onMore = { openWeb(KyberiaUrls.node(nodeId)) })
                 }
                 state.error -> Column(
                     Modifier.fillMaxSize().padding(24.dp),
@@ -100,11 +110,19 @@ fun NodeScreen(nodes: NodesViewModel, nodeId: Long, onBack: () -> Unit, onOpenNo
 }
 
 @Composable
-private fun NodeContent(page: NodePage, onLink: (String) -> Unit, onOpenNode: (Long) -> Unit, onMore: () -> Unit) {
+private fun NodeContent(
+    page: NodePage,
+    onLink: (String) -> Unit,
+    externalImages: ImageLoader?,
+    onOpenNode: (Long) -> Unit,
+    onMore: () -> Unit,
+) {
+    // Do troch úrovní; hlbšie odpovede sa otvoria ako vetva (node odpovede) v appke.
+    val thread = remember(page.children) { ThreadView.items(page.children) }
     LazyColumn(Modifier.fillMaxSize()) {
         item(key = "header") { Header(page, onOpenNode) }
         if (page.content.isNotEmpty()) {
-            item(key = "content") { ContentView(page.content, onLink, Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) }
+            item(key = "content") { ContentView(page.content, onLink, externalImages, Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) }
         }
         item(key = "replies") {
             HorizontalDivider(Modifier.padding(top = 8.dp))
@@ -115,8 +133,11 @@ private fun NodeContent(page: NodePage, onLink: (String) -> Unit, onOpenNode: (L
                 modifier = Modifier.padding(16.dp),
             )
         }
-        items(page.children, key = { it.id }) { child ->
-            Child(child, onLink, onOpen = { onOpenNode(child.id) })
+        items(thread, key = { it.key() }) { item ->
+            when (item) {
+                is ThreadItem.Reply -> Child(item.child, onLink, externalImages, onOpen = { onOpenNode(item.child.id) })
+                is ThreadItem.More -> MoreReplies(item, onOpen = { onOpenNode(item.parentId) })
+            }
             HorizontalDivider()
         }
         // Kyberia odpovede stránkuje; ďalšie zatiaľ na webe.
@@ -157,10 +178,10 @@ private fun Header(page: NodePage, onOpenNode: (Long) -> Unit) {
     }
 }
 
-/** Odpoveď odsadená podľa hĺbky vo vlákne – najviac [MAX_INDENT] úrovní, hlbšie vlákna sa otvoria ťuknutím. */
+/** Odpoveď odsadená podľa hĺbky vo vlákne ([ThreadView] ju obmedzí na tri úrovne). */
 @Composable
-private fun Child(child: NodeChild, onLink: (String) -> Unit, onOpen: () -> Unit) {
-    val indent = (child.depth.coerceAtMost(MAX_INDENT) * INDENT_DP).dp
+private fun Child(child: NodeChild, onLink: (String) -> Unit, externalImages: ImageLoader?, onOpen: () -> Unit) {
+    val indent = indent(child.depth)
     Column(
         Modifier.padding(start = 16.dp + indent, end = 16.dp, top = 12.dp, bottom = 12.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp),
@@ -181,8 +202,29 @@ private fun Child(child: NodeChild, onLink: (String) -> Unit, onOpen: () -> Unit
         if (!isAutoTitle(child.title)) {
             Text(Nsfw.label(child.title), style = MaterialTheme.typography.labelLarge, maxLines = 2, overflow = TextOverflow.Ellipsis)
         }
-        ContentView(child.content, onLink)
+        ContentView(child.content, onLink, externalImages)
     }
+}
+
+/** „↳ N ďalších odpovedí“ – hlbšia časť vlákna, otvorí sa ako node odpovede nad ňou. */
+@Composable
+private fun MoreReplies(item: ThreadItem.More, onOpen: () -> Unit) {
+    Text(
+        pluralStringResource(R.plurals.node_more_replies, item.count, item.count),
+        style = MaterialTheme.typography.labelLarge,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onOpen)
+            .padding(start = 16.dp + indent(item.depth), end = 16.dp, top = 12.dp, bottom = 12.dp),
+    )
+}
+
+private fun indent(depth: Int) = (depth * INDENT_DP).dp
+
+private fun ThreadItem.key(): String = when (this) {
+    is ThreadItem.Reply -> "r${child.id}"
+    is ThreadItem.More -> "m$parentId"
 }
 
 @Composable
@@ -194,5 +236,4 @@ private fun Muted(text: String) {
 private fun isAutoTitle(title: String): Boolean = title.isBlank() || AUTO_TITLE.containsMatchIn(title)
 
 private val AUTO_TITLE = Regex("""^(Re(\[\d+])?:|\d{1,2}\.\d{1,2}\.\d{4}-\d{1,2}:\d{2}:\d{2}$)""")
-private const val MAX_INDENT = 4
-private const val INDENT_DP = 12
+private const val INDENT_DP = 14
