@@ -45,6 +45,15 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   „používa MOKAP“ (`KyberiaUrls.PRESENCE_ID`), aby priatelia videli mokap namiesto „bookmarks“. Výnimka z pravidla
   o požiadavkách – rozhodnutie používateľa: +1 malá požiadavka na obnovenie, prepínač v nastaveniach (predvolene
   zapnutý). Chyba pri ňom obnovenie nepokazí. Node so šablónou /id/19/ nefunguje (živá /id/19/ má prispôsobiteľnú šablónu).
+- **Node v appke** (`NodeParser`, `NodeScreen`): názov z `<title>`, vlastník/rodič/čas z `tr#sidebar_*` („owner:“ – riadok
+  „viewed by:“ má tiež id `sidebar_owner`), K a „total children::“ v `span.node_info2`, obsah v `div#topic`, odpovede ako
+  vnorené `li.lvl.levelN` (`node_header`: `node_login`, `node_header_created`, `node_header_k`, `node_header_new`;
+  `node_body` bez `small.mood`). Obsah sa **nevykresľuje ako HTML**: `ContentParser` → bloky (text s tučným/šikmým/
+  odkazmi, obrázok, embed); skripty a `javascript:` vypadnú, cudzie obrázky a iframe sú len odkaz (nič mimo kyberie
+  sa nesťahuje), odkazy na `/id/N` otvárajú node v appke. Jedna požiadavka na otvorenie, po nej žiadna `Presence`
+  (ručné kliknutie = skutočné „kde je“); kyberia stránkuje odpovede (32 nodov vlákna) – staršie zatiaľ na webe.
+  `NodesViewModel` drží len nody zo zásobníka v `HomeScreen`. Formulár `formular` (fáza 2 – komentovanie): `event=add`,
+  `node_content`, `node_parent`, `anticsrf`, odpoveď na konkrétnu odpoveď cez `node_chosen[]` (`add.inc`).
 - Pošta: `GET /ajax/check_new_mail.php` (web ho volá raz za minútu) vráti
   `<počet nových>;<nick posledného odosielateľa>;…` alebo `offline`. Nick ide len do notifikácie
   („Nová pošta od …“), nikam sa neukladá; posledné pole nemá overený význam. `offline` session
@@ -58,7 +67,7 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   `org.jetbrains.kotlin.android`; verzia KGP (root `buildscript`) a Compose compiler pluginu musí byť rovnaká.
 - `parse/` a čistá logika v `data/` nesmú závisieť od Android API – majú JVM unit testy.
 - Notifikácie sú lokálne (WorkManager, interval 15–60 min z nastavení – 15 je minimum Androidu),
-  žiadny Firebase. Každý typ má vlastný kanál; jednotlivé odpovede/fóra otvárajú node na webe.
+  žiadny Firebase. Každý typ má vlastný kanál; jednotlivé odpovede/fóra otvárajú node v appke (pošta web).
 - Kontrolu robí `NewsChecker` (mutex), volá ho `CheckWorker` a strážca session (`SessionGuardReceiver`).
 - **Kyberia odhlási pri načítaní stránky, ak od predošlého ubehli > 2 h** (`LOGOUT_IDLE_SEC = 7200`,
   `$_SESSION['last_request']` v zdrojákoch Kyberia-bloodline; AJAX pošty sa nepočíta). Android kontroly

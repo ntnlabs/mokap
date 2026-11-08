@@ -65,6 +65,8 @@ import sk.ntnlabs.kyberia.ui.common.Web
 import sk.ntnlabs.kyberia.ui.friends.FriendsScreen
 import sk.ntnlabs.kyberia.ui.friends.PeopleViewModel
 import sk.ntnlabs.kyberia.ui.last.LastScreen
+import sk.ntnlabs.kyberia.ui.node.NodeScreen
+import sk.ntnlabs.kyberia.ui.node.NodesViewModel
 import sk.ntnlabs.kyberia.ui.overview.OverviewViewModel
 import sk.ntnlabs.kyberia.ui.replies.RepliesScreen
 import sk.ntnlabs.kyberia.ui.settings.SettingsScreen
@@ -80,9 +82,20 @@ private enum class Tab(@StringRes val label: Int, @DrawableRes val icon: Int, va
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(container: AppContainer, requestedTab: String?, onTabHandled: () -> Unit) {
+fun HomeScreen(
+    container: AppContainer,
+    requestedTab: String?,
+    onTabHandled: () -> Unit,
+    requestedNode: Long?,
+    onNodeHandled: () -> Unit,
+) {
     var tab by rememberSaveable { mutableStateOf(Tab.BOOKMARKS) }
     var settingsOpen by rememberSaveable { mutableStateOf(false) }
+    // Otvorené nody nad záložkami; späť ide o jeden node naspäť.
+    var nodeStack by rememberSaveable { mutableStateOf(longArrayOf()) }
+    val nodes: NodesViewModel = viewModel(factory = NodesViewModel.factory(container))
+    // Zatvorené nody netreba držať v pamäti.
+    LaunchedEffect(nodeStack) { nodes.keepOnly(nodeStack.toSet()) }
     val context = LocalContext.current
     val openWeb: (String) -> Unit = { Web.open(context, it) }
     val overview: OverviewViewModel = viewModel(factory = OverviewViewModel.factory(container))
@@ -93,8 +106,16 @@ fun HomeScreen(container: AppContainer, requestedTab: String?, onTabHandled: () 
         val target = Tab.entries.firstOrNull { it.name == requestedTab } ?: return@LaunchedEffect
         tab = target
         settingsOpen = false
+        nodeStack = longArrayOf()
         overview.refresh()
         onTabHandled()
+    }
+    // Notifikácia odpovede alebo fóra: rovno ten node v appke.
+    LaunchedEffect(requestedNode) {
+        val node = requestedNode ?: return@LaunchedEffect
+        settingsOpen = false
+        nodeStack = longArrayOf(node)
+        onNodeHandled()
     }
     // Pri každom návrate do appky obnov, ak je to zapnuté a dáta nie sú čerstvé.
     LifecycleEventEffect(Lifecycle.Event.ON_START) {
@@ -107,10 +128,14 @@ fun HomeScreen(container: AppContainer, requestedTab: String?, onTabHandled: () 
     val kWallet = overview.state.user?.kWallet
     val tagline = overview.state.user?.tagline
     val friendsOnline = overview.state.friends.size
-    // Čítanie nodov v appke príde neskôr; dovtedy sa node otvorí na webe.
-    val openNode: (Long) -> Unit = { openWeb(KyberiaUrls.node(it)) }
+    val openNode: (Long) -> Unit = { nodeStack += it }
 
     NotificationPermissionRequest()
+
+    if (nodeStack.isNotEmpty()) {
+        NodeScreen(nodes, nodeStack.last(), onBack = { nodeStack = nodeStack.copyOf(nodeStack.size - 1) }, onOpenNode = openNode)
+        return
+    }
 
     if (settingsOpen) {
         SettingsScreen(container, onBack = { settingsOpen = false })

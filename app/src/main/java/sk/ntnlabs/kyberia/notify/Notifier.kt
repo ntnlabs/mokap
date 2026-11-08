@@ -25,8 +25,8 @@ import sk.ntnlabs.kyberia.work.NetworkProbe
 
 /**
  * Lokálne notifikácie – žiadny Firebase, žiadny server.
- * Každá odpoveď a každé fórum má vlastnú notifikáciu, ktorá rovno otvorí node na webe;
- * súhrn skupiny a ostatné notifikácie otvoria appku na správnej záložke.
+ * Každá odpoveď a každé fórum má vlastnú notifikáciu, ktorá rovno otvorí node v appke;
+ * súhrn skupiny a ostatné notifikácie otvoria appku na správnej záložke, pošta web.
  */
 object Notifier {
 
@@ -80,7 +80,7 @@ object Notifier {
                     .setSubText(Nsfw.label(reply.nodeTitle))
                     .setGroup(GROUP_REPLIES)
                     // Otvorí môj príspevok – odpoveď visí pod ním, takže je vidieť aj kontext.
-                    .setContentIntent(openWeb(context, id, reply.nodeId)),
+                    .setContentIntent(openNode(context, id, reply.nodeId)),
             )
         }
         if (replies.size > 1) {
@@ -137,7 +137,7 @@ object Notifier {
                 // Názov fóra je to hlavné, počet stačí pod ním.
                 builder(context, CHANNEL_BOOKMARKS, Nsfw.label(bookmark.title), text)
                     .setGroup(GROUP_BOOKMARKS)
-                    .setContentIntent(openWeb(context, id, bookmark.id)),
+                    .setContentIntent(openNode(context, id, bookmark.id)),
             )
         }
         if (increases.size > 1) {
@@ -232,7 +232,16 @@ object Notifier {
     private fun inbox(lines: List<String>) =
         NotificationCompat.InboxStyle().also { style -> lines.take(MAX_ITEMS + 1).forEach(style::addLine) }
 
-    /** Node na webe – kým appka nevie čítať nody sama. */
+    /** Node v appke. */
+    private fun openNode(context: Context, requestCode: Int, nodeId: Long): PendingIntent =
+        PendingIntent.getActivity(
+            context,
+            requestCode,
+            MainActivity.intent(context, tab = null, node = nodeId),
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+        )
+
+    /** Stránka na webe (pošta – tú appka zatiaľ nečíta). */
     private fun openWeb(context: Context, requestCode: Int, nodeId: Long): PendingIntent =
         PendingIntent.getActivity(
             context,

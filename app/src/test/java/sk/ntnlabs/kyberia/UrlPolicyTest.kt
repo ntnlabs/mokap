@@ -50,6 +50,12 @@ class UrlPolicyTest {
     fun nodeUrls() {
         assertEquals("https://kyberia.sk/id/19/", KyberiaUrls.BOOKMARKS)
         assertEquals("https://kyberia.sk/id/42/", KyberiaUrls.node(42))
+        // Odkaz na node kyberie sa otvorí v appke, ostatné v prehliadači.
+        assertEquals(42L, KyberiaUrls.nodeId("https://kyberia.sk/id/42"))
+        assertEquals(42L, KyberiaUrls.nodeId("https://www.kyberia.sk/id/42/1022346?x=1"))
+        assertEquals(null, KyberiaUrls.nodeId("https://kyberia.sk/images/nodes/4/2/42.gif"))
+        assertEquals(null, KyberiaUrls.nodeId("https://kyberia.sk.evil.com/id/42"))
+        assertEquals(null, KyberiaUrls.nodeId("https://example.com/id/42"))
         // Node „používa MOKAP“ musí byť na kyberii, inak by ho klient vôbec nepustil.
         assertTrue(UrlPolicy.isInternal(requireNotNull(KyberiaUrls.PRESENCE)))
     }

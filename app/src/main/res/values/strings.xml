@@ -28,6 +28,21 @@
     <string name="tab_last">Last</string>
     <string name="tab_k">K</string>
     <string name="tab_friends">Friends</string>
+    <string name="node_open_web">Otvoriť na webe</string>
+    <string name="node_error">Node sa nepodarilo načítať.</string>
+    <string name="node_retry">Skúsiť znova</string>
+    <string name="node_more_on_web">Staršie odpovede na webe</string>
+    <string name="node_image">🖼 Obrázok · %1$s</string>
+    <string name="node_embed">▶ Video · %1$s</string>
+    <string name="node_new">nové</string>
+    <string name="node_k">%1$d K</string>
+    <string name="node_in">v: %1$s</string>
+    <plurals name="node_replies">
+        <item quantity="one">%d odpoveď</item>
+        <item quantity="few">%d odpovede</item>
+        <item quantity="many">%d odpovede</item>
+        <item quantity="other">%d odpovedí</item>
+    </plurals>
     <string name="work_in_progress">Pracujeme na tom.</string>
     <string name="mail_open">Otvoriť poštu na webe</string>
     <string name="k_open">Otvoriť top K na webe</string>

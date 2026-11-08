@@ -24,7 +24,7 @@ zoradené, prefiltrované a s lokálnymi notifikáciami.
 | K_wallet a vlastné ID (SELF) | parsované z hlavičky |
 | Notifikácia o novej pošte (ľahký endpoint `check_new_mail.php`, otvorí poštu na webe) | hotové |
 | Čítanie pošty (`/id/24/`), K (`/id/8340566/`) | zatiaľ záložka s tlačidlom na web |
-| Čítanie nodov priamo v appke | neskôr; zatiaľ sa node otvorí na webe |
+| Čítanie nodov priamo v appke – obsah, autor, K, odpovede vo vlákne (prvá stránka), odkazy na nody v appke | hotové; komentovanie neskôr |
 
 ## Ako to funguje
 
@@ -36,7 +36,7 @@ zoradené, prefiltrované a s lokálnymi notifikáciami.
 - **Notifikácie:** WorkManager podľa nastavenia (15–60 min; 15 je minimum Androidu) stiahne
   `/id/19/`, porovná ho s naposledy videným stavom a pri novinkách vytvorí lokálnu notifikáciu.
   Počet novej pošty zistí jednou malou požiadavkou na `/ajax/check_new_mail.php` (len ak je zapnutá).
-  Ťuknutie na odpoveď/fórum otvorí daný node na webe. Žiadny Firebase, žiadny server.
+  Ťuknutie na odpoveď/fórum otvorí daný node v appke. Žiadny Firebase, žiadny server.
 - **Strážca session:** kyberia odhlási, ak 2 hodiny nevidí načítanie stránky, a Android kontroly
   v spánku odkladá aj na hodiny. Appka si preto natiahne jeden budík na „posledná požiadavka + 100 min“;
   pri bežných kontrolách sa nikdy nespustí, takže server nedostane nič navyše. V tichom režime

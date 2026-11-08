@@ -37,6 +37,9 @@ class MainActivity : ComponentActivity() {
     /** Záložka, ktorú si vyžiadala notifikácia; HomeScreen ju prepne a obnoví dáta. */
     private val requestedTab = MutableStateFlow<String?>(null)
 
+    /** Node, ktorý si vyžiadala notifikácia (odpoveď, fórum); HomeScreen ho otvorí v appke. */
+    private val requestedNode = MutableStateFlow<Long?>(null)
+
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(AppLocale.wrap(newBase))
     }
@@ -45,7 +48,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         val container = (application as MokapApp).container
-        if (savedInstanceState == null) requestedTab.value = intent?.getStringExtra(EXTRA_TAB)
+        if (savedInstanceState == null) {
+            requestedTab.value = intent?.getStringExtra(EXTRA_TAB)
+            requestedNode.value = intent?.nodeExtra()
+        }
 
         setContent {
             val settings by container.settings.settings.collectAsStateWithLifecycle()
@@ -68,6 +74,7 @@ class MainActivity : ComponentActivity() {
                     Surface(Modifier.fillMaxSize()) {
                         val loggedIn by container.auth.loggedIn.collectAsStateWithLifecycle()
                         val tab by requestedTab.collectAsStateWithLifecycle()
+                        val node by requestedNode.collectAsStateWithLifecycle()
                         if (loggedIn) {
                             LaunchedEffect(Unit) {
                                 // Ak systém plán kontrol zrušil (napr. force stop), obnov ho.
@@ -75,7 +82,13 @@ class MainActivity : ComponentActivity() {
                                 // Prihlásený – stará notifikácia „Odhlásilo ťa“ už neplatí.
                                 Notifier.cancelSessionExpired(this@MainActivity)
                             }
-                            HomeScreen(container, requestedTab = tab, onTabHandled = { requestedTab.value = null })
+                            HomeScreen(
+                                container,
+                                requestedTab = tab,
+                                onTabHandled = { requestedTab.value = null },
+                                requestedNode = node,
+                                onNodeHandled = { requestedNode.value = null },
+                            )
                         } else {
                             var diagnostics by rememberSaveable { mutableStateOf(false) }
                             if (diagnostics) {
@@ -97,6 +110,7 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         intent.getStringExtra(EXTRA_TAB)?.let { requestedTab.value = it }
+        intent.nodeExtra()?.let { requestedNode.value = it }
     }
 
     companion object {
@@ -104,10 +118,16 @@ class MainActivity : ComponentActivity() {
         const val TAB_REPLIES = "REPLIES"
         const val TAB_FRIENDS = "FRIENDS"
         private const val EXTRA_TAB = "sk.ntnlabs.kyberia.TAB"
+        private const val EXTRA_NODE = "sk.ntnlabs.kyberia.NODE"
 
-        fun intent(context: Context, tab: String?): Intent =
+        private fun Intent.nodeExtra(): Long? = getLongExtra(EXTRA_NODE, 0L).takeIf { it > 0 }
+
+        fun intent(context: Context, tab: String?, node: Long? = null): Intent =
             Intent(context, MainActivity::class.java)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                .apply { if (tab != null) putExtra(EXTRA_TAB, tab) }
+                .apply {
+                    if (tab != null) putExtra(EXTRA_TAB, tab)
+                    if (node != null) putExtra(EXTRA_NODE, node)
+                }
     }
 }

@@ -54,4 +54,13 @@ object KyberiaUrls {
     val PRESENCE: String? = PRESENCE_ID?.let(::node)
 
     fun node(id: Long): String = "$BASE/id/$id/"
+
+    /** ID nodu z odkazu na kyberiu (`…/id/123/`), inak null – odkaz sa vtedy otvorí v prehliadači. */
+    fun nodeId(url: String): Long? = NODE_PATH.find(url)?.groupValues?.get(1)?.toLongOrNull()
+
+    private val NODE_PATH = Regex("""^https://(?:[a-z0-9-]+\.)*kyberia\.sk/id/(\d+)(?:[/?#]|$)""", RegexOption.IGNORE_CASE)
+
+    /** Avatar používateľa ako v HTML kyberie: /images/nodes/<1. číslica>/<2. číslica>/<ID>.gif. */
+    fun avatar(userId: Long): String? =
+        userId.toString().takeIf { it.length >= 2 }?.let { "$BASE/images/nodes/${it[0]}/${it[1]}/$it.gif" }
 }
