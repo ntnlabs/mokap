@@ -125,14 +125,20 @@ jobs:
           name: mokap-debug-apk
           path: app/build/outputs/apk/debug/*.apk
           retention-days: 14
-      # Inak Play hlási „contains native code, and you've not uploaded debug symbols“.
-      - name: Overiť symboly v AAB
+      # Bez symbolov Play hlási „contains native code, and you've not uploaded debug symbols“. Jediný native
+      # kód je z AndroidX a Google ho dodáva už orezaný – AGP nemá z čoho symboly vyrobiť. Preto len výpis
+      # (koľko .symtab/.debug_* sekcií knižnice majú), build sa nezastaví.
+      - name: Native symboly v AAB
         run: |
           AAB=$(ls app/build/outputs/bundle/release/*.aab | head -n1)
-          if ! unzip -l "$AAB" | grep 'BUNDLE-METADATA/com.android.tools.build.debugsymbols/'; then
-            echo "::error::AAB nemá native debug symboly – Play bude varovať"
-            exit 1
+          if unzip -l "$AAB" | grep 'BUNDLE-METADATA/com.android.tools.build.debugsymbols/'; then exit 0; fi
+          READELF="${MOKAP_NDK_PATH:-}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf"
+          if [ -x "$READELF" ]; then
+            find app/build/intermediates/merged_native_libs/release -name '*.so' | sort | while read -r SO; do
+              echo "$(basename "$(dirname "$SO")")/$(basename "$SO"): $("$READELF" -S "$SO" | grep -cE '\.symtab|\.debug_') sekcií .symtab/.debug_*"
+            done
           fi
+          echo "::notice::AAB bez native symbolov – knižnice prišli už orezané (AndroidX); varovanie v Play je neškodné."
       # Nepodpísaný AAB Play odmietne – nahrá sa len overený; odtlačok sedí s „Upload key“ v Play Console.
       - name: Overiť podpis AAB
         if: env.MOKAP_KEYSTORE_FILE != ''

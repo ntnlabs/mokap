@@ -140,6 +140,8 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   push tagu `apk-*`; vyrobí debug aj release APK, vypíše audit oprávnení a nahrá `mokap-debug-apk`.
   S repository secrets `MOKAP_KEYSTORE_BASE64` + `MOKAP_KEYSTORE_PASSWORD`/`MOKAP_KEY_ALIAS`/`MOKAP_KEY_PASSWORD`
   podpíše release upload kľúčom a nahrá aj `mokap-release-aab` (Google Play, Play App Signing). Upload kľúč
-  vyrába a drží používateľ – nikdy nejde cez Clauda, do gitu ani do logov. Release AAB nesie aj R8 mapovanie
-  a native symboly (`ndk.debugSymbolLevel = SYMBOL_TABLE`; native kód je len z AndroidX) – Play netreba nič dohrávať.
-  NDK dáva job `apk` z runnera (`MOKAP_NDK_PATH`/`MOKAP_NDK_VERSION` → `ndkPath`/`ndkVersion` – AGP chce, aby sedeli); krok „Overiť symboly v AAB“ zlyhá, ak v AAB chýbajú.
+  vyrába a drží používateľ – nikdy nejde cez Clauda, do gitu ani do logov. Release AAB nesie aj R8 mapovanie.
+  **Native symboly nie sú a byť nemôžu:** jediný native kód je `libandroidx.graphics.path.so` (Compose) a AndroidX ho
+  dodáva už orezaný – AGP z neho nič nevytiahne („already been stripped“), varovanie Play o debug symboloch je neškodné.
+  `ndk.debugSymbolLevel = SYMBOL_TABLE` ostáva pre prípad knižnice so symbolmi; NDK dáva job `apk` z runnera
+  (`MOKAP_NDK_PATH`/`MOKAP_NDK_VERSION` → `ndkPath`/`ndkVersion` – AGP chce, aby sedeli). Krok „Native symboly v AAB“ len vypíše stav.
