@@ -37,8 +37,12 @@ android {
     namespace = "sk.ntnlabs.kyberia"
     compileSdk = 37
     // NDK treba len na orezanie AndroidX .so a symboly pre Play (debugSymbolLevel). Verziu, ktorú AGP čaká,
-    // runner nemá – job apk dá cestu k predinštalovanému NDK (MOKAP_NDK_PATH). Bez neho AGP len varuje.
-    providers.environmentVariable("MOKAP_NDK_PATH").orNull?.takeIf { it.isNotBlank() }?.let { ndkPath = it }
+    // runner nemá – job apk dá cestu a verziu predinštalovaného NDK (MOKAP_NDK_PATH/VERSION; AGP chce, aby sedeli).
+    // Na orezanie a symboly je verzia jedno. Bez nich AGP len varuje.
+    providers.environmentVariable("MOKAP_NDK_PATH").orNull?.takeIf { it.isNotBlank() }?.let { path ->
+        ndkPath = path
+        providers.environmentVariable("MOKAP_NDK_VERSION").orNull?.takeIf { it.isNotBlank() }?.let { ndkVersion = it }
+    }
 
     defaultConfig {
         applicationId = "sk.ntnlabs.kyberia"
