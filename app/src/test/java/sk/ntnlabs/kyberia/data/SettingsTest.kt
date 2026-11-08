@@ -54,6 +54,11 @@ class SettingsTest {
     }
 
     @Test
+    fun foreignMediaOffByDefault() {
+        assertFalse(Settings().showExternalMedia)
+    }
+
+    @Test
     fun intervalIsClampedToWhatAndroidAllows() {
         assertEquals(15, Settings.sanitizeInterval(10))
         assertEquals(15, Settings.sanitizeInterval(15))

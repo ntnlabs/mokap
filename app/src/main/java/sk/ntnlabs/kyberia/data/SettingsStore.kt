@@ -37,6 +37,7 @@ class SettingsStore(context: Context) {
             putBoolean(LOGIN_BY_ID, updated.loginById)
             putBoolean(HIDE_NSFW, updated.hideNsfw)
             putBoolean(SHOW_PRESENCE, updated.showPresence)
+            putBoolean(EXTERNAL_MEDIA, updated.showExternalMedia)
         }
         state.value = updated
     }
@@ -61,6 +62,7 @@ class SettingsStore(context: Context) {
             loginById = prefs.getBoolean(LOGIN_BY_ID, defaults.loginById),
             hideNsfw = prefs.getBoolean(HIDE_NSFW, defaults.hideNsfw),
             showPresence = prefs.getBoolean(SHOW_PRESENCE, defaults.showPresence),
+            showExternalMedia = prefs.getBoolean(EXTERNAL_MEDIA, defaults.showExternalMedia),
         )
     }
 
@@ -85,5 +87,6 @@ class SettingsStore(context: Context) {
         const val LOGIN_BY_ID = "login_by_id"
         const val HIDE_NSFW = "hide_nsfw"
         const val SHOW_PRESENCE = "show_presence"
+        const val EXTERNAL_MEDIA = "external_media"
     }
 }

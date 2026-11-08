@@ -133,7 +133,13 @@ fun HomeScreen(
     NotificationPermissionRequest()
 
     if (nodeStack.isNotEmpty()) {
-        NodeScreen(nodes, nodeStack.last(), onBack = { nodeStack = nodeStack.copyOf(nodeStack.size - 1) }, onOpenNode = openNode)
+        NodeScreen(
+            nodes,
+            nodeStack.last(),
+            externalImages = if (settings.showExternalMedia) container.externalImages else null,
+            onBack = { nodeStack = nodeStack.copyOf(nodeStack.size - 1) },
+            onOpenNode = openNode,
+        )
         return
     }
 

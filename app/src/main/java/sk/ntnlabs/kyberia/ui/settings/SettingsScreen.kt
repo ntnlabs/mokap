@@ -101,6 +101,10 @@ fun SettingsScreen(container: AppContainer, onBack: () -> Unit) {
                 store.update { it.copy(hideNsfw = on) }
             }
             Note(stringResource(R.string.settings_hide_nsfw_note))
+            SwitchRow(stringResource(R.string.settings_external_media), settings.showExternalMedia) { on ->
+                store.update { it.copy(showExternalMedia = on) }
+            }
+            Note(stringResource(R.string.settings_external_media_note))
 
             SectionHeader(stringResource(R.string.settings_section_checks))
             // Šetrič dát bez výnimky pre mokap = na mobilných dátach kontroly na pozadí neprejdú; overí sa pri každom návrate.

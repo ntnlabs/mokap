@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import sk.ntnlabs.kyberia.data.AuthRepository
 import sk.ntnlabs.kyberia.data.BookmarksRepository
 import sk.ntnlabs.kyberia.data.DiagnosticsStore
+import sk.ntnlabs.kyberia.data.ExternalHttp
 import sk.ntnlabs.kyberia.data.KyberiaClient
 import sk.ntnlabs.kyberia.data.KyberiaCookieJar
 import sk.ntnlabs.kyberia.data.LatestPage
@@ -95,5 +96,25 @@ class AppContainer(context: Context) {
     val mail = MailRepository(client)
     val people = PeopleRepository(client, presence)
     val nodes = NodeRepository(client)
+
+    /** Cudzie obrázky a náhľady videí v príspevkoch – len so zapnutým nastavením; vlastný klient bez cookies. */
+    val externalImages: ImageLoader by lazy {
+        val http = ExternalHttp.client()
+        ImageLoader.Builder(context)
+            .components {
+                add(OkHttpNetworkFetcherFactory(callFactory = { http }))
+                add(AnimatedImageDecoder.Factory())
+            }
+            .diskCache {
+                DiskCache.Builder()
+                    .directory(context.cacheDir.resolve("external_images"))
+                    .maxSizeBytes(EXTERNAL_IMAGE_CACHE_BYTES)
+                    .build()
+            }
+            .crossfade(true)
+            .build()
+    }
     val checker = NewsChecker(context, auth, bookmarks, mail, newsTracker, settings, diagnostics, latestPage, scheduler)
 }
+
+private const val EXTERNAL_IMAGE_CACHE_BYTES = 50L * 1024 * 1024
