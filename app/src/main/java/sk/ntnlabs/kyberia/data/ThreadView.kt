@@ -16,8 +16,8 @@ sealed interface ThreadItem {
  */
 object ThreadView {
 
-    /** 0 = priama odpoveď; 2 = tri úrovne. */
-    const val MAX_DEPTH = 2
+    /** 0 = priama odpoveď; 3 = štyri úrovne. */
+    const val MAX_DEPTH = 3
 
     fun items(children: List<NodeChild>, maxDepth: Int = MAX_DEPTH): List<ThreadItem> {
         val items = mutableListOf<ThreadItem>()

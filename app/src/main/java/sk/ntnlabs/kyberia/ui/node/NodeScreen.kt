@@ -117,7 +117,7 @@ private fun NodeContent(
     onOpenNode: (Long) -> Unit,
     onMore: () -> Unit,
 ) {
-    // Do troch úrovní; hlbšie odpovede sa otvoria ako vetva (node odpovede) v appke.
+    // Do štyroch úrovní; hlbšie odpovede sa otvoria ako vetva (node odpovede) v appke.
     val thread = remember(page.children) { ThreadView.items(page.children) }
     LazyColumn(Modifier.fillMaxSize()) {
         item(key = "header") { Header(page, onOpenNode) }
@@ -178,7 +178,7 @@ private fun Header(page: NodePage, onOpenNode: (Long) -> Unit) {
     }
 }
 
-/** Odpoveď odsadená podľa hĺbky vo vlákne ([ThreadView] ju obmedzí na tri úrovne). */
+/** Odpoveď odsadená podľa hĺbky vo vlákne ([ThreadView] ju obmedzí na štyri úrovne). */
 @Composable
 private fun Child(child: NodeChild, onLink: (String) -> Unit, externalImages: ImageLoader?, onOpen: () -> Unit) {
     val indent = indent(child.depth)
@@ -199,7 +199,8 @@ private fun Child(child: NodeChild, onLink: (String) -> Unit, externalImages: Im
             if (child.isNew) Text(stringResource(R.string.node_new), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
             child.k?.let { Text(stringResource(R.string.node_k, it), color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelMedium) }
         }
-        if (!isAutoTitle(child.title)) {
+        // Aj automatický názov („Re[2]: …“, dátum) – podľa neho sa vo vlákne ľahšie orientuje.
+        if (child.title.isNotBlank()) {
             Text(Nsfw.label(child.title), style = MaterialTheme.typography.labelLarge, maxLines = 2, overflow = TextOverflow.Ellipsis)
         }
         ContentView(child.content, onLink, externalImages)
@@ -232,8 +233,4 @@ private fun Muted(text: String) {
     Text(text, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
 }
 
-/** „Re[2]: …“ a dátum ako názov si kyberia doplní sama – v zozname odpovedí len zavadzajú. */
-private fun isAutoTitle(title: String): Boolean = title.isBlank() || AUTO_TITLE.containsMatchIn(title)
-
-private val AUTO_TITLE = Regex("""^(Re(\[\d+])?:|\d{1,2}\.\d{1,2}\.\d{4}-\d{1,2}:\d{2}:\d{2}$)""")
 private const val INDENT_DP = 14

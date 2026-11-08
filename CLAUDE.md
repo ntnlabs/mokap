@@ -53,8 +53,9 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   `node_body` bez `small.mood`). Obsah sa **nevykresľuje ako HTML**: `ContentParser` → bloky (text s tučným/šikmým/
   odkazmi, obrázok, embed); skripty a `javascript:` vypadnú, cudzie obrázky a iframe sú len odkaz (nič mimo kyberie
   sa nesťahuje, ak to používateľ nezapne), odkazy na `/id/N` otvárajú node v appke; video ide na stránku YouTube
-  (`Embeds.openUrl`, nie embed). Vlákno do 3 úrovní (`ThreadView`), hlbšie ako „↳ N ďalších odpovedí“ = otvorí sa
-  node tej odpovede; automatické názvy („Re[2]: …“, dátum) sa nezobrazujú. Jedna požiadavka na otvorenie, po nej žiadna `Presence`
+  (`Embeds.openUrl`, nie embed). Vlákno do 4 úrovní (`ThreadView.MAX_DEPTH`), hlbšie ako „↳ N ďalších odpovedí“ = otvorí sa
+  node tej odpovede; názvy odpovedí sa ukazujú aj automatické („Re[2]: …“, dátum) – pomáhajú v orientácii (želanie
+  používateľa). Jedna požiadavka na otvorenie, po nej žiadna `Presence`
   (ručné kliknutie = skutočné „kde je“); kyberia stránkuje odpovede (32 nodov vlákna) – staršie zatiaľ na webe.
   `NodesViewModel` drží len nody zo zásobníka v `HomeScreen`. Formulár `formular` (fáza 2 – komentovanie): `event=add`,
   `node_content`, `node_parent`, `anticsrf`, odpoveď na konkrétnu odpoveď cez `node_chosen[]` (`add.inc`).
