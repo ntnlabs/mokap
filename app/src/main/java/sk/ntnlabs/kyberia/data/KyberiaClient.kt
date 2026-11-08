@@ -11,7 +11,9 @@ import okhttp3.FormBody
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody
 import okhttp3.Response
+import okio.BufferedSink
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import sk.ntnlabs.kyberia.UrlPolicy
@@ -44,14 +46,18 @@ class KyberiaClient(cookieJar: CookieJar, userAgent: String) {
         response.body.string()
     }
 
-    /** Odošle formulár tak, ako by ho poslal prehliadač (urlencoded alebo multipart podľa `enctype`). */
+    /**
+     * Odošle formulár tak, ako by ho poslal prehliadač (urlencoded alebo multipart podľa `enctype`).
+     * [oneShot]: OkHttp požiadavku po chybe spojenia znova neodošle – pre akcie, ktoré nesmú prebehnúť dvakrát.
+     */
     suspend fun postForm(
         url: String,
         fields: List<Pair<String, String>>,
         charset: Charset,
         multipart: Boolean,
+        oneShot: Boolean = false,
     ): Page {
-        val body = if (multipart) {
+        val form = if (multipart) {
             MultipartBody.Builder().setType(MultipartBody.FORM).apply {
                 fields.forEach { (name, value) -> addFormDataPart(name, value) }
             }.build()
@@ -60,6 +66,7 @@ class KyberiaClient(cookieJar: CookieJar, userAgent: String) {
                 fields.forEach { (name, value) -> add(name, value) }
             }.build()
         }
+        val body = if (oneShot) OneShotBody(form) else form
         return execute(Request.Builder().url(url).post(body))
     }
 
@@ -76,4 +83,12 @@ class KyberiaClient(cookieJar: CookieJar, userAgent: String) {
         if (!UrlPolicy.isInternal(request.url.toString())) throw IOException("Mimo kyberie: ${request.url.host}")
         http.newCall(request).execute().use(read)
     }
+}
+
+/** Telo, ktoré OkHttp po zlyhaní spojenia znova neodošle (`isOneShot`). */
+private class OneShotBody(private val delegate: RequestBody) : RequestBody() {
+    override fun contentType() = delegate.contentType()
+    override fun contentLength() = delegate.contentLength()
+    override fun writeTo(sink: BufferedSink) = delegate.writeTo(sink)
+    override fun isOneShot() = true
 }

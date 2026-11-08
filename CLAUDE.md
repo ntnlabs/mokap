@@ -63,8 +63,15 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   node tej odpovede; názvy odpovedí sa ukazujú aj automatické („Re[2]: …“, dátum) – pomáhajú v orientácii (želanie
   používateľa). Jedna požiadavka na otvorenie, po nej žiadna `Presence`
   (ručné kliknutie = skutočné „kde je“); kyberia stránkuje odpovede (32 nodov vlákna) – staršie zatiaľ na webe.
-  `NodesViewModel` drží len nody zo zásobníka v `HomeScreen`. Formulár `formular` (fáza 2 – komentovanie): `event=add`,
-  `node_content`, `node_parent`, `anticsrf`, odpoveď na konkrétnu odpoveď cez `node_chosen[]` (`add.inc`).
+  `NodesViewModel` drží len nody zo zásobníka v `HomeScreen`.
+- **Odpovedanie** (`ReplyFormParser`, `NodeRepository.reply`, `Replies`): formulár `formular` s `textarea[name=node_content]`
+  kyberia ukáže len s právom zápisu – inak appka odpovedať neponúkne. POST (multipart ako web) posiela **len** `anticsrf`,
+  `node_name` (prázdny – „Re: …“ doplní kyberia), `node_content`, `template_id` (4), `node_parent`, voliteľne `no_html=yes`
+  a `node_chosen[]` (odpoveď na odpoveď) a `event=add` – nikdy celý formulár: obsahuje aj skryté `event=K` a PHP berie
+  posledné `event`. Text ide ako na webe (HTML cez kyberiin `htmlparse`, nové riadky cez `nl2br`). Chyba („Chyba HTML
+  syntaxe!“, prázdny obsah) je v hlavičke `center > span.most_important`. Úspech = na vrátenej stránke je nová odpoveď
+  od teba; inak „nepotvrdené“. POST je `oneShot` (OkHttp ho po chybe spojenia neopakuje) a appka ho nikdy neposiela
+  znova sama – pri chybe siete nevieme, či prešiel. Text v editore sa zahodí len po potvrdenom odoslaní.
 - Pošta: `GET /ajax/check_new_mail.php` (web ho volá raz za minútu) vráti
   `<počet nových>;<nick posledného odosielateľa>;…` alebo `offline`. Nick ide len do notifikácie
   („Nová pošta od …“), nikam sa neukladá; posledné pole nemá overený význam. `offline` session

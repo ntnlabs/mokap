@@ -25,7 +25,8 @@ zoradené, prefiltrované a s lokálnymi notifikáciami.
 | Notifikácia o novej pošte (ľahký endpoint `check_new_mail.php`, otvorí poštu na webe) | hotové |
 | K – tvoje príspevky s K za poslednú hodinu (z `/id/19/`) a top K (`/id/8340566/`, len na požiadanie) | hotové |
 | Čítanie pošty (`/id/24/`) | zatiaľ záložka s tlačidlom na web |
-| Čítanie nodov priamo v appke – obsah, autor, K, odpovede vo vlákne (prvá stránka), odkazy na nody v appke | hotové; komentovanie neskôr |
+| Čítanie nodov priamo v appke – obsah, autor, K, odpovede vo vlákne (prvá stránka), odkazy na nody v appke | hotové |
+| Odpovedanie do nodu aj na konkrétnu odpoveď (ako na webe – HTML, „Bez HTML“) | hotové |
 
 ## Ako to funguje
 
