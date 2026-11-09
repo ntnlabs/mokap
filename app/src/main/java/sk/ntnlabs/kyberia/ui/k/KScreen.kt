@@ -40,22 +40,26 @@ import sk.ntnlabs.kyberia.ui.node.ContentView
 import sk.ntnlabs.kyberia.ui.overview.OverviewViewModel
 
 /**
- * K: tvoje príspevky s K za poslednú hodinu (z /id/19/, bez požiadavky navyše) a top K
- * (`/id/8340566/`, stiahne sa až pri prepnutí).
+ * K: tvoje príspevky s K za poslednú hodinu (z /id/19/, bez požiadavky navyše), za N hodín (nastavenie, stiahne sa
+ * až pri prepnutí) a top K (`/id/8340566/`, tiež až pri prepnutí).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun KScreen(
     overview: OverviewViewModel,
     topK: TopKViewModel,
+    kHours: KHoursViewModel,
+    hours: Int,
     hideNsfw: Boolean,
     externalImages: ImageLoader?,
     onOpenNode: (Long) -> Unit,
     onOpenWeb: (String) -> Unit,
 ) {
     val mode = topK.state.mode
-    // Pri otvorení záložky a pri prepnutí – top K len ak je staršie ako pár minút.
+    // Pri otvorení záložky a pri prepnutí – top K len ak je staršie ako pár minút, „za N h“ ak je staršie ako minúta
+    // alebo sa zmenil počet hodín. Nikdy v pozadí.
     LaunchedEffect(mode) { topK.refreshIfStale() }
+    LaunchedEffect(mode, hours) { if (mode == KMode.HOURS) kHours.refreshIfStale(hours) }
     val openLink: (String) -> Unit = { url ->
         val id = if (UrlPolicy.isInternal(url)) KyberiaUrls.nodeId(url) else null
         if (id != null) onOpenNode(id) else onOpenWeb(url)
@@ -68,13 +72,22 @@ fun KScreen(
                     selected = item == mode,
                     onClick = { topK.select(item) },
                     shape = SegmentedButtonDefaults.itemShape(index, KMode.entries.size),
-                ) { Text(stringResource(item.label), maxLines = 1) }
+                ) { Text(if (item == KMode.HOURS) stringResource(R.string.k_mode_hours, hours) else stringResource(item.label), maxLines = 1) }
             }
         }
-        val mine = mode == KMode.MINE
         PullToRefreshBox(
-            isRefreshing = if (mine) overview.state.loading else topK.state.loading,
-            onRefresh = { if (mine) overview.refresh() else topK.refresh() },
+            isRefreshing = when (mode) {
+                KMode.MINE -> overview.state.loading
+                KMode.HOURS -> kHours.state.loading
+                KMode.TOP -> topK.state.loading
+            },
+            onRefresh = {
+                when (mode) {
+                    KMode.MINE -> overview.refresh()
+                    KMode.HOURS -> kHours.refresh(hours)
+                    KMode.TOP -> topK.refresh()
+                }
+            },
             modifier = Modifier.fillMaxSize(),
         ) {
             when (mode) {
@@ -82,6 +95,16 @@ fun KScreen(
                     overview.state.myK.filterNot { hideNsfw && Nsfw.matches(it.title) },
                     header = stringResource(R.string.k_mine_header),
                     empty = if (!overview.state.loading && overview.state.loadedAtMillis != null) stringResource(R.string.k_mine_empty) else null,
+                    onOpenNode = onOpenNode,
+                )
+                KMode.HOURS -> MyKList(
+                    kHours.state.items.orEmpty().filterNot { hideNsfw && Nsfw.matches(it.title) },
+                    header = stringResource(R.string.k_hours_header, hours),
+                    empty = when {
+                        kHours.state.error -> stringResource(R.string.k_hours_error)
+                        kHours.state.items != null && !kHours.state.loading -> stringResource(R.string.k_hours_empty, hours)
+                        else -> null
+                    },
                     onOpenNode = onOpenNode,
                 )
                 KMode.TOP -> TopKList(
@@ -100,12 +123,13 @@ fun KScreen(
 private val KMode.label: Int
     get() = when (this) {
         KMode.MINE -> R.string.k_mode_mine
+        KMode.HOURS -> R.string.k_mode_hours
         KMode.TOP -> R.string.k_mode_top
     }
 
 /** Tvoje príspevky s K za interval: „+N K“ za interval, celkové K; [empty] = text, keď nič nie je (null = ešte sa načítava). */
 @Composable
-internal fun MyKList(items: List<MyK>, header: String, empty: String?, onOpenNode: (Long) -> Unit) {
+private fun MyKList(items: List<MyK>, header: String, empty: String?, onOpenNode: (Long) -> Unit) {
     LazyColumn(Modifier.fillMaxSize()) {
         item {
             Text(

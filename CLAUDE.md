@@ -40,11 +40,11 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   „Top K“ = /id/8340566/: `div.item` s `div.icon-k` (avatar, „24 k“) a `div.title` (`<a>`príspevok, „in“ `<a>`rodič,
   „by“ `<a>`autor, „created: …“, „- 3ch“) + `div.content`. Sťahuje sa **len pri prepnutí na Top K** (staršie ako 5 min),
   nikdy v pozadí; po ňom `Presence`.
-  **Záložka „K za N h“** (v strede lišty, `KHoursScreen`, `MyKRepository`): ten istý blok za N hodín (nastavenie
-  v „Pokročilé“, 6–168 h, predvolene 24; názov záložky sa mení s ním). Ako web po „Hour“: formulár s intervalom je
+  **„Za N h“** (tretí prepínač v záložke K: Tvoje K · Za N h · Top K; `KHoursViewModel`, `MyKRepository`): ten istý
+  blok za N hodín (nastavenie v „Pokročilé“, 6–168 h, predvolene 24; text prepínača sa mení s ním). Ako web po „Hour“: formulár s intervalom je
   vnorený vo formulári bookmarkov, takže POST /id/19/ s `anticsrf`, `interval`, `template_event=Hour` (bez `event` –
   nič sa nemení). Token z poslednej /id/19/ v pamäti (`BookmarksPage.anticsrf`), inak najprv GET. Sťahuje sa **len
-  pri otvorení záložky** (najviac raz za minútu, hneď po zmene intervalu), nikdy v pozadí; po ňom `Presence`.
+  pri prepnutí naň** (najviac raz za minútu, hneď po zmene intervalu), nikdy v pozadí; po ňom `Presence`.
   Kyberia pri tom prechádza všetky K za interval – preto najviac týždeň.
 - Titulok stránky je `<názov> :: <motto>`; motto sa strieda a appka ho ukazuje pod názvom záložky.
 - `/id/19/` má aj blok „Friends“ (`div.active_friend`): avatar+nick, `[odkaz]` na node, kde
@@ -147,7 +147,7 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   Android vyberal tvar plurálu podľa jazyka telefónu („2 ľudí“ v anglickom telefóne).
 - Odkazy na web idú cez `Web.open` s `Browser.EXTRA_APPLICATION_ID` – Chromium prehliadače (Chrome, Brave)
   ich otvárajú v tej istej karte namiesto novej.
-- UI je pre mobil: každá oblasť má vlastnú záložku (Bookmarky, Odpovede, Last, K za N h, Pošta, K, Friends),
+- UI je pre mobil: každá oblasť má vlastnú záložku (Bookmarky, Odpovede, Last, Pošta, K, Friends),
   v spodnej lište len ikony (popis pre čítačku). Pošta zatiaľ „Pracujeme na tom.“ + tlačidlo na web.
   Bookmarky predvolene A–Z (slovenský Collator); radenie/filter si appka pamätá v nastaveniach.
 - NSFW: **len názov samotného nodu** obsahuje „NSFW“ (samostatné slovo, `Nsfw`) – nikdy obsah, úryvky

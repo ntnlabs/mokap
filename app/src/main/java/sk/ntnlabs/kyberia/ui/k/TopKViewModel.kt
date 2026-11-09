@@ -20,8 +20,8 @@ import sk.ntnlabs.kyberia.data.TopKRepository
 import sk.ntnlabs.kyberia.parse.TopKItem
 import sk.ntnlabs.kyberia.work.CheckScheduler
 
-/** Tvoje K idú z /id/19/ (OverviewViewModel); top K z vlastnej stránky, len na požiadanie. */
-enum class KMode { MINE, TOP }
+/** Tvoje K za hodinu idú z /id/19/ (OverviewViewModel); za N hodín ([KHoursViewModel]) a top K len na požiadanie. */
+enum class KMode { MINE, HOURS, TOP }
 
 data class TopKUiState(
     val mode: KMode = KMode.MINE,

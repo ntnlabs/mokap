@@ -28,7 +28,7 @@ data class KHoursUiState(
     val error: Boolean = false,
 )
 
-/** Záložka „K za N h“ – sťahuje sa len pri otvorení záložky (a potiahnutí nadol), nikdy v pozadí. */
+/** „Za N h“ v záložke K – sťahuje sa len pri prepnutí naň (a potiahnutí nadol), nikdy v pozadí. */
 class KHoursViewModel(
     private val repository: MyKRepository,
     private val auth: AuthRepository,
@@ -52,7 +52,7 @@ class KHoursViewModel(
         }
     }
 
-    /** Pri otvorení záložky: znova len ak sa zmenil interval, alebo sú dáta staršie ako minúta (rýchle prepínanie). */
+    /** Pri prepnutí na „Za N h“: znova len ak sa zmenil interval, alebo sú dáta staršie ako minúta (rýchle prepínanie). */
     fun refreshIfStale(hours: Int) {
         if (state.hours != hours || System.currentTimeMillis() - loadedAtMillis > STALE_AFTER_MILLIS) refresh(hours)
     }
