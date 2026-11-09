@@ -28,7 +28,7 @@ zoradené, prefiltrované a s lokálnymi notifikáciami.
 | Čítanie nodov priamo v appke – obsah, autor, K, odpovede vo vlákne (prvá stránka), odkazy na nody v appke | hotové |
 | Odpovedanie do nodu aj na konkrétnu odpoveď (ako na webe – HTML, „Bez HTML“) | hotové |
 | Dať K (len pridať, s potvrdením) a úprava vlastných príspevkov | hotové |
-| Záložka „K za N h“ – tvoje príspevky s K za nastaviteľný čas (predvolene 24 h), len pri otvorení | hotové |
+| K „Za N h“ – tvoje príspevky s K za nastaviteľný čas (predvolene 24 h) v záložke K, len na požiadanie | hotové |
 | Téma nodu oddelená od diskusie | hotové |
 
 ## Ako to funguje

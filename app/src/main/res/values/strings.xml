@@ -28,7 +28,6 @@
     <string name="tab_last">Last</string>
     <string name="tab_k">K</string>
     <string name="tab_friends">Friends</string>
-    <string name="tab_k_hours">K za %1$d h</string>
     <string name="node_open_web">Otvoriť na webe</string>
     <string name="node_error">Node sa nepodarilo načítať.</string>
     <string name="node_retry">Skúsiť znova</string>
@@ -98,6 +97,7 @@
     <string name="work_in_progress">Pracujeme na tom.</string>
     <string name="mail_open">Otvoriť poštu na webe</string>
     <string name="k_mode_mine">Tvoje K</string>
+    <string name="k_mode_hours">Za %1$d h</string>
     <string name="k_mode_top">Top K</string>
     <string name="k_mine_header">Za poslednú hodinu</string>
     <string name="k_mine_empty">Za poslednú hodinu ti nikto nedal K.</string>
@@ -149,9 +149,9 @@
     <string name="settings_back">Späť</string>
     <string name="settings_section_checks">Kontrola na pozadí</string>
     <string name="settings_interval">Ako často kontrolovať</string>
-    <string name="settings_k_hours">Záložka „K za … h“</string>
+    <string name="settings_k_hours">K – „Za … h“</string>
     <string name="settings_k_hours_value">%1$d h</string>
-    <string name="settings_k_hours_note">Za koľko hodín ukázať tvoje príspevky s K. Sťahuje sa len pri otvorení záložky; kyberia pri tom prechádza všetky K za ten čas, preto najviac týždeň.</string>
+    <string name="settings_k_hours_note">Za koľko hodín ukázať tvoje príspevky s K v záložke K. Sťahuje sa len pri prepnutí na „Za … h“; kyberia pri tom prechádza všetky K za ten čas, preto najviac týždeň.</string>
     <string name="settings_interval_value">každých %1$d min</string>
     <string name="settings_interval_note">Platí aj pre otvorenú appku – zelený pruh nad záložkami ukazuje, kedy sa obnoví. V pozadí Android dovolí najčastejšie raz za 15 minút a pri šetrení batérie kontrolu aj odloží.</string>
     <string name="settings_refresh_on_open">Obnoviť pri otvorení appky</string>
