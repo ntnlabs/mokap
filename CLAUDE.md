@@ -20,6 +20,9 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   cleartext aj používateľské CA sú pri targetSdk 36 vypnuté predvolene, network security config netreba.
   Zlyhanie Keystore (`SessionStore`) = stratená session a nové prihlásenie, nikdy pád ani nešifrované uloženie.
 - Appka sa nevydáva za oficiálnu aplikáciu kyberie ani nepoužíva jej logo bez súhlasu.
+- **`PRIVACY.md`** (verejná URL pre Google Play) a `docs/play/data-safety.md` musia sedieť s tým, čo appka robí:
+  každá zmena v tom, čo appka posiela, kam a čo ukladá (nová služba, SDK, analytika, nové lokálne údaje), ich
+  aktualizuje v tom istom PR. Kontakt len cez GitHub issues – žiadny e-mail do repa.
 
 ## Štruktúra kyberie
 - Všetko je node s URL `/id/<ID>/`. Pevné: 19 = bookmarky, 24 = pošta, 8340566 = top K za ~48 h.

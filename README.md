@@ -6,6 +6,8 @@ zoradené, prefiltrované a s lokálnymi notifikáciami.
 
 > Projekt nie je oficiálnou aplikáciou kyberia.sk.
 
+[Zásady ochrany súkromia](PRIVACY.md) · podklady pre Google Play: [Data safety](docs/play/data-safety.md), [store listing](docs/play/store-listing.md)
+
 ## Stav
 
 | Časť | Stav |

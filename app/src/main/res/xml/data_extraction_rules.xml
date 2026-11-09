@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Nič nezálohovať ani neprenášať: WebView data obsahujú prihlasovacie cookies. -->
+<!-- Nič nezálohovať ani neprenášať: SharedPreferences obsahujú prihlásenie (session cookies). -->
 <data-extraction-rules>
     <cloud-backup>
         <exclude domain="root" path="." />

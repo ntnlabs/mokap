@@ -1,0 +1,124 @@
+# Play Console – store listing (návrh)
+
+Limity Play: názov ≤ 30 znakov, krátky popis ≤ 80, dlhý popis ≤ 4000, „Čo je nové“ ≤ 500.
+Predvolený jazyk listingu: **slovenčina (sk-SK)**, preklad: **angličtina (en-US)**.
+
+Appka sa nesmie vydávať za oficiálnu aplikáciu kyberie ani používať jej logo – preto „neoficiálny“ hneď
+v krátkom popise a vety na konci dlhého popisu. Súhlas adminov kyberie sa hodí mať po ruke, keby si ho Google
+vypýtal (pri appkách pre cudzie služby sa to stáva).
+
+## Slovensky (sk-SK)
+
+**Názov:** `mokap`
+
+**Krátky popis:**
+
+```
+Neoficiálny klient pre kyberia.sk – bookmarky, odpovede, K a notifikácie.
+```
+
+**Dlhý popis:**
+
+```
+mokap je neoficiálny Android klient pre komunitu kyberia.sk. Nie je to prehliadač ani zabalený web: appka si stiahne stránky kyberie a ukáže ich po svojom – prehľadne na mobile, s lokálnymi notifikáciami.
+
+ČO VIE
+• Bookmarky – A–Z alebo podľa noviniek, filter „len nové“, hľadanie bez diakritiky
+• Odpovede na tvoje príspevky, Last a Top K
+• Tvoje K za poslednú hodinu aj za nastaviteľný čas
+• Čítanie nodov priamo v appke – téma, diskusia vo vlákne, obrázky
+• Odpovedanie do nodu aj na konkrétnu odpoveď, úprava vlastných príspevkov
+• Dávanie K – len pridať, vždy s potvrdením
+• Priatelia online, kto je kde a kde sa práve diskutuje
+• Notifikácie: odpovede, pošta, novinky v bookmarkoch, priateľ online – každá zvlášť, s tichým režimom
+• Témy: systémová, svetlá, tmavá a tlmená
+• Nody s „NSFW“ v názve predvolene skryté
+
+SÚKROMIE
+• Heslo appka neukladá, prihlásenie drží zašifrované v telefóne
+• Komunikuje len s kyberia.sk – žiadna analytika, reklamy ani sledovanie
+• Obrázky z iných stránok len vtedy, keď ich zapneš
+• Otvorený zdrojový kód: github.com/ntnlabs/mokap
+
+Na používanie potrebuješ účet na kyberia.sk.
+
+mokap nie je oficiálna aplikácia kyberia.sk – vyvíja ju člen komunity vo voľnom čase.
+```
+
+**Čo je nové (0.8 Capable Capybara):**
+
+```
+• Odpovedanie do nodov aj na konkrétne odpovede
+• Dávanie K s potvrdením, „K ✓“ tam, kde už K máš
+• Úprava vlastných príspevkov
+• Téma nodu oddelená od diskusie, dlhé úvody zbalené
+• Šípka na nadradený node
+• Tvoje K za posledných 24 h (dá sa zmeniť v nastaveniach)
+```
+
+## English (en-US)
+
+**App name:** `mokap`
+
+**Short description:**
+
+```
+Unofficial client for kyberia.sk – bookmarks, replies, K and notifications.
+```
+
+**Full description:**
+
+```
+mokap is an unofficial Android client for the kyberia.sk community. It is not a browser or a wrapped website: the app downloads kyberia pages and shows them its own way – clear on a phone, with local notifications.
+
+FEATURES
+• Bookmarks – A–Z or by news, "only new" filter, search without diacritics
+• Replies to your posts, Last and Top K
+• Your K for the last hour and for an adjustable period
+• Reading nodes right in the app – topic, threaded discussion, images
+• Replying to a node or to a specific reply, editing your own posts
+• Giving K – add only, always with confirmation
+• Friends online, who is where and where people are talking right now
+• Notifications: replies, mail, bookmark news, friend online – each on its own, with quiet hours
+• Themes: system, light, dark and dimmed
+• Nodes with "NSFW" in their name hidden by default
+
+PRIVACY
+• The app never stores your password; your login is kept encrypted on the phone
+• Talks only to kyberia.sk – no analytics, ads or tracking
+• Images from other sites only when you turn them on
+• Open source: github.com/ntnlabs/mokap
+
+You need an account on kyberia.sk to use the app.
+
+mokap is not an official kyberia.sk app – it is developed by a community member in their spare time.
+```
+
+**What's new (0.8 Capable Capybara):**
+
+```
+• Replying to nodes and to specific replies
+• Giving K with confirmation, "K ✓" where you already gave K
+• Editing your own posts
+• Node topic separated from the discussion, long intros collapsed
+• Arrow to the parent node
+• Your K for the last 24 h (adjustable in settings)
+```
+
+## Ostatné polia
+
+| Pole | Hodnota |
+|---|---|
+| App category | **Social** |
+| Tags | Social networking, Forums (čo Play ponúkne) |
+| Website | `https://github.com/ntnlabs/mokap` |
+| Contact e-mail | **tvoj** – vyplniť len v Play Console, nie do repa |
+| Privacy policy | `https://github.com/ntnlabs/mokap/blob/main/PRIVACY.md` |
+
+## Grafika (treba dodať)
+
+- **Ikona 512 × 512** PNG (32-bit, bez priehľadnosti v rohoch – Play si ich zaoblí sám).
+- **Feature graphic 1024 × 500** PNG/JPG – bez loga kyberie.
+- **Screenshoty z telefónu:** aspoň 2 (odporúčané 4–8), napr. Bookmarky, node s diskusiou, záložka K, notifikácie.
+  Pred nahratím skontroluj, že na nich nie sú cudzie nicky, súkromná pošta či príspevky, ktoré by autori nechceli
+  ukázať mimo kyberie – najlepšie vlastný alebo testovací účet a verejné nody.
