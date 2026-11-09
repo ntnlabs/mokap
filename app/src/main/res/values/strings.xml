@@ -28,6 +28,7 @@
     <string name="tab_last">Last</string>
     <string name="tab_k">K</string>
     <string name="tab_friends">Friends</string>
+    <string name="tab_k_hours">K za %1$d h</string>
     <string name="node_open_web">Otvoriť na webe</string>
     <string name="node_error">Node sa nepodarilo načítať.</string>
     <string name="node_retry">Skúsiť znova</string>
@@ -61,10 +62,11 @@
     <string name="node_type_article">článok</string>
     <string name="node_k_give">+K</string>
     <string name="node_k_confirm_title">Dať K?</string>
-    <string name="node_k_confirm_text">„%1$s“\n\nK sa nedá vziať späť.</string>
+    <string name="node_k_confirm_text">„%1$s“\n\nAk si mu K už dal (aj na webe), kyberia ho ďalším stlačením odoberie – a to je penalizované.</string>
     <string name="node_k_confirm">Dať K</string>
     <string name="node_k_given">K pridané</string>
     <string name="node_k_rejected">Kyberia K neprijala: %1$s</string>
+    <string name="node_k_removed">Pozor: kyberia K odobrala – asi si ho už predtým dal. Skontroluj na webe.</string>
     <string name="node_k_unconfirmed">Kyberia chybu nehlásila, ale K na stránke nepribudlo. Pozri node na webe.</string>
     <string name="node_action_network">Spojenie zlyhalo – akcia možno prešla. Obnov node a pozri sa.</string>
     <string name="node_edit">upraviť</string>
@@ -100,6 +102,9 @@
     <string name="k_top_empty">Top K je teraz prázdne.</string>
     <string name="k_top_error">Top K sa nepodarilo načítať. Potiahni dole a skús znova.</string>
     <string name="k_top_web">Top K na webe</string>
+    <string name="k_hours_header">Tvoje príspevky s K za posledných %1$d h</string>
+    <string name="k_hours_empty">Za posledných %1$d h ti nikto nedal K.</string>
+    <string name="k_hours_error">Nepodarilo sa načítať. Potiahni dole a skús znova.</string>
 
     <string name="bookmarks_search">Hľadať v bookmarkoch</string>
     <string name="bookmarks_search_clear">Vymazať hľadanie</string>
@@ -140,6 +145,9 @@
     <string name="settings_back">Späť</string>
     <string name="settings_section_checks">Kontrola na pozadí</string>
     <string name="settings_interval">Ako často kontrolovať</string>
+    <string name="settings_k_hours">Záložka „K za … h“</string>
+    <string name="settings_k_hours_value">%1$d h</string>
+    <string name="settings_k_hours_note">Za koľko hodín ukázať tvoje príspevky s K. Sťahuje sa len pri otvorení záložky; kyberia pri tom prechádza všetky K za ten čas, preto najviac týždeň.</string>
     <string name="settings_interval_value">každých %1$d min</string>
     <string name="settings_interval_note">Platí aj pre otvorenú appku – zelený pruh nad záložkami ukazuje, kedy sa obnoví. V pozadí Android dovolí najčastejšie raz za 15 minút a pri šetrení batérie kontrolu aj odloží.</string>
     <string name="settings_refresh_on_open">Obnoviť pri otvorení appky</string>

@@ -20,6 +20,15 @@ class SettingsTest {
     }
 
     @Test
+    fun kHoursSanitized() {
+        assertEquals(24, Settings().kHours)
+        assertEquals(24, Settings.sanitizeKHours(24))
+        assertEquals(6, Settings.sanitizeKHours(1))
+        assertEquals(48, Settings.sanitizeKHours(30))
+        assertEquals(168, Settings.sanitizeKHours(1000))
+    }
+
+    @Test
     fun quietHoursSameDay() {
         assertTrue(QuietHours.contains(1, 9, 1))
         assertTrue(QuietHours.contains(1, 9, 8))

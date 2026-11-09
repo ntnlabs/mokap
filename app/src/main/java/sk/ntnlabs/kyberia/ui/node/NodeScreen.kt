@@ -125,6 +125,7 @@ fun NodeScreen(
             NodeNotice.KGiven -> resources.getString(R.string.node_k_given)
             is NodeNotice.KRejected -> resources.getString(R.string.node_k_rejected, notice.message)
             NodeNotice.KUnconfirmed -> resources.getString(R.string.node_k_unconfirmed)
+            NodeNotice.KRemoved -> resources.getString(R.string.node_k_removed)
             NodeNotice.Network -> resources.getString(R.string.node_action_network)
             NodeNotice.Edited -> resources.getString(R.string.node_edit_saved)
         }
@@ -144,8 +145,9 @@ fun NodeScreen(
             } else {
                 null
             },
-            kNode = if (it.kNode != null && (me == null || it.ownerId != me)) ({ askK = nodeId }) else null,
+            kNode = if (it.kNode != null && (me == null || it.ownerId != me) && !nodes.kGiven(nodeId)) ({ askK = nodeId }) else null,
             kChild = if (it.kChild != null) ({ child: NodeChild -> askK = child.id }) else null,
+            kGiven = nodes::kGiven,
             edit = { target -> nodes.startEdit(nodeId, target) },
             me = me,
             enabled = !state.sending,
@@ -289,6 +291,8 @@ private class NodeActions(
     val reply: ((Long?) -> Unit)?,
     val kNode: (() -> Unit)?,
     val kChild: ((NodeChild) -> Unit)?,
+    /** Už dané K v tejto relácii – znova sa neponúkne (druhé stlačenie by ho na kyberii odobralo). */
+    val kGiven: (Long) -> Boolean,
     /** Úprava vlastného príspevku (node alebo odpoveď). */
     val edit: (Long) -> Unit,
     val me: Long?,
@@ -491,7 +495,7 @@ private fun Child(child: NodeChild, onLink: (String) -> Unit, externalImages: Im
         }
         ContentView(child.content, onLink, externalImages)
         val own = actions.me != null && child.authorId == actions.me
-        val kChild = actions.kChild?.takeUnless { own }
+        val kChild = actions.kChild?.takeUnless { own || actions.kGiven(child.id) }
         val reply = actions.reply
         if (kChild != null || own || reply != null) {
             Row(Modifier.align(Alignment.End)) {

@@ -40,6 +40,12 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   „Top K“ = /id/8340566/: `div.item` s `div.icon-k` (avatar, „24 k“) a `div.title` (`<a>`príspevok, „in“ `<a>`rodič,
   „by“ `<a>`autor, „created: …“, „- 3ch“) + `div.content`. Sťahuje sa **len pri prepnutí na Top K** (staršie ako 5 min),
   nikdy v pozadí; po ňom `Presence`.
+  **Záložka „K za N h“** (v strede lišty, `KHoursScreen`, `MyKRepository`): ten istý blok za N hodín (nastavenie
+  v „Pokročilé“, 6–168 h, predvolene 24; názov záložky sa mení s ním). Ako web po „Hour“: formulár s intervalom je
+  vnorený vo formulári bookmarkov, takže POST /id/19/ s `anticsrf`, `interval`, `template_event=Hour` (bez `event` –
+  nič sa nemení). Token z poslednej /id/19/ v pamäti (`BookmarksPage.anticsrf`), inak najprv GET. Sťahuje sa **len
+  pri otvorení záložky** (najviac raz za minútu, hneď po zmene intervalu), nikdy v pozadí; po ňom `Presence`.
+  Kyberia pri tom prechádza všetky K za interval – preto najviac týždeň.
 - Titulok stránky je `<názov> :: <motto>`; motto sa strieda a appka ho ukazuje pod názvom záložky.
 - `/id/19/` má aj blok „Friends“ (`div.active_friend`): avatar+nick, `[odkaz]` na node, kde
   priateľ práve je, a čas (napr. `84m39s`). Avatary sú animované GIFy (Coil + disková cache).
@@ -73,7 +79,9 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   od teba; inak „nepotvrdené“. POST je `oneShot` (OkHttp ho po chybe spojenia neopakuje) a appka ho nikdy neposiela
   znova sama – pri chybe siete nevieme, či prešiel. Text v editore sa zahodí len po potvrdenom odoslaní.
 - **K** (`NodeActionsParser`, `NodeRepository.giveK`): len **dať**, nikdy odobrať (odobratie je na kyberii penalizované)
-  a vždy po potvrdení (K sa nedá vziať späť). Node: formulár s tlačidlom K pri počte K (`span.node_info2`, mimo
+  a vždy po potvrdení. Podľa používateľa živá kyberia K **prepína** – druhé stlačenie K odoberie (`K.inc` v bloodline
+  ešte hlási „uz si k udelil“; overuje sa). Appka si preto pamätá K dané v tejto relácii a znova ich neponúkne,
+  potvrdenie varuje pred K daným na webe a pokles počtu K hlási ako „kyberia K odobrala“. Node: formulár s tlačidlom K pri počte K (`span.node_info2`, mimo
   `formular`) → `anticsrf` + `event=K`. Odpoveď: `formular` + presne jedno `node_chosen[]` + `event=K` (`K.inc` dá K
   každému zaškrtnutému). Chyby („datanode uz si k udelil“, „nemas k“) v hlavičke; úspech = počet K narástol. Sebe K appka
   neponúka. Na stránke je jeden `anticsrf` pre celú session – chýba vo formulári → vezme sa z inej časti stránky.
@@ -136,7 +144,7 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   Android vyberal tvar plurálu podľa jazyka telefónu („2 ľudí“ v anglickom telefóne).
 - Odkazy na web idú cez `Web.open` s `Browser.EXTRA_APPLICATION_ID` – Chromium prehliadače (Chrome, Brave)
   ich otvárajú v tej istej karte namiesto novej.
-- UI je pre mobil: každá oblasť má vlastnú záložku (Bookmarky, Odpovede, Last, Pošta, K, Friends),
+- UI je pre mobil: každá oblasť má vlastnú záložku (Bookmarky, Odpovede, Last, K za N h, Pošta, K, Friends),
   v spodnej lište len ikony (popis pre čítačku). Pošta zatiaľ „Pracujeme na tom.“ + tlačidlo na web.
   Bookmarky predvolene A–Z (slovenský Collator); radenie/filter si appka pamätá v nastaveniach.
 - NSFW: **len názov samotného nodu** obsahuje „NSFW“ (samostatné slovo, `Nsfw`) – nikdy obsah, úryvky

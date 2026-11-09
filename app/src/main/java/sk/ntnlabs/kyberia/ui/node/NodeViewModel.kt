@@ -57,6 +57,9 @@ sealed interface NodeNotice {
 
     data object KUnconfirmed : NodeNotice
 
+    /** Počet K klesol – kyberia K odobrala (prepína ho). */
+    data object KRemoved : NodeNotice
+
     /** Spojenie zlyhalo po odoslaní akcie – nevieme, či prešla. */
     data object Network : NodeNotice
 
@@ -87,6 +90,14 @@ class NodesViewModel(
 ) : ViewModel() {
 
     private val states = mutableStateMapOf<Long, NodeUiState>()
+
+    /**
+     * Komu appka v tejto relácii dala K (ID nodu alebo odpovede). Živá kyberia K prepína – druhé stlačenie by K odobralo
+     * (penalizácia) – preto ich appka už znova neponúkne. K dané na webe appka nevidí.
+     */
+    private val kGiven = mutableStateMapOf<Long, Boolean>()
+
+    fun kGiven(id: Long): Boolean = kGiven[id] == true
 
     /** Vlastné ID z poslednej /id/19/ – podľa neho appka ponúkne úpravu a neponúkne K sebe. */
     val me: Long? get() = latest.flow.value?.page?.user?.userId
@@ -153,11 +164,18 @@ class NodesViewModel(
         val page = current.page ?: return
         if (current.sending || current.loading || !auth.loggedIn.value) return
         if ((if (childId == null) page.kNode else page.kChild) == null) return
+        val target = childId ?: id
+        if (kGiven(target)) return
         states[id] = current.copy(sending = true, notice = null)
         viewModelScope.launch {
             val result = try {
                 val outcome = repository.giveK(page, childId)
                 scheduler.touch()
+                when (outcome) {
+                    is KResult.Given -> kGiven[target] = true
+                    is KResult.Removed -> kGiven.remove(target)
+                    else -> Unit
+                }
                 state(id).copy(
                     page = outcome.page,
                     sending = false,
@@ -165,6 +183,7 @@ class NodesViewModel(
                         is KResult.Given -> NodeNotice.KGiven
                         is KResult.Rejected -> NodeNotice.KRejected(outcome.message)
                         is KResult.Unconfirmed -> NodeNotice.KUnconfirmed
+                        is KResult.Removed -> NodeNotice.KRemoved
                     },
                 )
             } catch (e: SessionExpiredException) {
