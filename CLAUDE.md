@@ -90,7 +90,9 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   `event=configure_content` → POST len `anticsrf`, `node_content`, `event`. Ak formulár chýba, kyberia úpravu
   neponúkla. Po úprave odpovede sa node, v ktorom je, stiahne znova. Kyberia si starú verziu ukladá (tiamat).
 - **Téma vs. diskusia**: samotný node (fórum, článok, príspevok – šablóna z `tr#sidebar_template`) je v orámovanej
-  karte; pod ňou „Diskusia · N odpovedí“ – kyberia rozlišuje node a submission (šablóna 4).
+  karte; pod ňou „Diskusia · N odpovedí“ – kyberia rozlišuje node a submission (šablóna 4). Dlhý úvodník (nie príspevok,
+  šablóna ≠ 4; odhad ~900 znakov, obrázok ≈ 300) sa zbalí na pár riadkov s „Zobraziť celý úvod“. Na rodiča vedie šípka
+  v hornej lište aj riadok v karte (`tr#sidebar_parent`) – node otvorený zo zoznamu nemá rodiča v zásobníku.
 - Pošta: `GET /ajax/check_new_mail.php` (web ho volá raz za minútu) vráti
   `<počet nových>;<nick posledného odosielateľa>;…` alebo `offline`. Nick ide len do notifikácie
   („Nová pošta od …“), nikam sa neukladá; posledné pole nemá overený význam. `offline` session
