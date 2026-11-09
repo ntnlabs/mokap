@@ -20,6 +20,15 @@ class NodeOutcomesTest {
     }
 
     @Test
+    fun kForNodeConfirmedByRevokeButton() {
+        // Aj keby počet K na stránke nesedel, „-❤️“ (revoKe) znamená, že K od teba tam je.
+        val after = Jsoup.parse(html.replaceFirst("name=\"event\" value=\"K\"", "name=\"event\" value=\"revoKe\""), url)
+        val result = NodeOutcomes.k(before, null, after)
+        assertTrue(result is KResult.Given)
+        assertTrue(result.page.kGiven)
+    }
+
+    @Test
     fun kForChild() {
         assertEquals(3, before.children.first { it.id == 5101L }.k)
         val after = Jsoup.parse(html.replace("<span class='node_header_k'>3K</span>", "<span class='node_header_k'>4K</span>"), url)

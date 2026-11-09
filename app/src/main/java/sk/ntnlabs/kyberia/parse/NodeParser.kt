@@ -38,8 +38,10 @@ data class NodePage(
     val childrenTotal: Int?,
     /** Formulár na odpoveď; null = bez práva zápisu (alebo ho kyberia neukázala). */
     val replyForm: ReplyForm? = null,
-    /** Kam poslať K pre tento node; null = kyberia ho tu neponúka. */
+    /** Kam poslať K pre tento node; null = kyberia ho tu neponúka (alebo si ho už dal – [kGiven]). */
     val kNode: PostTarget? = null,
+    /** K tomuto nodu si už dal (kyberia namiesto K ponúka „-❤️“ = `revoKe`). Pri odpovediach to stránka neukazuje. */
+    val kGiven: Boolean = false,
     /** Kam poslať K pre odpoveď (`formular` + `node_chosen[]`). */
     val kChild: PostTarget? = null,
 )
@@ -76,6 +78,7 @@ object NodeParser {
             childrenTotal = info?.text()?.let { TOTAL_CHILDREN.find(it) }?.groupValues?.get(1)?.toIntOrNull(),
             replyForm = ReplyFormParser.parse(document),
             kNode = NodeActionsParser.kNode(document),
+            kGiven = NodeActionsParser.kGiven(document),
             kChild = NodeActionsParser.kChild(document),
         )
     }

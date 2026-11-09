@@ -35,10 +35,14 @@ sealed interface EditResult {
 
 object NodeOutcomes {
 
-    /** K pribudlo, ak počet K pri node ([childId] null) alebo pri odpovedi narástol. */
+    /**
+     * K pribudlo, ak počet K narástol – pri samotnom node ([childId] null) aj ak kyberia namiesto K ponúka „-❤️“
+     * (`revoKe`), teda K tam už je od teba.
+     */
     fun k(before: NodePage, childId: Long?, response: Document): KResult {
         val page = NodeParser.parse(response, before.id)
         PageError.of(response)?.let { return KResult.Rejected(page, it) }
+        if (childId == null && page.kGiven && !before.kGiven) return KResult.Given(page)
         val was = kOf(before, childId) ?: 0
         val now = kOf(page, childId)
         return when {

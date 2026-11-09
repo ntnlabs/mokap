@@ -21,12 +21,20 @@ class EditForm(val target: PostTarget, val content: String) {
 object NodeActionsParser {
 
     private const val K = "K"
+    private const val REVOKE = "revoKe"
     private const val CONFIGURE_CONTENT = "configure_content"
     private const val CONTENT = "node_content"
 
     /** K pre samotný node – formulár s tlačidlom K pri počte K (`span.node_info2`), nie `formular`. */
     fun kNode(document: Document): PostTarget? =
         Forms.find(document) { it.attr("name") != "formular" && Forms.submitButton(it, K) != null }?.let { target(it, document) }
+
+    /**
+     * K tomuto nodu si už dal: namiesto „K+❤️“ (`event=K`) je pri počte K tlačidlo „-❤️“ (`event=revoKe`). To je
+     * na webe „druhé stlačenie“ – odobratie K (penalizované). Appka `revoKe` nikdy neposiela.
+     */
+    fun kGiven(document: Document): Boolean =
+        Forms.find(document) { it.attr("name") != "formular" && Forms.submitButton(it, REVOKE) != null } != null
 
     /** K pre odpoveď – `formular` s tlačidlom K; kyberia dá K zaškrtnutému `node_chosen[]` (`K.inc`). */
     fun kChild(document: Document): PostTarget? =

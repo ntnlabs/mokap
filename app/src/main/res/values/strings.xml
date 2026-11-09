@@ -65,11 +65,12 @@
     <string name="node_type_article">článok</string>
     <string name="node_k_give">+K</string>
     <string name="node_k_confirm_title">Dať K?</string>
-    <string name="node_k_confirm_text">„%1$s“\n\nAk si mu K už dal (aj na webe), kyberia ho ďalším stlačením odoberie – a to je penalizované.</string>
+    <string name="node_k_confirm_text">„%1$s“\n\nOdobrať K appka nevie – to ide len na webe (a je penalizované).</string>
+    <string name="node_k_done">K ✓</string>
     <string name="node_k_confirm">Dať K</string>
     <string name="node_k_given">K pridané</string>
     <string name="node_k_rejected">Kyberia K neprijala: %1$s</string>
-    <string name="node_k_removed">Pozor: kyberia K odobrala – asi si ho už predtým dal. Skontroluj na webe.</string>
+    <string name="node_k_removed">Pozor: počet K klesol – skontroluj node na webe.</string>
     <string name="node_k_unconfirmed">Kyberia chybu nehlásila, ale K na stránke nepribudlo. Pozri node na webe.</string>
     <string name="node_action_network">Spojenie zlyhalo – akcia možno prešla. Obnov node a pozri sa.</string>
     <string name="node_edit">upraviť</string>

@@ -92,8 +92,8 @@ class NodesViewModel(
     private val states = mutableStateMapOf<Long, NodeUiState>()
 
     /**
-     * Komu appka v tejto relácii dala K (ID nodu alebo odpovede). Živá kyberia K prepína – druhé stlačenie by K odobralo
-     * (penalizácia) – preto ich appka už znova neponúkne. K dané na webe appka nevidí.
+     * Komu appka v tejto relácii dala K. Pri samotnom node to kyberia ukazuje sama (`NodePage.kGiven` – tlačidlo „-❤️“),
+     * pri odpovediach nie – tie si appka pamätá, aby K znova neponúkla.
      */
     private val kGiven = mutableStateMapOf<Long, Boolean>()
 
@@ -165,7 +165,7 @@ class NodesViewModel(
         if (current.sending || current.loading || !auth.loggedIn.value) return
         if ((if (childId == null) page.kNode else page.kChild) == null) return
         val target = childId ?: id
-        if (kGiven(target)) return
+        if (kGiven(target) || (childId == null && page.kGiven)) return
         states[id] = current.copy(sending = true, notice = null)
         viewModelScope.launch {
             val result = try {
