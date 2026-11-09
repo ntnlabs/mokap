@@ -79,9 +79,10 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   od teba; inak „nepotvrdené“. POST je `oneShot` (OkHttp ho po chybe spojenia neopakuje) a appka ho nikdy neposiela
   znova sama – pri chybe siete nevieme, či prešiel. Text v editore sa zahodí len po potvrdenom odoslaní.
 - **K** (`NodeActionsParser`, `NodeRepository.giveK`): len **dať**, nikdy odobrať (odobratie je na kyberii penalizované)
-  a vždy po potvrdení. Podľa používateľa živá kyberia K **prepína** – druhé stlačenie K odoberie (`K.inc` v bloodline
-  ešte hlási „uz si k udelil“; overuje sa). Appka si preto pamätá K dané v tejto relácii a znova ich neponúkne,
-  potvrdenie varuje pred K daným na webe a pokles počtu K hlási ako „kyberia K odobrala“. Node: formulár s tlačidlom K pri počte K (`span.node_info2`, mimo
+  a vždy po potvrdení. Na živej kyberii sa po K tlačidlo pri počte K zmení z „K+❤️“ (`event=K`) na „-❤️“
+  (`event=revoKe`) – to je to webové „druhé stlačenie“ = odobratie. Appka `revoKe` **nikdy** neposiela; node s `revoKe`
+  = K už je od teba (`NodePage.kGiven`, v appke „K ✓“, +K sa neponúkne) – bez stránky navyše (given_K netreba).
+  Pri odpovediach stránka stav neukazuje: appka si pamätá K dané v relácii a pokles počtu K hlási. Node: formulár s tlačidlom K pri počte K (`span.node_info2`, mimo
   `formular`) → `anticsrf` + `event=K`. Odpoveď: `formular` + presne jedno `node_chosen[]` + `event=K` (`K.inc` dá K
   každému zaškrtnutému). Chyby („datanode uz si k udelil“, „nemas k“) v hlavičke; úspech = počet K narástol. Sebe K appka
   neponúka. Na stránke je jeden `anticsrf` pre celú session – chýba vo formulári → vezme sa z inej časti stránky.
@@ -159,7 +160,7 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
 - Hotové kolo zmien sa hneď zlučuje do `main` cez PR (merge commit, po zelenom CI); dlhé vetvy nedržíme.
 - Dependabot: patch a minor verzie zlučuj sám po zelenom CI; major verzie najprv vysvetli používateľovi
   (zmeny, licencia, riziko) a čakaj na súhlas.
-- Verzia `major.minor.build` + kódové meno: major, minor a meno vo `version.properties` (teraz 0.7 „Bugz Bunny“)
+- Verzia `major.minor.build` + kódové meno: major, minor a meno vo `version.properties` (teraz 0.8 „Capable Capybara“)
   **mení len používateľ**. Build = `github.run_number` (job `apk` ho dáva ako `MOKAP_BUILD_NUMBER`), štvormiestne;
   inde 0, aby sa BuildConfig nemenil. `versionCode` = major·10⁷ + minor·10⁵ + build. V nastaveniach sú verzia
   a diagnostika v sekcii „Pokročilé“, predvolene zbalenej.

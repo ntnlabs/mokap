@@ -25,6 +25,25 @@ class NodeActionsTest {
     }
 
     @Test
+    fun kAlreadyGivenShowsRevoke() {
+        assertFalse(NodeParser.parse(node, 5001).kGiven)
+        // Po K živá kyberia namiesto „K+❤️“ ukáže „-❤️“ (event=revoKe) – K už je od teba, znova sa neponúkne.
+        val given = Jsoup.parse(
+            """<span class='node_info2'><br /><span class='most_important'>1 <a href=/id/900>❤️</a></span>
+               <form action="/id/5001/" method="post"><input type="hidden" name="anticsrf" value="tok" />
+               <button type="submit" name="event" value="revoKe"><span></span>-❤️</button>
+               <input type="submit" name="event" value="book" /></form></span>
+               <form name='formular' action='/id/5001/'><button type="submit" name="event" value="K">K+❤️</button></form>""",
+            "https://kyberia.sk/id/5001/",
+        )
+        val page = NodeParser.parse(given, 5001)
+        assertTrue(page.kGiven)
+        assertNull(page.kNode)
+        // K pre odpovede ostáva – stránka pri nich neukazuje, či si K dal.
+        assertTrue(page.kChild != null)
+    }
+
+    @Test
     fun exactlyOneK() {
         val target = PostTarget("https://kyberia.sk/id/5001/", "tok", multipart = true)
         assertEquals(listOf("anticsrf" to "tok", "event" to "K"), NodeActionsParser.kFields(target, null))

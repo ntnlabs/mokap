@@ -482,9 +482,19 @@ private fun Topic(page: NodePage, onLink: (String) -> Unit, externalImages: Imag
             if (page.content.isNotEmpty()) TopicContent(page, onLink, externalImages)
             val own = actions.me != null && page.ownerId == actions.me
             val kNode = actions.kNode
-            if (kNode != null || own) {
-                Row(Modifier.align(Alignment.End)) {
-                    if (kNode != null) Action(R.string.node_k_give, actions.enabled, kNode)
+            val kDone = page.kGiven || actions.kGiven(page.id)
+            if (kNode != null || own || kDone) {
+                Row(Modifier.align(Alignment.End), verticalAlignment = Alignment.CenterVertically) {
+                    if (kDone) {
+                        Text(
+                            stringResource(R.string.node_k_done),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(horizontal = 8.dp),
+                        )
+                    } else if (kNode != null) {
+                        Action(R.string.node_k_give, actions.enabled, kNode)
+                    }
                     if (own) Action(R.string.node_edit, actions.enabled) { actions.edit(page.id) }
                 }
             }
