@@ -32,6 +32,17 @@ class KParserTest {
     }
 
     @Test
+    fun intervalRequestLikeWeb() {
+        // Ako „Hour“ na webe: bez event – kyberia len prekreslí /id/19/ s iným intervalom.
+        assertEquals(
+            listOf("anticsrf" to "tok", "interval" to "24", "template_event" to "Hour"),
+            MyKParser.fields(24, "tok"),
+        )
+        assertEquals("test-token", MyKParser.token(Fixtures.load("node.html", "https://kyberia.sk/id/5001/")))
+        assertEquals(null, MyKParser.token(Jsoup.parse("<p>bez formulára</p>")))
+    }
+
+    @Test
     fun topKItems() {
         val items = TopKParser.parse(Fixtures.load("topk.html", "https://kyberia.sk/id/8340566/"))
         assertEquals(listOf(7001L, 7002L), items.map { it.id })

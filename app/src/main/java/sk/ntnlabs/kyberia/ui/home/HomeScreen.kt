@@ -64,6 +64,8 @@ import sk.ntnlabs.kyberia.ui.bookmarks.BookmarksScreen
 import sk.ntnlabs.kyberia.ui.common.Web
 import sk.ntnlabs.kyberia.ui.friends.FriendsScreen
 import sk.ntnlabs.kyberia.ui.friends.PeopleViewModel
+import sk.ntnlabs.kyberia.ui.k.KHoursScreen
+import sk.ntnlabs.kyberia.ui.k.KHoursViewModel
 import sk.ntnlabs.kyberia.ui.k.KScreen
 import sk.ntnlabs.kyberia.ui.k.TopKViewModel
 import sk.ntnlabs.kyberia.ui.last.LastScreen
@@ -77,6 +79,8 @@ private enum class Tab(@StringRes val label: Int, @DrawableRes val icon: Int, va
     BOOKMARKS(R.string.tab_bookmarks, R.drawable.ic_tab_bookmarks, SeenArea.BOOKMARKS),
     REPLIES(R.string.tab_replies, R.drawable.ic_tab_replies, SeenArea.REPLIES),
     LAST(R.string.tab_last, R.drawable.ic_tab_last, SeenArea.LAST),
+    // V strede lišty; v názve počet hodín z nastavení („K za 24 h“).
+    K_HOURS(R.string.tab_k_hours, R.drawable.ic_tab_k_hours),
     MAIL(R.string.tab_mail, R.drawable.ic_tab_mail),
     K(R.string.tab_k, R.drawable.ic_tab_k),
     FRIENDS(R.string.tab_friends, R.drawable.ic_tab_friends),
@@ -103,6 +107,7 @@ fun HomeScreen(
     val overview: OverviewViewModel = viewModel(factory = OverviewViewModel.factory(container))
     val people: PeopleViewModel = viewModel(factory = PeopleViewModel.factory(container))
     val topK: TopKViewModel = viewModel(factory = TopKViewModel.factory(container))
+    val kHours: KHoursViewModel = viewModel(factory = KHoursViewModel.factory(container))
 
     // Otvorené z notifikácie: prepni na správnu záložku a stiahni čerstvé dáta.
     LaunchedEffect(requestedTab) {
@@ -157,7 +162,7 @@ fun HomeScreen(
             TopAppBar(
                 title = {
                     Column {
-                        Text(stringResource(tab.label))
+                        Text(tab.title(settings))
                         // Text z titulku kyberie („bookmarks :: …“), ktorý sa strieda.
                         tagline?.let {
                             Text(
@@ -200,7 +205,7 @@ fun HomeScreen(
                                     },
                                 ) {
                                     // Bez textu pod ikonou – záložiek je veľa; názov je v hornej lište a pre čítačku tu.
-                                    Icon(painterResource(item.icon), contentDescription = stringResource(item.label))
+                                    Icon(painterResource(item.icon), contentDescription = item.title(settings))
                                 }
                             },
                         )
@@ -215,12 +220,18 @@ fun HomeScreen(
                 Tab.REPLIES -> RepliesScreen(overview, settings.hideNsfw, onOpenNode = openNode)
                 Tab.LAST -> LastScreen(overview, settings.hideNsfw, onOpenNode = openNode, onOpenAll = { openWeb(KyberiaUrls.LAST) })
                 Tab.FRIENDS -> FriendsScreen(overview, people, settings.hideNsfw, onOpenNode = openNode)
+                Tab.K_HOURS -> KHoursScreen(kHours, settings.kHours, settings.hideNsfw, onOpenNode = openNode)
                 Tab.MAIL -> OnWeb(R.string.mail_open) { openWeb(KyberiaUrls.MAIL) }
                 Tab.K -> KScreen(overview, topK, settings.hideNsfw, externalImages, onOpenNode = openNode, onOpenWeb = openWeb)
             }
         }
     }
 }
+
+/** Názov záložky; „K za N h“ podľa nastavenia. */
+@Composable
+private fun Tab.title(settings: Settings): String =
+    if (this == Tab.K_HOURS) stringResource(label, settings.kHours) else stringResource(label)
 
 /**
  * Tenký zelený pruh nad záložkami: rastie zľava doprava do ďalšieho obnovenia podľa nastaveného

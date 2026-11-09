@@ -192,6 +192,14 @@ fun SettingsScreen(container: AppContainer, onBack: () -> Unit) {
             var advanced by rememberSaveable { mutableStateOf(false) }
             ExpandableHeader(stringResource(R.string.settings_section_advanced), advanced) { advanced = !advanced }
             if (advanced) {
+                ChoiceRow(
+                    label = stringResource(R.string.settings_k_hours),
+                    value = stringResource(R.string.settings_k_hours_value, settings.kHours),
+                    options = Settings.K_HOURS,
+                    optionLabel = { stringResource(R.string.settings_k_hours_value, it) },
+                    onSelect = { hours -> store.update { it.copy(kHours = hours) } },
+                )
+                Note(stringResource(R.string.settings_k_hours_note))
                 DiagnosticsRows(container)
             }
 

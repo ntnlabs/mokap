@@ -14,8 +14,14 @@ sealed interface KResult {
     /** Napr. „datanode uz si k udelil“ alebo „nemas k“. */
     data class Rejected(override val page: NodePage, val message: String) : KResult
 
-    /** Chybu nehlásila, ale K nepribudlo – K sa dvakrát dať nedá, takže skúsiť znova je bezpečné. */
+    /** Chybu nehlásila, ale počet K sa nezmenil. */
     data class Unconfirmed(override val page: NodePage) : KResult
+
+    /**
+     * Počet K klesol – živá kyberia K podľa používateľa prepína: druhé stlačenie K odoberie (a to je penalizované).
+     * Appka to nikdy nerobí zámerne; toto je hlásenie, že sa to stalo.
+     */
+    data class Removed(override val page: NodePage) : KResult
 }
 
 /** Výsledok úpravy; [page] = čerstvá stránka nodu, v ktorom sa upravovalo. */
@@ -35,7 +41,11 @@ object NodeOutcomes {
         PageError.of(response)?.let { return KResult.Rejected(page, it) }
         val was = kOf(before, childId) ?: 0
         val now = kOf(page, childId)
-        return if (now != null && now > was) KResult.Given(page) else KResult.Unconfirmed(page)
+        return when {
+            now != null && now > was -> KResult.Given(page)
+            (now ?: 0) < was -> KResult.Removed(page)
+            else -> KResult.Unconfirmed(page)
+        }
     }
 
     private fun kOf(page: NodePage, childId: Long?): Int? =

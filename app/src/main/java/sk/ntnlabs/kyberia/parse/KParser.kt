@@ -56,6 +56,20 @@ object MyKParser {
         }
     }
 
+    /**
+     * Ako web po „Hour“: formulár s intervalom je vnorený vo formulári bookmarkov, takže prehliadač pošle ten
+     * vonkajší – `anticsrf`, `interval` a `template_event=Hour`, bez `event` (nič sa nemení, len sa prekreslí /id/19/).
+     */
+    fun fields(hours: Int, anticsrf: String): List<Pair<String, String>> = listOf(
+        "anticsrf" to anticsrf,
+        "interval" to hours.toString(),
+        "template_event" to "Hour",
+    )
+
+    /** Token session (na stránke je jeden pre všetky formuláre). */
+    fun token(document: Document): String? =
+        document.select("input[name=anticsrf]").firstNotNullOfOrNull { it.attr("value").ifEmpty { null } }
+
     private fun text(node: Node): String = when (node) {
         is TextNode -> node.text()
         is Element -> node.text()

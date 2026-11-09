@@ -80,7 +80,8 @@ fun KScreen(
             when (mode) {
                 KMode.MINE -> MyKList(
                     overview.state.myK.filterNot { hideNsfw && Nsfw.matches(it.title) },
-                    loaded = !overview.state.loading && overview.state.loadedAtMillis != null,
+                    header = stringResource(R.string.k_mine_header),
+                    empty = if (!overview.state.loading && overview.state.loadedAtMillis != null) stringResource(R.string.k_mine_empty) else null,
                     onOpenNode = onOpenNode,
                 )
                 KMode.TOP -> TopKList(
@@ -102,19 +103,20 @@ private val KMode.label: Int
         KMode.TOP -> R.string.k_mode_top
     }
 
+/** Tvoje príspevky s K za interval: „+N K“ za interval, celkové K; [empty] = text, keď nič nie je (null = ešte sa načítava). */
 @Composable
-private fun MyKList(items: List<MyK>, loaded: Boolean, onOpenNode: (Long) -> Unit) {
+internal fun MyKList(items: List<MyK>, header: String, empty: String?, onOpenNode: (Long) -> Unit) {
     LazyColumn(Modifier.fillMaxSize()) {
         item {
             Text(
-                stringResource(R.string.k_mine_header),
+                header,
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(16.dp),
             )
         }
-        if (items.isEmpty() && loaded) {
-            item { Text(stringResource(R.string.k_mine_empty), Modifier.padding(horizontal = 16.dp)) }
+        if (items.isEmpty() && empty != null) {
+            item { Text(empty, Modifier.padding(horizontal = 16.dp)) }
         }
         items(items, key = { "myk:${it.nodeId}" }) { item ->
             ListItem(

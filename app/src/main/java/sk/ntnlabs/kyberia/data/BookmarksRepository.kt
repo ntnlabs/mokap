@@ -23,6 +23,8 @@ class BookmarksPage(
     val user: UserInfo,
     /** Tvoje príspevky, ktoré za poslednú hodinu dostali K. */
     val myK: List<MyK> = emptyList(),
+    /** Token session z tej istej stránky – len v pamäti (na „K za N h“). */
+    val anticsrf: String? = null,
 )
 
 class BookmarksRepository(private val client: KyberiaClient, private val presence: Presence? = null) {
@@ -38,6 +40,7 @@ class BookmarksRepository(private val client: KyberiaClient, private val presenc
             last = LastParser.parse(document),
             user = UserInfoParser.parse(document),
             myK = MyKParser.parse(document),
+            anticsrf = MyKParser.token(document),
         )
     }
 }

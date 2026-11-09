@@ -18,7 +18,9 @@ class SettingsStore(context: Context) {
 
     @Synchronized
     fun update(change: (Settings) -> Settings) {
-        val updated = change(state.value).let { it.copy(intervalMinutes = Settings.sanitizeInterval(it.intervalMinutes)) }
+        val updated = change(state.value).let {
+            it.copy(intervalMinutes = Settings.sanitizeInterval(it.intervalMinutes), kHours = Settings.sanitizeKHours(it.kHours))
+        }
         prefs.edit {
             putInt(INTERVAL, updated.intervalMinutes)
             putBoolean(NOTIFY_REPLIES, updated.notifyReplies)
@@ -38,6 +40,7 @@ class SettingsStore(context: Context) {
             putBoolean(HIDE_NSFW, updated.hideNsfw)
             putBoolean(SHOW_PRESENCE, updated.showPresence)
             putBoolean(EXTERNAL_MEDIA, updated.showExternalMedia)
+            putInt(K_HOURS, updated.kHours)
         }
         state.value = updated
     }
@@ -63,6 +66,7 @@ class SettingsStore(context: Context) {
             hideNsfw = prefs.getBoolean(HIDE_NSFW, defaults.hideNsfw),
             showPresence = prefs.getBoolean(SHOW_PRESENCE, defaults.showPresence),
             showExternalMedia = prefs.getBoolean(EXTERNAL_MEDIA, defaults.showExternalMedia),
+            kHours = Settings.sanitizeKHours(prefs.getInt(K_HOURS, defaults.kHours)),
         )
     }
 
@@ -88,5 +92,6 @@ class SettingsStore(context: Context) {
         const val HIDE_NSFW = "hide_nsfw"
         const val SHOW_PRESENCE = "show_presence"
         const val EXTERNAL_MEDIA = "external_media"
+        const val K_HOURS = "k_hours"
     }
 }

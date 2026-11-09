@@ -29,6 +29,15 @@ class NodeOutcomesTest {
     }
 
     @Test
+    fun kRemovedIsReported() {
+        val after = Jsoup.parse(html.replace("<span class='most_important'>12 ", "<span class='most_important'>11 "), url)
+        assertTrue(NodeOutcomes.k(before, null, after) is KResult.Removed)
+        // Odpoveď bez K na stránke = 0 K.
+        val childGone = Jsoup.parse(html.replace("[<span class='node_header_k'>3K</span>]", ""), url)
+        assertTrue(NodeOutcomes.k(before, 5101, childGone) is KResult.Removed)
+    }
+
+    @Test
     fun kRejected() {
         val page = Jsoup.parse(html.replace("<body>", "<body><center><span class='most_important'>nemas k</span></center>"), url)
         assertEquals("nemas k", (NodeOutcomes.k(before, null, page) as KResult.Rejected).message)

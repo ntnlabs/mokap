@@ -28,6 +28,8 @@ data class Settings(
     val showPresence: Boolean = true,
     /** Obrázky a náhľady videí z cudzích stránok v príspevkoch – cudzí server uvidí IP, preto predvolene nie. */
     val showExternalMedia: Boolean = false,
+    /** Záložka „K za N h“: za koľko hodín ukázať tvoje príspevky s K (kyberia počíta K z celého webu – väčší = ťažší). */
+    val kHours: Int = DEFAULT_K_HOURS,
 ) {
     fun isQuiet(hour: Int): Boolean = quietEnabled && QuietHours.contains(quietFromHour, quietToHour, hour)
 
@@ -40,6 +42,12 @@ data class Settings(
         const val DEFAULT_INTERVAL = 15
 
         fun sanitizeInterval(minutes: Int): Int = INTERVALS.firstOrNull { it >= minutes } ?: INTERVALS.last()
+
+        /** Najviac týždeň – dotaz na kyberii prechádza všetky K za interval. */
+        val K_HOURS = listOf(6, 12, 24, 48, 72, 168)
+        const val DEFAULT_K_HOURS = 24
+
+        fun sanitizeKHours(hours: Int): Int = K_HOURS.firstOrNull { it >= hours } ?: K_HOURS.last()
     }
 }
 
