@@ -2,6 +2,7 @@ package sk.ntnlabs.kyberia.ui.node
 
 import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -49,8 +51,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
@@ -68,6 +72,7 @@ import sk.ntnlabs.kyberia.UrlPolicy
 import sk.ntnlabs.kyberia.data.Nsfw
 import sk.ntnlabs.kyberia.data.ThreadItem
 import sk.ntnlabs.kyberia.data.ThreadView
+import sk.ntnlabs.kyberia.parse.ContentBlock
 import sk.ntnlabs.kyberia.parse.NodeChild
 import sk.ntnlabs.kyberia.parse.NodePage
 import sk.ntnlabs.kyberia.ui.common.Avatar
@@ -164,6 +169,12 @@ fun NodeScreen(
                     }
                 },
                 actions = {
+                    // Na rodiča (napr. z odpovede otvorenej zo záložky Odpovede) – zásobník ho nemusí mať.
+                    page?.parentId?.let { parent ->
+                        IconButton(onClick = { onOpenNode(parent) }) {
+                            Icon(painterResource(R.drawable.ic_arrow_upward), contentDescription = stringResource(R.string.node_parent_open))
+                        }
+                    }
                     IconButton(onClick = { openWeb(KyberiaUrls.node(nodeId)) }) {
                         Icon(painterResource(R.drawable.ic_open_web), contentDescription = stringResource(R.string.node_open_web))
                     }
@@ -448,14 +459,27 @@ private fun Topic(page: NodePage, onLink: (String) -> Unit, externalImages: Imag
             val parentId = page.parentId
             val parentTitle = page.parentTitle
             if (parentId != null && parentTitle != null) {
-                Text(
-                    stringResource(R.string.node_in, Nsfw.label(parentTitle)),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.clickable { onOpenNode(parentId) },
-                )
+                Row(
+                    Modifier.clickable { onOpenNode(parentId) }.padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    Icon(
+                        painterResource(R.drawable.ic_arrow_upward),
+                        contentDescription = stringResource(R.string.node_parent_open),
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(18.dp),
+                    )
+                    Text(
+                        Nsfw.label(parentTitle),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
             }
-            if (page.content.isNotEmpty()) ContentView(page.content, onLink, externalImages)
+            if (page.content.isNotEmpty()) TopicContent(page, onLink, externalImages)
             val own = actions.me != null && page.ownerId == actions.me
             val kNode = actions.kNode
             if (kNode != null || own) {
@@ -466,6 +490,46 @@ private fun Topic(page: NodePage, onLink: (String) -> Unit, externalImages: Imag
             }
         }
     }
+}
+
+/**
+ * Obsah témy. Dlhý úvodník fóra či nodeshellu (nie príspevok v diskusii – ten sa číta celý) sa zbalí na pár riadkov
+ * s „Zobraziť celý úvod“ – niektoré majú aj dve strany a diskusia pod nimi by sa strácala.
+ */
+@Composable
+private fun TopicContent(page: NodePage, onLink: (String) -> Unit, externalImages: ImageLoader?) {
+    val collapsible = remember(page.content, page.templateId) { page.templateId != SUBMISSION && isLong(page.content) }
+    var expanded by rememberSaveable(page.id) { mutableStateOf(false) }
+    val collapsed = collapsible && !expanded
+    Box(if (collapsed) Modifier.heightIn(max = COLLAPSED_HEIGHT.dp).clipToBounds() else Modifier) {
+        ContentView(page.content, onLink, externalImages)
+        if (collapsed) {
+            val fade = MaterialTheme.colorScheme.surface
+            Box(
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .background(Brush.verticalGradient(listOf(fade.copy(alpha = 0f), fade))),
+            )
+        }
+    }
+    if (collapsible) {
+        TextButton(onClick = { expanded = !expanded }, contentPadding = PaddingValues(horizontal = 0.dp)) {
+            Text(stringResource(if (expanded) R.string.node_intro_less else R.string.node_intro_more))
+        }
+    }
+}
+
+/** Hrubý odhad dĺžky bez merania: znaky textu, obrázok či video ako ~300 znakov. */
+private fun isLong(blocks: List<ContentBlock>): Boolean {
+    val size = blocks.sumOf { block ->
+        when (block) {
+            is ContentBlock.Text -> block.spans.sumOf { it.text.length }
+            else -> MEDIA_CHARS
+        }
+    }
+    return size > LONG_CHARS
 }
 
 /** Odpoveď odsadená podľa hĺbky vo vlákne ([ThreadView] ju obmedzí na štyri úrovne). */
@@ -553,3 +617,7 @@ private fun Muted(text: String) {
 }
 
 private const val INDENT_DP = 14
+private const val SUBMISSION = 4
+private const val LONG_CHARS = 900
+private const val MEDIA_CHARS = 300
+private const val COLLAPSED_HEIGHT = 220

@@ -38,6 +38,9 @@
     <string name="node_new">nové</string>
     <string name="node_k">%1$d K</string>
     <string name="node_in">v: %1$s</string>
+    <string name="node_parent_open">Nadradený node</string>
+    <string name="node_intro_more">Zobraziť celý úvod</string>
+    <string name="node_intro_less">Zbaliť úvod</string>
     <string name="node_reply">Odpovedať</string>
     <string name="node_reply_short">odpovedať</string>
     <string name="node_reply_to_node">Odpoveď do: %1$s</string>
