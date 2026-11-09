@@ -160,7 +160,7 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
 - Hotové kolo zmien sa hneď zlučuje do `main` cez PR (merge commit, po zelenom CI); dlhé vetvy nedržíme.
 - Dependabot: patch a minor verzie zlučuj sám po zelenom CI; major verzie najprv vysvetli používateľovi
   (zmeny, licencia, riziko) a čakaj na súhlas.
-- Verzia `major.minor.build` + kódové meno: major, minor a meno vo `version.properties` (teraz 0.7 „Capable Capybara“)
+- Verzia `major.minor.build` + kódové meno: major, minor a meno vo `version.properties` (teraz 0.8 „Capable Capybara“)
   **mení len používateľ**. Build = `github.run_number` (job `apk` ho dáva ako `MOKAP_BUILD_NUMBER`), štvormiestne;
   inde 0, aby sa BuildConfig nemenil. `versionCode` = major·10⁷ + minor·10⁵ + build. V nastaveniach sú verzia
   a diagnostika v sekcii „Pokročilé“, predvolene zbalenej.
