@@ -67,11 +67,22 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
 - **Odpovedanie** (`ReplyFormParser`, `NodeRepository.reply`, `Replies`): formulár `formular` s `textarea[name=node_content]`
   kyberia ukáže len s právom zápisu – inak appka odpovedať neponúkne. POST (multipart ako web) posiela **len** `anticsrf`,
   `node_name` (prázdny – „Re: …“ doplní kyberia), `node_content`, `template_id` (4), `node_parent`, voliteľne `no_html=yes`
-  a `node_chosen[]` (odpoveď na odpoveď) a `event=add` – nikdy celý formulár: obsahuje aj skryté `event=K` a PHP berie
-  posledné `event`. Text ide ako na webe (HTML cez kyberiin `htmlparse`, nové riadky cez `nl2br`). Chyba („Chyba HTML
+  a `node_chosen[]` (odpoveď na odpoveď) a `event=add` – nikdy celý formulár: obsahuje aj tlačidlá K/put/delete_hardlink,
+  výber bookmarkov a zaškrtávacie `node_chosen[]` pri odpovediach. Text ide ako na webe (HTML cez kyberiin `htmlparse`, nové riadky cez `nl2br`). Chyba („Chyba HTML
   syntaxe!“, prázdny obsah) je v hlavičke `center > span.most_important`. Úspech = na vrátenej stránke je nová odpoveď
   od teba; inak „nepotvrdené“. POST je `oneShot` (OkHttp ho po chybe spojenia neopakuje) a appka ho nikdy neposiela
   znova sama – pri chybe siete nevieme, či prešiel. Text v editore sa zahodí len po potvrdenom odoslaní.
+- **K** (`NodeActionsParser`, `NodeRepository.giveK`): len **dať**, nikdy odobrať (odobratie je na kyberii penalizované)
+  a vždy po potvrdení (K sa nedá vziať späť). Node: formulár s tlačidlom K pri počte K (`span.node_info2`, mimo
+  `formular`) → `anticsrf` + `event=K`. Odpoveď: `formular` + presne jedno `node_chosen[]` + `event=K` (`K.inc` dá K
+  každému zaškrtnutému). Chyby („datanode uz si k udelil“, „nemas k“) v hlavičke; úspech = počet K narástol. Sebe K appka
+  neponúka. Na stránke je jeden `anticsrf` pre celú session – chýba vo formulári → vezme sa z inej časti stránky.
+- **Úprava vlastného príspevku** (node aj odpoveď; `ownerId`/`authorId` = vlastné ID z /id/19/): „conf“ stránka
+  `/id/N/1961033` (`KyberiaUrls.configure`) má formulár s pôvodným textom (`textarea[name=node_content]`) a
+  `event=configure_content` → POST len `anticsrf`, `node_content`, `event`. Ak formulár chýba, kyberia úpravu
+  neponúkla. Po úprave odpovede sa node, v ktorom je, stiahne znova. Kyberia si starú verziu ukladá (tiamat).
+- **Téma vs. diskusia**: samotný node (fórum, článok, príspevok – šablóna z `tr#sidebar_template`) je v orámovanej
+  karte; pod ňou „Diskusia · N odpovedí“ – kyberia rozlišuje node a submission (šablóna 4).
 - Pošta: `GET /ajax/check_new_mail.php` (web ho volá raz za minútu) vráti
   `<počet nových>;<nick posledného odosielateľa>;…` alebo `offline`. Nick ide len do notifikácie
   („Nová pošta od …“), nikam sa neukladá; posledné pole nemá overený význam. `offline` session
