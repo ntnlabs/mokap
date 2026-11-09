@@ -52,6 +52,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -106,24 +107,26 @@ fun NodeScreen(
     var askK by rememberSaveable(nodeId) { mutableStateOf<Long?>(null) }
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    // Texty pre snackbar sa skladajú až po akcii – cez LocalResources, nie Context (zmena konfigurácie).
+    val resources = LocalResources.current
     LaunchedEffect(state.replySent) {
         if (state.replySent) {
             composing = false
             draft = ""
             replyTo = null
             nodes.replyHandled(nodeId)
-            val text = context.getString(R.string.node_reply_sent)
+            val text = resources.getString(R.string.node_reply_sent)
             scope.launch { snackbar.showSnackbar(text) }
         }
     }
     LaunchedEffect(state.notice) {
         val notice = state.notice ?: return@LaunchedEffect
         val text = when (notice) {
-            NodeNotice.KGiven -> context.getString(R.string.node_k_given)
-            is NodeNotice.KRejected -> context.getString(R.string.node_k_rejected, notice.message)
-            NodeNotice.KUnconfirmed -> context.getString(R.string.node_k_unconfirmed)
-            NodeNotice.Network -> context.getString(R.string.node_action_network)
-            NodeNotice.Edited -> context.getString(R.string.node_edit_saved)
+            NodeNotice.KGiven -> resources.getString(R.string.node_k_given)
+            is NodeNotice.KRejected -> resources.getString(R.string.node_k_rejected, notice.message)
+            NodeNotice.KUnconfirmed -> resources.getString(R.string.node_k_unconfirmed)
+            NodeNotice.Network -> resources.getString(R.string.node_action_network)
+            NodeNotice.Edited -> resources.getString(R.string.node_edit_saved)
         }
         nodes.noticeHandled(nodeId)
         scope.launch { snackbar.showSnackbar(text) }
