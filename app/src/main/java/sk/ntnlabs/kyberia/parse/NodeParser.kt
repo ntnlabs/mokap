@@ -24,6 +24,8 @@ data class NodeChild(
 data class NodePage(
     val id: Long,
     val title: String,
+    /** Šablóna nodu (`tr#sidebar_template`): 3 fórum, 4 príspevok (submission), 2 nodeshell, 5 článok… */
+    val templateId: Int? = null,
     val ownerId: Long?,
     val owner: String?,
     val created: String?,
@@ -36,6 +38,10 @@ data class NodePage(
     val childrenTotal: Int?,
     /** Formulár na odpoveď; null = bez práva zápisu (alebo ho kyberia neukázala). */
     val replyForm: ReplyForm? = null,
+    /** Kam poslať K pre tento node; null = kyberia ho tu neponúka. */
+    val kNode: PostTarget? = null,
+    /** Kam poslať K pre odpoveď (`formular` + `node_chosen[]`). */
+    val kChild: PostTarget? = null,
 )
 
 /**
@@ -58,6 +64,7 @@ object NodeParser {
         return NodePage(
             id = nodeId,
             title = document.title().substringBefore(" :: ").trim(),
+            templateId = cell(document, "tr#sidebar_template")?.let { LEADING_NUMBER.find(it) }?.groupValues?.get(1)?.toIntOrNull(),
             ownerId = owner?.attr("href")?.let(NodeText::nodeId),
             owner = owner?.text()?.trim()?.ifEmpty { null },
             created = cell(document, "tr#sidebar_created"),
@@ -68,6 +75,8 @@ object NodeParser {
             children = document.select("li.lvl").mapNotNull(::child),
             childrenTotal = info?.text()?.let { TOTAL_CHILDREN.find(it) }?.groupValues?.get(1)?.toIntOrNull(),
             replyForm = ReplyFormParser.parse(document),
+            kNode = NodeActionsParser.kNode(document),
+            kChild = NodeActionsParser.kChild(document),
         )
     }
 

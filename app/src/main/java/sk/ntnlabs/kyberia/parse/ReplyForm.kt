@@ -38,9 +38,9 @@ object ReplyFormParser {
     }
 
     /**
-     * Len polia na pridanie príspevku – **nie** všetko z formulára: `formular` obsahuje aj skryté `event=K`
-     * a ďalšie tlačidlá, a PHP by z viacerých `event` vzalo posledné. [replyTo] = odpoveď na konkrétnu
-     * odpoveď (`node_chosen[]`, kyberia ju použije ako rodiča). Názov nechávame prázdny – kyberia doplní „Re: …“.
+     * Len polia na pridanie príspevku – **nie** všetko z formulára: `formular` obsahuje aj tlačidlá K, put,
+     * delete_hardlink, výber bookmarkov a zaškrtávacie `node_chosen[]` pri odpovediach. [replyTo] = odpoveď na
+     * konkrétnu odpoveď (`node_chosen[]`, kyberia ju použije ako rodiča). Názov prázdny – kyberia doplní „Re: …“.
      */
     fun fields(form: ReplyForm, content: String, replyTo: Long?, noHtml: Boolean): List<Pair<String, String>> = buildList {
         add("anticsrf" to form.anticsrf)
@@ -54,8 +54,7 @@ object ReplyFormParser {
     }
 
     /** Chyba, ktorú kyberia po odoslaní ukáže v hlavičke stránky („Chyba HTML syntaxe!“, prázdny obsah…). */
-    fun error(document: Document): String? =
-        document.select("center > span.most_important").firstNotNullOfOrNull { it.text().trim().ifEmpty { null } }
+    fun error(document: Document): String? = PageError.of(document)
 
     private fun FormElement.control(name: String): Element? = elements().firstOrNull { it.attr("name") == name }
 }

@@ -38,7 +38,7 @@ class ReplyFormTest {
 
     @Test
     fun onlyAddFieldsAreSent() {
-        // Živý formulár má aj skryté event=K, tlačidlá a výber bookmarkov – nič z toho sa nesmie poslať.
+        // Živý formulár má aj tlačidlá (K, put…), výber bookmarkov a node_chosen[] – nič z toho sa nesmie poslať.
         val page = Jsoup.parse(
             """<form enctype='multipart/form-data' action='/id/5001/' method='post' name='formular'>
                <input type='hidden' name='anticsrf' value='tok'>

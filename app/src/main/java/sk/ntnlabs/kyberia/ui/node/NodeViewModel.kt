@@ -13,10 +13,13 @@ import sk.ntnlabs.kyberia.data.CheckEntry
 import sk.ntnlabs.kyberia.data.CheckResult
 import sk.ntnlabs.kyberia.data.CheckTrigger
 import sk.ntnlabs.kyberia.data.DiagnosticsStore
+import sk.ntnlabs.kyberia.data.EditResult
+import sk.ntnlabs.kyberia.data.KResult
 import sk.ntnlabs.kyberia.data.LatestPage
 import sk.ntnlabs.kyberia.data.NodeRepository
 import sk.ntnlabs.kyberia.data.ReplyResult
 import sk.ntnlabs.kyberia.data.SessionExpiredException
+import sk.ntnlabs.kyberia.parse.EditForm
 import sk.ntnlabs.kyberia.parse.NodePage
 import sk.ntnlabs.kyberia.work.CheckScheduler
 
@@ -24,12 +27,41 @@ data class NodeUiState(
     val loading: Boolean = false,
     val page: NodePage? = null,
     val error: Boolean = false,
-    /** Odpoveď sa práve odosiela – druhé odoslanie ani obnovenie sa nespustí. */
+    /** Akcia (odpoveď, K, úprava) sa práve odosiela – druhá ani obnovenie sa nespustí. */
     val sending: Boolean = false,
     /** Posledná odpoveď prešla – obrazovka zavrie editor a zahodí text ([NodesViewModel.replyHandled]). */
     val replySent: Boolean = false,
     val replyProblem: ReplyProblem? = null,
+    /** Úprava vlastného príspevku; null = editor zavretý. */
+    val edit: EditUiState? = null,
+    /** Krátka správa po akcii pre snackbar; obrazovka ju potvrdí ([NodesViewModel.noticeHandled]). */
+    val notice: NodeNotice? = null,
 )
+
+/** Úprava príspevku [target] – pôvodný text z jeho „conf“ stránky. */
+data class EditUiState(
+    val target: Long,
+    val form: EditForm? = null,
+    /** Kyberia úpravu neponúkla (nie je to tvoj príspevok, alebo sa zmenila stránka). */
+    val unavailable: Boolean = false,
+    val loadFailed: Boolean = false,
+    val problem: ReplyProblem? = null,
+) {
+    val loading: Boolean get() = form == null && !unavailable && !loadFailed
+}
+
+sealed interface NodeNotice {
+    data object KGiven : NodeNotice
+
+    data class KRejected(val message: String) : NodeNotice
+
+    data object KUnconfirmed : NodeNotice
+
+    /** Spojenie zlyhalo po odoslaní akcie – nevieme, či prešla. */
+    data object Network : NodeNotice
+
+    data object Edited : NodeNotice
+}
 
 /** Prečo odpoveď (možno) neprešla; text v editore vždy ostáva. */
 sealed interface ReplyProblem {
@@ -55,6 +87,9 @@ class NodesViewModel(
 ) : ViewModel() {
 
     private val states = mutableStateMapOf<Long, NodeUiState>()
+
+    /** Vlastné ID z poslednej /id/19/ – podľa neho appka ponúkne úpravu a neponúkne K sebe. */
+    val me: Long? get() = latest.flow.value?.page?.user?.userId
 
     fun state(id: Long): NodeUiState = states[id] ?: NodeUiState()
 
@@ -104,14 +139,107 @@ class NodesViewModel(
                     is ReplyResult.Unconfirmed -> NodeUiState(page = outcome.page, replyProblem = ReplyProblem.Unconfirmed)
                 }
             } catch (e: SessionExpiredException) {
-                diagnostics.record(CheckEntry(System.currentTimeMillis(), CheckResult.EXPIRED, CheckTrigger.APP, e.detail))
-                auth.sessionEnded()
-                NodeUiState()
+                expired(e)
             } catch (e: IOException) {
                 state(id).copy(sending = false, replyProblem = ReplyProblem.Network)
             }
             if (id in states) states[id] = result
         }
+    }
+
+    /** Jedno K nodu (bez [childId]) alebo odpovedi – len na potvrdenie používateľa. Odobrať K appka nevie. */
+    fun giveK(id: Long, childId: Long?) {
+        val current = state(id)
+        val page = current.page ?: return
+        if (current.sending || current.loading || !auth.loggedIn.value) return
+        if ((if (childId == null) page.kNode else page.kChild) == null) return
+        states[id] = current.copy(sending = true, notice = null)
+        viewModelScope.launch {
+            val result = try {
+                val outcome = repository.giveK(page, childId)
+                scheduler.touch()
+                state(id).copy(
+                    page = outcome.page,
+                    sending = false,
+                    notice = when (outcome) {
+                        is KResult.Given -> NodeNotice.KGiven
+                        is KResult.Rejected -> NodeNotice.KRejected(outcome.message)
+                        is KResult.Unconfirmed -> NodeNotice.KUnconfirmed
+                    },
+                )
+            } catch (e: SessionExpiredException) {
+                expired(e)
+            } catch (e: IOException) {
+                state(id).copy(sending = false, notice = NodeNotice.Network)
+            }
+            if (id in states) states[id] = result
+        }
+    }
+
+    /** Otvorí úpravu vlastného príspevku [target] (node alebo odpoveď v ňom) – stiahne jeho „conf“ stránku. */
+    fun startEdit(id: Long, target: Long) {
+        val current = state(id)
+        if (current.sending || current.edit != null || !auth.loggedIn.value) return
+        states[id] = current.copy(edit = EditUiState(target))
+        viewModelScope.launch {
+            val edit = try {
+                val form = repository.editSource(target)
+                scheduler.touch()
+                if (form == null) EditUiState(target, unavailable = true) else EditUiState(target, form = form)
+            } catch (e: SessionExpiredException) {
+                if (id in states) states[id] = expired(e)
+                return@launch
+            } catch (e: IOException) {
+                EditUiState(target, loadFailed = true)
+            }
+            // Medzitým zatvorený editor sa znova neotvorí.
+            val now = states[id] ?: return@launch
+            if (now.edit?.target == target) states[id] = now.copy(edit = edit)
+        }
+    }
+
+    fun saveEdit(id: Long, content: String) {
+        val current = state(id)
+        val edit = current.edit ?: return
+        val form = edit.form ?: return
+        if (current.sending || content.isBlank() || !auth.loggedIn.value) return
+        states[id] = current.copy(sending = true, edit = edit.copy(problem = null))
+        viewModelScope.launch {
+            val result = try {
+                val outcome = repository.saveEdit(form, content, editedId = edit.target, shownId = id)
+                scheduler.touch()
+                val now = state(id)
+                when (outcome) {
+                    is EditResult.Saved -> now.copy(page = outcome.page ?: now.page, sending = false, edit = null, notice = NodeNotice.Edited)
+                    is EditResult.Rejected -> now.copy(
+                        page = outcome.page ?: now.page,
+                        sending = false,
+                        edit = now.edit?.copy(problem = ReplyProblem.Rejected(outcome.message)),
+                    )
+                }
+            } catch (e: SessionExpiredException) {
+                expired(e)
+            } catch (e: IOException) {
+                state(id).let { it.copy(sending = false, edit = it.edit?.copy(problem = ReplyProblem.Network)) }
+            }
+            if (id in states) states[id] = result
+        }
+    }
+
+    fun closeEdit(id: Long) {
+        val current = states[id] ?: return
+        if (!current.sending && current.edit != null) states[id] = current.copy(edit = null)
+    }
+
+    fun noticeHandled(id: Long) {
+        val current = states[id] ?: return
+        if (current.notice != null) states[id] = current.copy(notice = null)
+    }
+
+    private fun expired(e: SessionExpiredException): NodeUiState {
+        diagnostics.record(CheckEntry(System.currentTimeMillis(), CheckResult.EXPIRED, CheckTrigger.APP, e.detail))
+        auth.sessionEnded()
+        return NodeUiState()
     }
 
     /** Obrazovka spracovala výsledok (zavrela editor alebo ho používateľ zatvoril). */

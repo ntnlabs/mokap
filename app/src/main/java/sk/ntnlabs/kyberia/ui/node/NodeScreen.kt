@@ -1,18 +1,22 @@
 package sk.ntnlabs.kyberia.ui.node
 
 import androidx.activity.compose.BackHandler
+import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
@@ -23,6 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetValue
@@ -47,6 +52,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -68,8 +74,9 @@ import sk.ntnlabs.kyberia.ui.common.Avatar
 import sk.ntnlabs.kyberia.ui.common.Web
 
 /**
- * Node v appke: hlavička, obsah a prvá stránka odpovedí vo vlákne. Odkazy na nody kyberie
- * otvárajú ďalší node v appke, ostatné prehliadač; „na webe“ je vždy v hornej lište.
+ * Node v appke: téma (samotný node) v karte, pod ňou diskusia – prvá stránka odpovedí vo vlákne. Odkazy na nody
+ * kyberie otvárajú ďalší node v appke, ostatné prehliadač; „na webe“ je vždy v hornej lište. Akcie (odpoveď, K,
+ * úprava vlastného) appka ponúkne len tam, kde ich ponúka aj kyberia.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -96,28 +103,59 @@ fun NodeScreen(
     var replyTo by rememberSaveable(nodeId) { mutableStateOf<Long?>(null) }
     var draft by rememberSaveable(nodeId) { mutableStateOf("") }
     var noHtml by rememberSaveable(nodeId) { mutableStateOf(false) }
+    // Komu dať K (po potvrdení): nodeId = samotný node, inak ID odpovede.
+    var askK by rememberSaveable(nodeId) { mutableStateOf<Long?>(null) }
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    val sentText = stringResource(R.string.node_reply_sent)
+    // Texty pre snackbar sa skladajú až po akcii – cez LocalResources, nie Context (zmena konfigurácie).
+    val resources = LocalResources.current
     LaunchedEffect(state.replySent) {
         if (state.replySent) {
             composing = false
             draft = ""
             replyTo = null
             nodes.replyHandled(nodeId)
-            scope.launch { snackbar.showSnackbar(sentText) }
+            val text = resources.getString(R.string.node_reply_sent)
+            scope.launch { snackbar.showSnackbar(text) }
         }
     }
-    val canReply = state.page?.replyForm != null
-    val openComposer: (Long?) -> Unit = { target ->
-        replyTo = target
-        composing = true
+    LaunchedEffect(state.notice) {
+        val notice = state.notice ?: return@LaunchedEffect
+        val text = when (notice) {
+            NodeNotice.KGiven -> resources.getString(R.string.node_k_given)
+            is NodeNotice.KRejected -> resources.getString(R.string.node_k_rejected, notice.message)
+            NodeNotice.KUnconfirmed -> resources.getString(R.string.node_k_unconfirmed)
+            NodeNotice.Network -> resources.getString(R.string.node_action_network)
+            NodeNotice.Edited -> resources.getString(R.string.node_edit_saved)
+        }
+        nodes.noticeHandled(nodeId)
+        scope.launch { snackbar.showSnackbar(text) }
+    }
+
+    val me = nodes.me
+    val page = state.page
+    val actions = page?.let {
+        NodeActions(
+            reply = if (it.replyForm != null) {
+                { target: Long? ->
+                    replyTo = target
+                    composing = true
+                }
+            } else {
+                null
+            },
+            kNode = if (it.kNode != null && (me == null || it.ownerId != me)) ({ askK = nodeId }) else null,
+            kChild = if (it.kChild != null) ({ child: NodeChild -> askK = child.id }) else null,
+            edit = { target -> nodes.startEdit(nodeId, target) },
+            me = me,
+            enabled = !state.sending,
+        )
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(state.page?.title?.let(Nsfw::label).orEmpty(), maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                title = { Text(page?.title?.let(Nsfw::label).orEmpty(), maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(painterResource(R.drawable.ic_back), contentDescription = stringResource(R.string.settings_back))
@@ -132,27 +170,20 @@ fun NodeScreen(
         },
         snackbarHost = { SnackbarHost(snackbar) },
         floatingActionButton = {
-            if (canReply && !composing) {
+            val reply = actions?.reply
+            if (reply != null && !composing && state.edit == null) {
                 ExtendedFloatingActionButton(
-                    onClick = { openComposer(null) },
+                    onClick = { reply(null) },
                     icon = { Icon(painterResource(R.drawable.ic_reply), contentDescription = null) },
                     text = { Text(stringResource(R.string.node_reply)) },
                 )
             }
         },
     ) { padding ->
-        val page = state.page
         Box(Modifier.fillMaxSize().padding(padding)) {
             when {
-                page != null -> PullToRefreshBox(isRefreshing = state.loading, onRefresh = { nodes.load(nodeId) }) {
-                    NodeContent(
-                        page,
-                        openLink,
-                        externalImages,
-                        onOpenNode,
-                        onMore = { openWeb(KyberiaUrls.node(nodeId)) },
-                        onReply = if (canReply) openComposer else null,
-                    )
+                page != null && actions != null -> PullToRefreshBox(isRefreshing = state.loading, onRefresh = { nodes.load(nodeId) }) {
+                    NodeContent(page, openLink, externalImages, onOpenNode, onMore = { openWeb(KyberiaUrls.node(nodeId)) }, actions)
                 }
                 state.error -> Column(
                     Modifier.fillMaxSize().padding(24.dp),
@@ -167,10 +198,35 @@ fun NodeScreen(
         }
     }
 
-    val page = state.page
-    if (composing && page?.replyForm != null) {
+    if (page == null) return
+
+    // K sa nedá vziať späť (odobratie je na kyberii penalizované) – preto vždy potvrdenie.
+    askK?.let { target ->
+        val child = page.children.firstOrNull { it.id == target }
+        val what = when {
+            target == nodeId -> Nsfw.label(page.title)
+            child != null -> "${child.author}: ${Nsfw.label(child.title)}"
+            else -> null
+        }
+        if (what != null) {
+            AlertDialog(
+                onDismissRequest = { askK = null },
+                title = { Text(stringResource(R.string.node_k_confirm_title)) },
+                text = { Text(stringResource(R.string.node_k_confirm_text, what)) },
+                confirmButton = {
+                    TextButton(onClick = {
+                        askK = null
+                        nodes.giveK(nodeId, if (target == nodeId) null else target)
+                    }) { Text(stringResource(R.string.node_k_confirm)) }
+                },
+                dismissButton = { TextButton(onClick = { askK = null }) { Text(stringResource(R.string.cancel)) } },
+            )
+        }
+    }
+
+    if (composing && page.replyForm != null) {
         val target = replyTo?.let { id -> page.children.firstOrNull { it.id == id } }
-        ReplySheet(
+        TextSheet(
             header = when {
                 target != null -> stringResource(R.string.node_reply_to_child, target.author, Nsfw.label(target.title))
                 replyTo != null -> stringResource(R.string.node_reply_to_reply)
@@ -178,84 +234,142 @@ fun NodeScreen(
             },
             draft = draft,
             onDraft = { draft = it },
-            noHtml = noHtml,
-            onNoHtml = { noHtml = it },
-            sending = state.sending,
-            problem = state.replyProblem,
-            onSend = { nodes.reply(nodeId, draft, replyTo, noHtml) },
+            busy = state.sending,
+            message = state.replyProblem?.let {
+                when (it) {
+                    is ReplyProblem.Rejected -> stringResource(R.string.node_reply_rejected, it.message)
+                    ReplyProblem.Unconfirmed -> stringResource(R.string.node_reply_unconfirmed)
+                    ReplyProblem.Network -> stringResource(R.string.node_reply_network)
+                }
+            },
+            hint = stringResource(R.string.node_reply_hint),
+            confirmLabel = stringResource(R.string.node_reply_send),
+            onConfirm = { nodes.reply(nodeId, draft, replyTo, noHtml) },
             onDismiss = {
                 composing = false
                 nodes.replyHandled(nodeId)
             },
+            noHtml = noHtml,
+            onNoHtml = { noHtml = it },
+        )
+    }
+
+    state.edit?.let { edit ->
+        val title = if (edit.target == nodeId) page.title else page.children.firstOrNull { it.id == edit.target }?.title
+        // Po načítaní pôvodného textu sa editor naplní ním; potom prežije otočenie aj chybu.
+        var editDraft by rememberSaveable(nodeId, edit.target, edit.form != null) { mutableStateOf(edit.form?.content.orEmpty()) }
+        TextSheet(
+            header = stringResource(R.string.node_edit_title, Nsfw.label(title.orEmpty())),
+            draft = editDraft,
+            onDraft = { editDraft = it },
+            busy = state.sending,
+            loading = edit.loading,
+            showEditor = edit.form != null,
+            message = when {
+                edit.unavailable -> stringResource(R.string.node_edit_unavailable)
+                edit.loadFailed -> stringResource(R.string.node_edit_load_error)
+                else -> edit.problem?.let {
+                    when (it) {
+                        is ReplyProblem.Rejected -> stringResource(R.string.node_edit_rejected, it.message)
+                        else -> stringResource(R.string.node_edit_network)
+                    }
+                }
+            },
+            hint = stringResource(R.string.node_edit_hint),
+            confirmLabel = stringResource(R.string.node_edit_save),
+            onConfirm = if (edit.form != null) ({ nodes.saveEdit(nodeId, editDraft) }) else null,
+            onDismiss = { nodes.closeEdit(nodeId) },
         )
     }
 }
 
+/** Čo sa dá s nodom a odpoveďami robiť; null = kyberia to tu neponúka. */
+private class NodeActions(
+    /** Otvorí editor odpovede: null = do nodu, ID = na tú odpoveď. */
+    val reply: ((Long?) -> Unit)?,
+    val kNode: (() -> Unit)?,
+    val kChild: ((NodeChild) -> Unit)?,
+    /** Úprava vlastného príspevku (node alebo odpoveď). */
+    val edit: (Long) -> Unit,
+    val me: Long?,
+    /** Počas odosielania inej akcie sú tlačidlá vypnuté. */
+    val enabled: Boolean,
+)
+
 /**
- * Editor odpovede. Kyberia berie text ako na webe: HTML (`<b>`, `<a href>`) a nové riadky; „Bez HTML“ = jej
- * vlastné „NO HTML“. Počas odosielania sa nedá zavrieť ani odoslať znova.
+ * Editor v spodnom paneli – odpoveď aj úprava. Kyberia berie text ako na webe: HTML (`<b>`, `<a href>`) a nové
+ * riadky; „Bez HTML“ ([noHtml], len pri odpovedi) = jej vlastné „NO HTML“. Počas odosielania sa nedá zavrieť
+ * ani odoslať znova.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ReplySheet(
+private fun TextSheet(
     header: String,
     draft: String,
     onDraft: (String) -> Unit,
-    noHtml: Boolean,
-    onNoHtml: (Boolean) -> Unit,
-    sending: Boolean,
-    problem: ReplyProblem?,
-    onSend: () -> Unit,
+    busy: Boolean,
+    message: String?,
+    hint: String,
+    confirmLabel: String,
+    /** null = nie je čo odoslať (text sa ešte načítava alebo úprava nie je možná). */
+    onConfirm: (() -> Unit)?,
     onDismiss: () -> Unit,
+    loading: Boolean = false,
+    showEditor: Boolean = true,
+    noHtml: Boolean? = null,
+    onNoHtml: (Boolean) -> Unit = {},
 ) {
-    val currentSending by rememberUpdatedState(sending)
+    val currentBusy by rememberUpdatedState(busy)
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,
-        confirmValueChange = { it != SheetValue.Hidden || !currentSending },
+        confirmValueChange = { it != SheetValue.Hidden || !currentBusy },
     )
     val focus = remember { FocusRequester() }
-    LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }
-    ModalBottomSheet(onDismissRequest = { if (!currentSending) onDismiss() }, sheetState = sheetState) {
+    LaunchedEffect(showEditor) { if (showEditor) runCatching { focus.requestFocus() } }
+    ModalBottomSheet(onDismissRequest = { if (!currentBusy) onDismiss() }, sheetState = sheetState) {
         Column(
             Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text(header, style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
-            OutlinedTextField(
-                value = draft,
-                onValueChange = onDraft,
-                enabled = !sending,
-                minLines = 5,
-                maxLines = 12,
-                label = { Text(stringResource(R.string.node_reply_text)) },
-                supportingText = { Text(stringResource(R.string.node_reply_hint)) },
-                modifier = Modifier.fillMaxWidth().focusRequester(focus),
-            )
-            problem?.let {
-                Text(
-                    when (it) {
-                        is ReplyProblem.Rejected -> stringResource(R.string.node_reply_rejected, it.message)
-                        ReplyProblem.Unconfirmed -> stringResource(R.string.node_reply_unconfirmed)
-                        ReplyProblem.Network -> stringResource(R.string.node_reply_network)
-                    },
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyMedium,
+            if (loading) {
+                CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally).padding(16.dp))
+            }
+            if (showEditor) {
+                OutlinedTextField(
+                    value = draft,
+                    onValueChange = onDraft,
+                    enabled = !busy,
+                    minLines = 5,
+                    maxLines = 12,
+                    label = { Text(stringResource(R.string.node_reply_text)) },
+                    supportingText = { Text(hint) },
+                    modifier = Modifier.fillMaxWidth().focusRequester(focus),
                 )
             }
+            message?.let {
+                Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
+            }
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Row(
-                    Modifier.weight(1f).clickable(enabled = !sending) { onNoHtml(!noHtml) },
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Checkbox(checked = noHtml, onCheckedChange = null, enabled = !sending)
-                    Text(stringResource(R.string.node_reply_no_html), Modifier.padding(start = 4.dp))
+                Box(Modifier.weight(1f)) {
+                    if (noHtml != null && showEditor) {
+                        Row(
+                            Modifier.clickable(enabled = !busy) { onNoHtml(!noHtml) },
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Checkbox(checked = noHtml, onCheckedChange = null, enabled = !busy)
+                            Text(stringResource(R.string.node_reply_no_html), Modifier.padding(start = 4.dp))
+                        }
+                    }
                 }
-                TextButton(onClick = onDismiss, enabled = !sending) { Text(stringResource(R.string.cancel)) }
-                Button(onClick = onSend, enabled = !sending && draft.isNotBlank()) {
-                    if (sending) {
-                        CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
-                    } else {
-                        Text(stringResource(R.string.node_reply_send))
+                TextButton(onClick = onDismiss, enabled = !busy) { Text(stringResource(R.string.cancel)) }
+                if (onConfirm != null) {
+                    Button(onClick = onConfirm, enabled = !busy && draft.isNotBlank()) {
+                        if (busy) {
+                            CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
+                        } else {
+                            Text(confirmLabel)
+                        }
                     }
                 }
             }
@@ -270,35 +384,26 @@ private fun NodeContent(
     externalImages: ImageLoader?,
     onOpenNode: (Long) -> Unit,
     onMore: () -> Unit,
-    /** null = bez práva zápisu; inak otvorí editor (null = odpoveď do nodu, ID = na odpoveď). */
-    onReply: ((Long?) -> Unit)?,
+    actions: NodeActions,
 ) {
     // Do štyroch úrovní; hlbšie odpovede sa otvoria ako vetva (node odpovede) v appke.
     val thread = remember(page.children) { ThreadView.items(page.children) }
+    val replies = page.childrenTotal ?: page.children.size
     // Miesto pod tlačidlom „Odpovedať“, aby neprekrylo poslednú odpoveď.
-    LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = if (onReply != null) 88.dp else 0.dp)) {
-        item(key = "header") { Header(page, onOpenNode) }
-        if (page.content.isNotEmpty()) {
-            item(key = "content") { ContentView(page.content, onLink, externalImages, Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) }
-        }
-        item(key = "replies") {
-            HorizontalDivider(Modifier.padding(top = 8.dp))
+    LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = if (actions.reply != null) 88.dp else 8.dp)) {
+        item(key = "topic") { Topic(page, onLink, externalImages, onOpenNode, actions) }
+        item(key = "discussion") {
             Text(
-                pluralStringResource(R.plurals.node_replies, page.childrenTotal ?: page.children.size, page.childrenTotal ?: page.children.size),
+                pluralStringResource(R.plurals.node_discussion, replies, replies),
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp),
             )
+            HorizontalDivider()
         }
         items(thread, key = { it.key() }) { item ->
             when (item) {
-                is ThreadItem.Reply -> Child(
-                    item.child,
-                    onLink,
-                    externalImages,
-                    onOpen = { onOpenNode(item.child.id) },
-                    onReply = onReply?.let { reply -> { reply(item.child.id) } },
-                )
+                is ThreadItem.Reply -> Child(item.child, onLink, externalImages, onOpen = { onOpenNode(item.child.id) }, actions)
                 is ThreadItem.More -> MoreReplies(item, onOpen = { onOpenNode(item.parentId) })
             }
             HorizontalDivider()
@@ -314,45 +419,57 @@ private fun NodeContent(
     }
 }
 
+/**
+ * Samotný node – téma fóra, článok či príspevok, na ktorý sa odpovedá. V karte s orámovaním (ako `#topic` na webe),
+ * aby sa nepliedol s diskusiou pod ním.
+ */
 @Composable
-private fun Header(page: NodePage, onOpenNode: (Long) -> Unit) {
-    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(Nsfw.label(page.title), style = MaterialTheme.typography.titleLarge)
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            page.ownerId?.let { owner ->
-                Avatar(KyberiaUrls.avatar(owner), size = 32.dp, modifier = Modifier.clickable { onOpenNode(owner) })
+private fun Topic(page: NodePage, onLink: (String) -> Unit, externalImages: ImageLoader?, onOpenNode: (Long) -> Unit, actions: NodeActions) {
+    OutlinedCard(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp)) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            typeLabel(page.templateId)?.let {
+                Text(stringResource(it), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
             }
-            Column(Modifier.weight(1f)) {
-                page.owner?.let { Text(it, fontWeight = FontWeight.Bold) }
-                page.created?.let { Muted(it) }
+            Text(Nsfw.label(page.title), style = MaterialTheme.typography.titleLarge)
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                page.ownerId?.let { owner ->
+                    Avatar(KyberiaUrls.avatar(owner), size = 32.dp, modifier = Modifier.clickable { onOpenNode(owner) })
+                }
+                Column(Modifier.weight(1f)) {
+                    page.owner?.let { Text(it, fontWeight = FontWeight.Bold) }
+                    page.created?.let { Muted(it) }
+                }
+                page.k?.let { Text(stringResource(R.string.node_k, it), color = MaterialTheme.colorScheme.primary) }
             }
-            page.k?.let { Text(stringResource(R.string.node_k, it), color = MaterialTheme.colorScheme.primary) }
-        }
-        val parentId = page.parentId
-        val parentTitle = page.parentTitle
-        if (parentId != null && parentTitle != null) {
-            Text(
-                stringResource(R.string.node_in, Nsfw.label(parentTitle)),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.clickable { onOpenNode(parentId) },
-            )
+            val parentId = page.parentId
+            val parentTitle = page.parentTitle
+            if (parentId != null && parentTitle != null) {
+                Text(
+                    stringResource(R.string.node_in, Nsfw.label(parentTitle)),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.clickable { onOpenNode(parentId) },
+                )
+            }
+            if (page.content.isNotEmpty()) ContentView(page.content, onLink, externalImages)
+            val own = actions.me != null && page.ownerId == actions.me
+            val kNode = actions.kNode
+            if (kNode != null || own) {
+                Row(Modifier.align(Alignment.End)) {
+                    if (kNode != null) Action(R.string.node_k_give, actions.enabled, kNode)
+                    if (own) Action(R.string.node_edit, actions.enabled) { actions.edit(page.id) }
+                }
+            }
         }
     }
 }
 
 /** Odpoveď odsadená podľa hĺbky vo vlákne ([ThreadView] ju obmedzí na štyri úrovne). */
 @Composable
-private fun Child(
-    child: NodeChild,
-    onLink: (String) -> Unit,
-    externalImages: ImageLoader?,
-    onOpen: () -> Unit,
-    onReply: (() -> Unit)?,
-) {
+private fun Child(child: NodeChild, onLink: (String) -> Unit, externalImages: ImageLoader?, onOpen: () -> Unit, actions: NodeActions) {
     val indent = indent(child.depth)
     Column(
-        Modifier.padding(start = 16.dp + indent, end = 16.dp, top = 12.dp, bottom = 12.dp),
+        Modifier.padding(start = 16.dp + indent, end = 16.dp, top = 12.dp, bottom = 4.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         Row(
@@ -373,13 +490,25 @@ private fun Child(
             Text(Nsfw.label(child.title), style = MaterialTheme.typography.labelLarge, maxLines = 2, overflow = TextOverflow.Ellipsis)
         }
         ContentView(child.content, onLink, externalImages)
-        if (onReply != null) {
-            TextButton(
-                onClick = onReply,
-                contentPadding = PaddingValues(horizontal = 8.dp),
-                modifier = Modifier.align(Alignment.End),
-            ) { Text(stringResource(R.string.node_reply_short), style = MaterialTheme.typography.labelMedium) }
+        val own = actions.me != null && child.authorId == actions.me
+        val kChild = actions.kChild?.takeUnless { own }
+        val reply = actions.reply
+        if (kChild != null || own || reply != null) {
+            Row(Modifier.align(Alignment.End)) {
+                if (kChild != null) Action(R.string.node_k_give, actions.enabled) { kChild(child) }
+                if (own) Action(R.string.node_edit, actions.enabled) { actions.edit(child.id) }
+                if (reply != null) Action(R.string.node_reply_short, actions.enabled) { reply(child.id) }
+            }
+        } else {
+            Spacer(Modifier.height(8.dp))
         }
+    }
+}
+
+@Composable
+private fun Action(@StringRes label: Int, enabled: Boolean, onClick: () -> Unit) {
+    TextButton(onClick = onClick, enabled = enabled, contentPadding = PaddingValues(horizontal = 8.dp)) {
+        Text(stringResource(label), style = MaterialTheme.typography.labelMedium)
     }
 }
 
@@ -395,6 +524,16 @@ private fun MoreReplies(item: ThreadItem.More, onOpen: () -> Unit) {
             .clickable(onClick = onOpen)
             .padding(start = 16.dp + indent(item.depth), end = 16.dp, top = 12.dp, bottom = 12.dp),
     )
+}
+
+/** Druh nodu podľa šablóny – kyberia rozlišuje „node“ (fórum, článok…) a „submission“ (príspevok v diskusii). */
+@StringRes
+private fun typeLabel(templateId: Int?): Int? = when (templateId) {
+    2 -> R.string.node_type_nodeshell
+    3 -> R.string.node_type_forum
+    4 -> R.string.node_type_submission
+    5 -> R.string.node_type_article
+    else -> null
 }
 
 private fun indent(depth: Int) = (depth * INDENT_DP).dp

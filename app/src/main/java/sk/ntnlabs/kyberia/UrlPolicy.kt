@@ -55,6 +55,9 @@ object KyberiaUrls {
 
     fun node(id: Long): String = "$BASE/id/$id/"
 
+    /** „conf“ stránka nodu (šablóna 1961033) – formulár s pôvodným textom na úpravu (`configure_content`). */
+    fun configure(id: Long): String = "${node(id)}1961033"
+
     /** ID nodu z odkazu na kyberiu (`…/id/123/`), inak null – odkaz sa vtedy otvorí v prehliadači. */
     fun nodeId(url: String): Long? = NODE_PATH.find(url)?.groupValues?.get(1)?.toLongOrNull()
 

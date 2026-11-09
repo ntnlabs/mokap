@@ -27,6 +27,8 @@ zoradené, prefiltrované a s lokálnymi notifikáciami.
 | Čítanie pošty (`/id/24/`) | zatiaľ záložka s tlačidlom na web |
 | Čítanie nodov priamo v appke – obsah, autor, K, odpovede vo vlákne (prvá stránka), odkazy na nody v appke | hotové |
 | Odpovedanie do nodu aj na konkrétnu odpoveď (ako na webe – HTML, „Bez HTML“) | hotové |
+| Dať K (len pridať, s potvrdením) a úprava vlastných príspevkov | hotové |
+| Téma nodu oddelená od diskusie | hotové |
 
 ## Ako to funguje
 
