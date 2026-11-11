@@ -71,7 +71,8 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   `node_body` bez `small.mood`). Obsah sa **nevykresľuje ako HTML**: `ContentParser` → bloky (text s tučným/šikmým/
   odkazmi, obrázok, embed); skripty a `javascript:` vypadnú, cudzie obrázky a iframe sú len odkaz (nič mimo kyberie
   sa nesťahuje, ak to používateľ nezapne), odkazy na `/id/N` otvárajú node v appke; video ide na stránku YouTube
-  (`Embeds.openUrl`, nie embed). Vlákno do 4 úrovní (`ThreadView.MAX_DEPTH`), hlbšie ako „↳ N ďalších odpovedí“ = otvorí sa
+  (`Embeds.openUrl`, nie embed). Text v `ContentView` (spoločný pre nody, poštu aj Top K) je v `SelectionContainer` –
+  dá sa označiť a skopírovať. Vlákno do 4 úrovní (`ThreadView.MAX_DEPTH`), hlbšie ako „↳ N ďalších odpovedí“ = otvorí sa
   node tej odpovede; názvy odpovedí sa ukazujú aj automatické („Re[2]: …“, dátum) – pomáhajú v orientácii (želanie
   používateľa). Jedna požiadavka na otvorenie, po nej žiadna `Presence`
   (ručné kliknutie = skutočné „kde je“); kyberia stránkuje odpovede (32 nodov vlákna) – staršie zatiaľ na webe.
@@ -125,7 +126,7 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   `org.jetbrains.kotlin.android`; verzia KGP (root `buildscript`) a Compose compiler pluginu musí byť rovnaká.
 - `parse/` a čistá logika v `data/` nesmú závisieť od Android API – majú JVM unit testy.
 - Notifikácie sú lokálne (WorkManager, interval 15–60 min z nastavení – 15 je minimum Androidu),
-  žiadny Firebase. Každý typ má vlastný kanál; jednotlivé odpovede/fóra otvárajú node v appke (pošta web).
+  žiadny Firebase. Každý typ má vlastný kanál; jednotlivé odpovede/fóra otvárajú node v appke, pošta záložku Pošta.
 - Kontrolu robí `NewsChecker` (mutex), volá ho `CheckWorker` a strážca session (`SessionGuardReceiver`).
 - **Kyberia odhlási pri načítaní stránky, ak od predošlého ubehli > 2 h** (`LOGOUT_IDLE_SEC = 7200`,
   `$_SESSION['last_request']` v zdrojákoch Kyberia-bloodline; AJAX pošty sa nepočíta). Android kontroly

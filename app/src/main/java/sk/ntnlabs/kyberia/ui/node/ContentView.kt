@@ -2,6 +2,7 @@ package sk.ntnlabs.kyberia.ui.node
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -44,8 +45,9 @@ import sk.ntnlabs.kyberia.ui.common.LocalAvatarOptions
 import sk.ntnlabs.kyberia.ui.theme.LocalDimImages
 
 /**
- * Obsah príspevku z [ContentBlock]: text s odkazmi a obrázky z kyberie. Cudzie obrázky a náhľady videí
+ * Obsah príspevku či správy z [ContentBlock]: text s odkazmi a obrázky z kyberie. Cudzie obrázky a náhľady videí
  * len s [externalImages] (nastavenie, predvolene vypnuté) – inak odkaz; video sa vždy otvorí mimo appky.
+ * Text sa dá označiť a skopírovať (dlhé podržanie) – v pošte, nodoch aj Top K.
  */
 @Composable
 fun ContentView(
@@ -54,7 +56,14 @@ fun ContentView(
     externalImages: ImageLoader?,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    SelectionContainer(modifier) {
+        ContentBlocks(blocks, onLink, externalImages)
+    }
+}
+
+@Composable
+private fun ContentBlocks(blocks: List<ContentBlock>, onLink: (String) -> Unit, externalImages: ImageLoader?) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         blocks.forEach { block ->
             when (block) {
                 is ContentBlock.Text -> Text(annotated(block.spans, onLink), style = MaterialTheme.typography.bodyMedium)
