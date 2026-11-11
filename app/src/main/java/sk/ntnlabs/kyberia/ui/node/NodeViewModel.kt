@@ -60,6 +60,9 @@ sealed interface NodeNotice {
     /** Počet K klesol – kyberia K odobrala (prepína ho). */
     data object KRemoved : NodeNotice
 
+    /** K od teba tam už bolo. */
+    data object KAlready : NodeNotice
+
     /** Spojenie zlyhalo po odoslaní akcie – nevieme, či prešla. */
     data object Network : NodeNotice
 
@@ -172,7 +175,7 @@ class NodesViewModel(
                 val outcome = repository.giveK(page, childId)
                 scheduler.touch()
                 when (outcome) {
-                    is KResult.Given -> kGiven[target] = true
+                    is KResult.Given, is KResult.Already -> kGiven[target] = true
                     is KResult.Removed -> kGiven.remove(target)
                     else -> Unit
                 }
@@ -184,6 +187,7 @@ class NodesViewModel(
                         is KResult.Rejected -> NodeNotice.KRejected(outcome.message)
                         is KResult.Unconfirmed -> NodeNotice.KUnconfirmed
                         is KResult.Removed -> NodeNotice.KRemoved
+                        is KResult.Already -> NodeNotice.KAlready
                     },
                 )
             } catch (e: SessionExpiredException) {

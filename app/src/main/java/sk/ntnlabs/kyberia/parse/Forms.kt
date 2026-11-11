@@ -37,6 +37,10 @@ object Forms {
             .firstOrNull { it.isSubmit() && it.attr("name").isNotEmpty() && (event == null || it.attr("value") == event) }
             ?.let { it.attr("name") to it.attr("value") }
 
+    /** Token session – na stránke je jeden pre všetky formuláre (napr. v tlačidle logout). */
+    fun anticsrf(document: Document): String? =
+        document.select("input[name=anticsrf]").firstNotNullOfOrNull { it.attr("value").ifEmpty { null } }
+
     fun find(document: Document, predicate: (FormElement) -> Boolean): FormElement? =
         document.select("form").filterIsInstance<FormElement>().firstOrNull(predicate)
 

@@ -22,6 +22,9 @@ sealed interface KResult {
      * Appka to nikdy nerobí zámerne; toto je hlásenie, že sa to stalo.
      */
     data class Removed(override val page: NodePage) : KResult
+
+    /** Počet sa nezmenil, ale kyberia ponúka „-❤️“ (`revoKe`) – K od teba tam už bolo (Top K to neukazuje). */
+    data class Already(override val page: NodePage) : KResult
 }
 
 /** Výsledok úpravy; [page] = čerstvá stránka nodu, v ktorom sa upravovalo. */
@@ -48,6 +51,23 @@ object NodeOutcomes {
         return when {
             now != null && now > was -> KResult.Given(page)
             (now ?: 0) < was -> KResult.Removed(page)
+            else -> KResult.Unconfirmed(page)
+        }
+    }
+
+    /**
+     * K z Top K: POST na samotný node, odpoveď je jeho stránka. [beforeK] = počet K zo zoznamu (môže byť zastaraný).
+     * Narástol = dané; klesol = odobraté (hlásiť); rovnaký s „-❤️“ = K od teba tam už bolo.
+     */
+    fun kFromList(nodeId: Long, beforeK: Int?, response: Document): KResult {
+        val page = NodeParser.parse(response, nodeId)
+        PageError.of(response)?.let { return KResult.Rejected(page, it) }
+        val was = beforeK ?: 0
+        val now = page.k ?: 0
+        return when {
+            now > was -> KResult.Given(page)
+            now < was -> KResult.Removed(page)
+            page.kGiven -> KResult.Already(page)
             else -> KResult.Unconfirmed(page)
         }
     }

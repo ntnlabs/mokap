@@ -131,6 +131,7 @@ fun NodeScreen(
             is NodeNotice.KRejected -> resources.getString(R.string.node_k_rejected, notice.message)
             NodeNotice.KUnconfirmed -> resources.getString(R.string.node_k_unconfirmed)
             NodeNotice.KRemoved -> resources.getString(R.string.node_k_removed)
+            NodeNotice.KAlready -> resources.getString(R.string.node_k_already)
             NodeNotice.Network -> resources.getString(R.string.node_action_network)
             NodeNotice.Edited -> resources.getString(R.string.node_edit_saved)
         }

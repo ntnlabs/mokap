@@ -9,6 +9,11 @@ import sk.ntnlabs.kyberia.UrlPolicy
 /** Tvoj príspevok, ktorý za poslednú hodinu dostal K; [added] za hodinu, [total] celkovo. */
 data class MyK(val nodeId: Long, val title: String, val added: Int, val total: Int?)
 
+/** Stránka Top K: príspevky a token session na K (web ho dáva cez `ajaxK`). Token len v pamäti, nie vo výpise. */
+class TopKPage(val items: List<TopKItem>, val anticsrf: String?) {
+    override fun toString(): String = "TopKPage(${items.size} items)"
+}
+
 /** Príspevok zo stránky Top K (`/id/8340566/`). */
 data class TopKItem(
     val id: Long,
@@ -67,8 +72,7 @@ object MyKParser {
     )
 
     /** Token session (na stránke je jeden pre všetky formuláre). */
-    fun token(document: Document): String? =
-        document.select("input[name=anticsrf]").firstNotNullOfOrNull { it.attr("value").ifEmpty { null } }
+    fun token(document: Document): String? = Forms.anticsrf(document)
 
     private fun text(node: Node): String = when (node) {
         is TextNode -> node.text()
@@ -88,6 +92,14 @@ object TopKParser {
     private val CHILDREN = Regex("""-\s*(\d+)\s*ch\b""")
 
     fun parse(document: Document): List<TopKItem> = document.select("div.item").mapNotNull(::item)
+
+    fun page(document: Document): TopKPage = TopKPage(parse(document), Forms.anticsrf(document))
+
+    /**
+     * K z Top K presne ako web (`ajaxK`): urlencoded POST na `/id/<node>/` s `event=K` a tokenom. Top K neukazuje,
+     * či si K už dal – výsledok sa overí na vrátenej stránke nodu.
+     */
+    fun kFields(anticsrf: String): List<Pair<String, String>> = listOf("event" to "K", "anticsrf" to anticsrf)
 
     private fun item(item: Element): TopKItem? {
         val title = item.selectFirst("div.right-panel div.title") ?: return null
