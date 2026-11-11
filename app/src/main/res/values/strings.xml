@@ -37,6 +37,10 @@
     <string name="node_new">nové</string>
     <string name="node_k">%1$d K</string>
     <string name="node_in">v: %1$s</string>
+    <string name="image_save">Uložiť obrázok</string>
+    <string name="image_close">Zavrieť</string>
+    <string name="image_saved">Obrázok je v galérii (Obrázky/mokap)</string>
+    <string name="image_save_failed">Obrázok sa nepodarilo uložiť</string>
     <string name="node_parent_open">Nadradený node</string>
     <string name="node_intro_more">Zobraziť celý úvod</string>
     <string name="node_intro_less">Zbaliť úvod</string>

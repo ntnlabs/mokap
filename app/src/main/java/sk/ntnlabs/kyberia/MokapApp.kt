@@ -30,6 +30,7 @@ import sk.ntnlabs.kyberia.data.Presence
 import sk.ntnlabs.kyberia.data.SessionStore
 import sk.ntnlabs.kyberia.data.SettingsStore
 import sk.ntnlabs.kyberia.notify.Notifier
+import sk.ntnlabs.kyberia.ui.common.ImageSaver
 import sk.ntnlabs.kyberia.work.CheckScheduler
 import sk.ntnlabs.kyberia.work.NewsChecker
 
@@ -102,12 +103,14 @@ class AppContainer(context: Context) {
     val topK = TopKRepository(client, presence)
     val myK = MyKRepository(client, latestPage, presence)
 
+    /** Klient na cudzie obrázky – bez cookies, len https; vzniká až keď ho treba. */
+    private val externalHttp by lazy { ExternalHttp.client() }
+
     /** Cudzie obrázky a náhľady videí v príspevkoch – len so zapnutým nastavením; vlastný klient bez cookies. */
     val externalImages: ImageLoader by lazy {
-        val http = ExternalHttp.client()
         ImageLoader.Builder(context)
             .components {
-                add(OkHttpNetworkFetcherFactory(callFactory = { http }))
+                add(OkHttpNetworkFetcherFactory(callFactory = { externalHttp }))
                 add(AnimatedImageDecoder.Factory())
             }
             .diskCache {
@@ -120,6 +123,11 @@ class AppContainer(context: Context) {
             .build()
     }
     val checker = NewsChecker(context, auth, bookmarks, mail, newsTracker, settings, diagnostics, latestPage, scheduler)
+
+    /** Uloženie obrázka do galérie – z cache, inak tým istým klientom ako pri zobrazení. */
+    val imageSaver by lazy {
+        ImageSaver(appContext, imageCallFactory, { SingletonImageLoader.get(appContext) }, { externalHttp }, { externalImages })
+    }
 
     /** Pošta otvorená v appke: kyberia ju označila ako prečítanú – notifikácia a číslo na záložke preč. */
     fun mailRead() {
