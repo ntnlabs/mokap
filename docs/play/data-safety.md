@@ -16,7 +16,7 @@ Pri zmene správania appky (nová služba, SDK, analytika…) treba formulár aj
 
 ## 2. Data types
 
-Deklarovať **len tieto tri**. Ostatné typy (poloha, kontakty, fotky, finančné údaje, zdravie, súbory, kalendár,
+Deklarovať **len tieto štyri**. Ostatné typy (poloha, kontakty, fotky, finančné údaje, zdravie, súbory, kalendár,
 identifikátory zariadenia, diagnostika appky…) appka z telefónu neposiela.
 
 ### Personal info → **User IDs**
@@ -32,6 +32,14 @@ identifikátory zariadenia, diagnostika appky…) appka z telefónu neposiela.
 - Required or optional: **Optional** (len keď píšeš alebo upravuješ príspevok)
 - Purposes: **App functionality**
 - Poznámka: odpovede a úpravy vlastných príspevkov, ktoré odošleš na kyberiu.
+
+### Messages → **Other in-app messages**
+- Collected: **Yes** · Shared: **No**
+- Processed ephemerally: **No**
+- Required or optional: **Optional** (len keď pošleš správu)
+- Purposes: **App functionality**
+- Poznámka: súkromné správy (adresát a text), ktoré cez appku pošleš inému používateľovi kyberie. Prijatú poštu appka
+  len zobrazí (drží ju v pamäti, neukladá, nikam ju neposiela).
 
 ### App activity → **App interactions**
 - Collected: **Yes** · Shared: **No**

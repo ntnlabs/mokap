@@ -1,6 +1,6 @@
 # Zásady ochrany súkromia – mokap
 
-*Platné od 9. 11. 2026* · [English version below](#privacy-policy--mokap)
+*Platné od 11. 11. 2026* · [English version below](#privacy-policy--mokap)
 
 **mokap** je neoficiálny Android klient pre [kyberia.sk](https://kyberia.sk), ktorý vyvíja **ntnlabs**
 (zdrojový kód: <https://github.com/ntnlabs/mokap>). Nie je to oficiálna aplikácia kyberia.sk.
@@ -14,14 +14,17 @@
 ## Čo appka posiela a kam
 
 - **kyberia.sk** (len cez šifrované HTTPS): prihlásenie (nick alebo ID a heslo), načítanie stránok
-  a akcie, ktoré v appke urobíš – odpovede, úpravy vlastných príspevkov, K. Appka sa predstavuje ako
+  a akcie, ktoré v appke urobíš – odpovede, úpravy vlastných príspevkov, K a **správy v pošte** (adresát a text).
+  Appka sa predstavuje ako
   `mokap/<verzia> (Android; +https://github.com/ntnlabs/mokap)`. Tieto údaje spracúva kyberia.sk podľa svojich pravidiel.
 - **„Používa MOKAP“:** po obnovení appka na kyberii otvorí node „používa MOKAP“, takže ostatní používatelia
   kyberie pri tebe namiesto „bookmarks“ vidia, že si v mokape. Dá sa vypnúť v nastaveniach (Účet).
 - **Obrázky a videá z iných stránok** (predvolene **vypnuté**): ak ich zapneš, appka stiahne obrázky
   a náhľady videí v príspevkoch priamo z cudzích serverov – bez cookies, len cez HTTPS. Tieto servery
   uvidia tvoju IP adresu, ako pri každom stiahnutí obrázka.
-- Odkazy mimo kyberie a niektoré časti kyberie (napr. pošta) sa otvárajú v tvojom prehliadači.
+- **Pošta:** appka ju stiahne len pri otvorení záložky Pošta (a keď ju potiahneš nadol) – kyberia ju tým, rovnako ako
+  na webe, označí ako prečítanú. Správy appka drží len v pamäti počas behu, do telefónu ich neukladá.
+- Odkazy mimo kyberie sa otvárajú v tvojom prehliadači.
 
 ## Čo appka ukladá v telefóne
 
@@ -37,7 +40,9 @@ Nič z toho sa **nezálohuje do cloudu ani neprenáša na iné zariadenie** a ni
 ## Notifikácie
 
 Notifikácie sú lokálne – appka sama kontroluje kyberiu v intervale z nastavení. Nepoužíva Firebase
-ani iný push server. Notifikácia o pošte môže obsahovať nick odosielateľa; nikam sa neukladá.
+ani iný push server. Notifikácia o pošte môže obsahovať nick odosielateľa; nikam sa neukladá. Pri obnovení
+otvorenej appky sa skontroluje aj počet novej pošty (malá požiadavka), aby notifikácia zmizla, keď si poštu
+prečítal inde.
 
 ## Oprávnenia
 
@@ -73,7 +78,7 @@ Otázky a pripomienky: <https://github.com/ntnlabs/mokap/issues>
 
 # Privacy policy – mokap
 
-*Effective 9 November 2026*
+*Effective 11 November 2026*
 
 **mokap** is an unofficial Android client for [kyberia.sk](https://kyberia.sk), developed by **ntnlabs**
 (source code: <https://github.com/ntnlabs/mokap>). It is not an official kyberia.sk app.
@@ -88,14 +93,16 @@ Otázky a pripomienky: <https://github.com/ntnlabs/mokap/issues>
 ## What the app sends, and where
 
 - **kyberia.sk** (encrypted HTTPS only): your login (nick or ID and password), page requests and the actions
-  you take in the app – replies, edits of your own posts, K. The app identifies itself as
+  you take in the app – replies, edits of your own posts, K and **mail messages** (recipient and text). The app identifies itself as
   `mokap/<version> (Android; +https://github.com/ntnlabs/mokap)`. kyberia.sk processes this data under its own rules.
 - **“Using MOKAP”:** after each refresh the app opens the “using MOKAP” node on kyberia, so other kyberia users
   see that you are in mokap instead of “bookmarks”. You can turn this off in settings (Account).
 - **Images and videos from other sites** (**off** by default): when enabled, the app downloads images and video
   previews in posts directly from third-party servers – without cookies, HTTPS only. Those servers see your IP
   address, as with any image download.
-- Links outside kyberia and some parts of kyberia (e.g. mail) open in your browser.
+- **Mail:** the app downloads it only when you open the Mail tab (or pull to refresh) – like on the web, kyberia then
+  marks it as read. The app keeps messages in memory only while running; it does not store them on the phone.
+- Links outside kyberia open in your browser.
 
 ## What the app stores on the phone
 
@@ -111,7 +118,9 @@ None of this is **backed up to the cloud or transferred to another device**, and
 ## Notifications
 
 Notifications are local – the app checks kyberia itself at the interval set in settings. It does not use
-Firebase or any other push server. A mail notification may contain the sender's nick; it is not stored.
+Firebase or any other push server. A mail notification may contain the sender's nick; it is not stored. When the
+open app refreshes, it also checks the number of new mails (a small request), so the notification disappears once
+you have read your mail elsewhere.
 
 ## Permissions
 

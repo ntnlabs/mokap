@@ -103,7 +103,19 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
 - Pošta: `GET /ajax/check_new_mail.php` (web ho volá raz za minútu) vráti
   `<počet nových>;<nick posledného odosielateľa>;…` alebo `offline`. Nick ide len do notifikácie
   („Nová pošta od …“), nikam sa neukladá; posledné pole nemá overený význam. `offline` session
-  nezahadzuje. Do testov/gitu len vymyslené nicky.
+  nezahadzuje. Do testov/gitu len vymyslené nicky. Kontrola beží v pozadí a **aj po obnovení otvorenej appky**
+  (`NewsChecker.syncMail`, pár bajtov), aby notifikácia zmizla hneď, keď si poštu prečítal na webe; počet je aj na
+  záložke Pošta (`NewsTracker.unreadMail`). Notifikácia otvorí poštu v appke.
+- **Pošta v appke** (`MailParser`, `MailRepository`, `MailScreen`): `/id/24/` sa stiahne **len pri otvorení záložky**
+  (najviac raz za 30 s) – kyberia ju tým, ako web, označí ako prečítanú (`AppContainer.mailRead` zruší notifikáciu
+  a číslo). Správa = `div.message`: `img.mail_avatar` (odosielateľ), `div.header` s odkazmi
+  `javascript:chngto('nick','ID')` odosielateľa a adresáta („-->“), voliteľne `[location:: …]`, checkbox `message[ID]`,
+  čas a `span.most_important` **NEW** (prichádzajúca nevidená) / **UNREAD** (tvoja, adresát ešte nečítal); text v
+  `div.content`. Prvá stránka = 32 správ, staršie na webe. Odoslanie: `formular` (multipart) → POST **len** `anticsrf`,
+  `mail_to`, `mail_to_type` (`id` pri odpovedi – ID druhej strany, `name` pri novej správe s nickom), `mail_text`,
+  voliteľne `no_html=yes` a `event=send` (formulár má aj `delete_mail`, stránkovanie…). `oneShot`, nikdy znova samo;
+  úspech = v vrátenej pošte je nová správa od teba, chyba v hlavičke. Správy len v pamäti, nikam sa neukladajú;
+  vzorky skutočnej pošty len lokálne – do gitu ani nick, ani text.
 - Avatary: prepínač animácie (vypnutá = prvý snímok cez `BitmapFactoryDecoder`) a „len cez Wi-Fi“
   (na meranej sieti len z diskovej cache, `networkCachePolicy(DISABLED)`); `LocalAvatarOptions`.
 
@@ -154,7 +166,7 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
 - Odkazy na web idú cez `Web.open` s `Browser.EXTRA_APPLICATION_ID` – Chromium prehliadače (Chrome, Brave)
   ich otvárajú v tej istej karte namiesto novej.
 - UI je pre mobil: každá oblasť má vlastnú záložku (Bookmarky, Odpovede, Last, Pošta, K, Friends),
-  v spodnej lište len ikony (popis pre čítačku). Pošta zatiaľ „Pracujeme na tom.“ + tlačidlo na web.
+  v spodnej lište len ikony (popis pre čítačku).
   Bookmarky predvolene A–Z (slovenský Collator); radenie/filter si appka pamätá v nastaveniach.
 - NSFW: **len názov samotného nodu** obsahuje „NSFW“ (samostatné slovo, `Nsfw`) – nikdy obsah, úryvky
   ani rodič (NSFW sa dedí, všetko aj tak nechytíme; v textoch priveľa omylov). V názvoch sa ukazuje 🔞;

@@ -8,7 +8,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -18,7 +17,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -41,7 +39,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -68,6 +65,8 @@ import sk.ntnlabs.kyberia.ui.k.KHoursViewModel
 import sk.ntnlabs.kyberia.ui.k.KScreen
 import sk.ntnlabs.kyberia.ui.k.TopKViewModel
 import sk.ntnlabs.kyberia.ui.last.LastScreen
+import sk.ntnlabs.kyberia.ui.mail.MailScreen
+import sk.ntnlabs.kyberia.ui.mail.MailViewModel
 import sk.ntnlabs.kyberia.ui.node.NodeScreen
 import sk.ntnlabs.kyberia.ui.node.NodesViewModel
 import sk.ntnlabs.kyberia.ui.overview.OverviewViewModel
@@ -105,6 +104,9 @@ fun HomeScreen(
     val people: PeopleViewModel = viewModel(factory = PeopleViewModel.factory(container))
     val topK: TopKViewModel = viewModel(factory = TopKViewModel.factory(container))
     val kHours: KHoursViewModel = viewModel(factory = KHoursViewModel.factory(container))
+    val mail: MailViewModel = viewModel(factory = MailViewModel.factory(container))
+    // Počet novej pošty z kontroly (v pozadí aj pri obnovení appky) – číslo na záložke Pošta.
+    val unreadMail by container.newsTracker.unreadMail.collectAsStateWithLifecycle()
 
     // Otvorené z notifikácie: prepni na správnu záložku a stiahni čerstvé dáta.
     LaunchedEffect(requestedTab) {
@@ -196,6 +198,7 @@ fun HomeScreen(
                                     badge = {
                                         when {
                                             item == Tab.FRIENDS && friendsOnline > 0 -> Badge { Text("$friendsOnline") }
+                                            item == Tab.MAIL && (unreadMail ?: 0) > 0 -> Badge { Text("$unreadMail") }
                                             // Bodka: od poslednej návštevy záložky tu pribudlo niečo nové.
                                             item.area != null && item.area in changed -> Badge()
                                         }
@@ -217,7 +220,7 @@ fun HomeScreen(
                 Tab.REPLIES -> RepliesScreen(overview, settings.hideNsfw, onOpenNode = openNode)
                 Tab.LAST -> LastScreen(overview, settings.hideNsfw, onOpenNode = openNode, onOpenAll = { openWeb(KyberiaUrls.LAST) })
                 Tab.FRIENDS -> FriendsScreen(overview, people, settings.hideNsfw, onOpenNode = openNode)
-                Tab.MAIL -> OnWeb(R.string.mail_open) { openWeb(KyberiaUrls.MAIL) }
+                Tab.MAIL -> MailScreen(mail, externalImages, onOpenNode = openNode, onOpenWeb = openWeb)
                 Tab.K -> KScreen(overview, topK, kHours, settings.kHours, settings.hideNsfw, externalImages, onOpenNode = openNode, onOpenWeb = openWeb)
             }
         }
@@ -262,19 +265,6 @@ private fun rememberNow(periodMillis: Long = 1_000L): Long {
         }
     }
     return now
-}
-
-/** Kým appka nevie stránku zobraziť sama, aspoň ju jedným ťuknutím otvorí na webe. */
-@Composable
-private fun OnWeb(@StringRes button: Int, onOpen: () -> Unit) {
-    Column(
-        Modifier.fillMaxSize().padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(stringResource(R.string.work_in_progress), textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Button(onClick = onOpen) { Text(stringResource(button)) }
-    }
 }
 
 /** Android 13+ chce pre notifikácie výslovný súhlas. */

@@ -1,0 +1,71 @@
+<html>
+<head><title>mail :: Ukážkové motto pre testy</title></head>
+<body>
+<div class="t1"><center>
+[ <a href="/id/24/" name="mail" title="Mail Inbox">mail</a> ]
+-- [ <a name="SELF :: own profile" title="SELF :: own profile" href="/id/777">self</a> ]
+<form enctype="multipart/form-data" action="/id/24/" method="post" style="display: inline;">
+  <button type="submit" name="event" value="logout" title="Logout">logout</button>
+<input type="hidden" name="anticsrf" value="mail-token" />
+</form>
+</center></div>
+<table><tr><td>
+<form enctype="multipart/form-data" id='formular' name='formular' action='/id/24/' method='post'>
+<div id='mail_form'>
+  <div>
+    <input type='text' name='mail_to' value='alfa' />
+    <span><input type="hidden" name="anticsrf" value="mail-token" />
+      <input type='radio' name='mail_to_type' id='mail_to_type_name' value='name' checked /> nick
+      <input type='radio' name='mail_to_type' id='mail_to_type_id' value='id' /> id
+    </span>
+  </div>
+  <textarea name='mail_text' id='mail_text'></textarea>
+  <div class='controls'>
+    <input type='submit' name='event' value='send' />
+    <input type='submit' name='template_event' value='preview' />
+    <input type='hidden' name='get_children_offset' value='0' />
+    <input class='small' name='listing_amount' type='text' value='32' />
+    <input type='submit' name='event' value='delete_mail' />
+    <input type='checkbox' name='no_html' value='yes' /> NO HTML
+  </div>
+</div>
+
+<div class='message' style='margin-bottom:0.5em;'>
+  <img class='mail_avatar' src='/images/nodes/6/0/601.gif' />
+  <div class='header'>
+    <a href="javascript:chngto('alfa','601')">alfa</a> [location:: <a href='/id/24' title='mail'>mail</a>]
+    &nbsp;&nbsp;-->&nbsp;&nbsp; <a href="javascript:chngto('omega','777')">omega</a> &nbsp;&nbsp;--&nbsp;&nbsp;
+    <input type='checkbox' name='message[9001]' id='message_0' class="mail_checkbox"><br />
+    20:04:25 - 11.11.2026 &nbsp;&nbsp; <span class='most_important'> NEW </span>
+  </div>
+  <div class='content'>Ahoj, ako sa máš? <a href="/id/5001/">pozri toto</a></div>
+  <hr />
+</div>
+<br><br>
+<div class='message' style='margin-bottom:0.5em;'>
+  <img class='mail_avatar' src='/images/nodes/7/7/777.gif' />
+  <div class='header'>
+    <a href="javascript:chngto('omega','777')">omega</a> &nbsp;&nbsp;-->&nbsp;&nbsp;
+    <a href="javascript:chngto('beta gama','602')">beta gama</a> [location:: <a href='/id/5001' title='Vlaky'>Vlaky</a>]
+    &nbsp;&nbsp;--&nbsp;&nbsp; <input type='checkbox' name='message[9000]' id='message_1' class="mail_checkbox"><br />
+    18:00:29 - 11.11.2026 &nbsp;&nbsp; <span class='most_important'> UNREAD </span>
+  </div>
+  <div class='content'>Odpoveď <b>tučne</b>.<br />Druhý riadok.</div>
+  <hr />
+</div>
+<br><br>
+<div class='message' style='margin-bottom:0.5em;'>
+  <img class='mail_avatar' src='/images/nodes/6/0/602.gif' />
+  <div class='header'>
+    <a href="javascript:chngto('beta gama','602')">beta gama</a> &nbsp;&nbsp;-->&nbsp;&nbsp;
+    <a href="javascript:chngto('omega','777')">omega</a> &nbsp;&nbsp;--&nbsp;&nbsp;
+    <input type='checkbox' name='message[8999]' id='message_2' class="mail_checkbox"><br />
+    17:26:24 - 11.11.2026
+  </div>
+  <div class='content'>Prvá správa.</div>
+  <hr />
+</div>
+</form>
+</td></tr></table>
+</body>
+</html>

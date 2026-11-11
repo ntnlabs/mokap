@@ -74,6 +74,7 @@ class MokapApp : Application(), SingletonImageLoader.Factory {
 
 /** Ručné DI – na pár tried netreba framework. */
 class AppContainer(context: Context) {
+    private val appContext = context.applicationContext
     private val cookieJar = KyberiaCookieJar(SessionStore(context))
 
     // Nech admini kyberie vidia, čo k nim chodí a kde to nájdu.
@@ -119,6 +120,12 @@ class AppContainer(context: Context) {
             .build()
     }
     val checker = NewsChecker(context, auth, bookmarks, mail, newsTracker, settings, diagnostics, latestPage, scheduler)
+
+    /** Pošta otvorená v appke: kyberia ju označila ako prečítanú – notifikácia a číslo na záložke preč. */
+    fun mailRead() {
+        newsTracker.updateMail(0)
+        Notifier.cancelMail(appContext)
+    }
 }
 
 private const val EXTERNAL_IMAGE_CACHE_BYTES = 50L * 1024 * 1024

@@ -24,9 +24,9 @@ zoradené, prefiltrované a s lokálnymi notifikáciami.
 | Prepínač vo Friends: Priatelia / Všetci online (`/id/27/`) / Diskusie – kde je najviac ľudí (`/id/4830026/`), sťahuje sa len na požiadanie | hotové |
 | Nastavenia: téma (systém/svetlá/tmavá/tlmená), avatary (animácia, len cez Wi-Fi), interval kontrol 15–60 min, tichý režim, notifikácie, odhlásenie | hotové |
 | K_wallet a vlastné ID (SELF) | parsované z hlavičky |
-| Notifikácia o novej pošte (ľahký endpoint `check_new_mail.php`, otvorí poštu na webe) | hotové |
+| Notifikácia o novej pošte (ľahký endpoint `check_new_mail.php`, otvorí poštu v appke, zmizne po prečítaní aj na webe) | hotové |
 | K – tvoje príspevky s K za poslednú hodinu (z `/id/19/`) a top K (`/id/8340566/`, len na požiadanie) | hotové |
-| Čítanie pošty (`/id/24/`) | zatiaľ záložka s tlačidlom na web |
+| Pošta v appke (`/id/24/`) – čítanie, odpoveď, nová správa (nick alebo ID), počet nových na záložke | hotové |
 | Čítanie nodov priamo v appke – obsah, autor, K, odpovede vo vlákne (prvá stránka), odkazy na nody v appke | hotové |
 | Odpovedanie do nodu aj na konkrétnu odpoveď (ako na webe – HTML, „Bez HTML“) | hotové |
 | Dať K (len pridať, s potvrdením) v node aj v Top K a úprava vlastných príspevkov | hotové |

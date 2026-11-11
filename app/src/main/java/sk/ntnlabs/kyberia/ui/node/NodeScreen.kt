@@ -319,7 +319,7 @@ private class NodeActions(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TextSheet(
+internal fun TextSheet(
     header: String,
     draft: String,
     onDraft: (String) -> Unit,
@@ -334,6 +334,10 @@ private fun TextSheet(
     showEditor: Boolean = true,
     noHtml: Boolean? = null,
     onNoHtml: (Boolean) -> Unit = {},
+    /** Polia nad textom (napr. adresát pošty). */
+    extra: (@Composable () -> Unit)? = null,
+    /** Okrem textu musí byť vyplnené aj niečo iné (napr. adresát). */
+    confirmEnabled: Boolean = true,
 ) {
     val currentBusy by rememberUpdatedState(busy)
     val sheetState = rememberModalBottomSheetState(
@@ -348,6 +352,7 @@ private fun TextSheet(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text(header, style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            extra?.invoke()
             if (loading) {
                 CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally).padding(16.dp))
             }
@@ -380,7 +385,7 @@ private fun TextSheet(
                 }
                 TextButton(onClick = onDismiss, enabled = !busy) { Text(stringResource(R.string.cancel)) }
                 if (onConfirm != null) {
-                    Button(onClick = onConfirm, enabled = !busy && draft.isNotBlank()) {
+                    Button(onClick = onConfirm, enabled = !busy && draft.isNotBlank() && confirmEnabled) {
                         if (busy) {
                             CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
                         } else {
