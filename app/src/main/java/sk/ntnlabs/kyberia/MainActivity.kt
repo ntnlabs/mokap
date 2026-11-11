@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import sk.ntnlabs.kyberia.notify.Notifier
 import sk.ntnlabs.kyberia.ui.common.AvatarOptions
 import sk.ntnlabs.kyberia.ui.common.LocalAvatarOptions
+import sk.ntnlabs.kyberia.ui.common.LocalImageSaver
 import sk.ntnlabs.kyberia.ui.common.rememberMeteredNetwork
 import sk.ntnlabs.kyberia.ui.home.HomeScreen
 import sk.ntnlabs.kyberia.ui.login.LoginScreen
@@ -70,7 +71,7 @@ class MainActivity : ComponentActivity() {
                 network = settings.avatarDownloadAllowed(metered),
             )
             MokapTheme(settings.theme) {
-                CompositionLocalProvider(LocalAvatarOptions provides avatars) {
+                CompositionLocalProvider(LocalAvatarOptions provides avatars, LocalImageSaver provides container.imageSaver) {
                     Surface(Modifier.fillMaxSize()) {
                         val loggedIn by container.auth.loggedIn.collectAsStateWithLifecycle()
                         val tab by requestedTab.collectAsStateWithLifecycle()

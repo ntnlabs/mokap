@@ -33,9 +33,12 @@
 - stav pre notifikácie: čísla nodov z bookmarkov a odpovedí a ich počty, čísla (ID) priateľov online,
   počet neprečítanej pošty;
 - diagnostiku kontrol (čas, výsledok, stav siete) – bez osobných údajov, slúži na zistenie, prečo appku odhlásilo;
-- vyrovnávaciu pamäť obrázkov (avatary; cudzie obrázky, ak sú zapnuté).
+- vyrovnávaciu pamäť obrázkov (avatary; cudzie obrázky, ak sú zapnuté);
+- obrázky, ktoré **sám uložíš** tlačidlom „Uložiť“ – do galérie (Obrázky/mokap). Appka ich vezme z vyrovnávacej
+  pamäte, inak ich stiahne znova z toho istého miesta; nepotrebuje na to žiadne oprávnenie a do galérie nič iné
+  nezapisuje. Tie ostanú v galérii aj po odinštalovaní appky.
 
-Nič z toho sa **nezálohuje do cloudu ani neprenáša na iné zariadenie** a nič z toho appka neposiela vývojárovi.
+Nič z toho (okrem obrázkov, ktoré si uložil do galérie) sa **nezálohuje do cloudu ani neprenáša na iné zariadenie** a nič z toho appka neposiela vývojárovi.
 
 ## Notifikácie
 
@@ -111,9 +114,12 @@ Otázky a pripomienky: <https://github.com/ntnlabs/mokap/issues>
 - notification state: node numbers from your bookmarks and replies with their counts, IDs of friends online,
   the number of unread mails;
 - check diagnostics (time, result, network state) – no personal data, used to find out why you were logged out;
-- an image cache (avatars; third-party images if enabled).
+- an image cache (avatars; third-party images if enabled);
+- images **you save** with the “Save” button – into your gallery (Pictures/mokap). The app takes them from the image
+  cache, or downloads them again from the same place; it needs no permission for this and writes nothing else to
+  the gallery. Saved images stay in the gallery even after you uninstall the app.
 
-None of this is **backed up to the cloud or transferred to another device**, and none of it is sent to the developer.
+None of this (except images you saved to the gallery) is **backed up to the cloud or transferred to another device**, and none of it is sent to the developer.
 
 ## Notifications
 

@@ -32,6 +32,7 @@ zoradené, prefiltrované a s lokálnymi notifikáciami.
 | Dať K (len pridať, s potvrdením) v node aj v Top K a úprava vlastných príspevkov | hotové |
 | K „Za N h“ – tvoje príspevky s K za nastaviteľný čas (predvolene 24 h) v záložke K, len na požiadanie | hotové |
 | Téma nodu oddelená od diskusie | hotové |
+| Obrázky na celú obrazovku so zväčšením a uložením do galérie (Obrázky/mokap); text sa dá označiť a kopírovať | hotové |
 
 ## Ako to funguje
 
