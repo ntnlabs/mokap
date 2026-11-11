@@ -117,6 +117,7 @@ class MainActivity : ComponentActivity() {
         const val TAB_BOOKMARKS = "BOOKMARKS"
         const val TAB_REPLIES = "REPLIES"
         const val TAB_FRIENDS = "FRIENDS"
+        const val TAB_MAIL = "MAIL"
         private const val EXTRA_TAB = "sk.ntnlabs.kyberia.TAB"
         private const val EXTRA_NODE = "sk.ntnlabs.kyberia.NODE"
 

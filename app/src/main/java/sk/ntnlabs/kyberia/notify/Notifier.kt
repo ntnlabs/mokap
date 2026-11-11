@@ -12,7 +12,6 @@ import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import sk.ntnlabs.kyberia.KyberiaUrls
 import sk.ntnlabs.kyberia.MainActivity
 import sk.ntnlabs.kyberia.R
 import sk.ntnlabs.kyberia.data.Increase
@@ -20,7 +19,6 @@ import sk.ntnlabs.kyberia.data.Nsfw
 import sk.ntnlabs.kyberia.parse.Bookmark
 import sk.ntnlabs.kyberia.parse.Friend
 import sk.ntnlabs.kyberia.parse.Reply
-import sk.ntnlabs.kyberia.ui.common.Web
 import sk.ntnlabs.kyberia.work.NetworkProbe
 
 /**
@@ -99,7 +97,7 @@ object Notifier {
     }
 
     /**
-     * Jedna notifikácia s počtom neprečítaných a tým, kto písal naposledy; ťuknutie otvorí poštu na webe.
+     * Jedna notifikácia s počtom neprečítaných a tým, kto písal naposledy; ťuknutie otvorí poštu v appke.
      * [silent] = časť pošty je prečítaná – len opraví číslo v notifikácii, ak ešte visí, bez zvuku.
      */
     fun mail(context: Context, unread: Int, lastFrom: String?, silent: Boolean = false) {
@@ -116,7 +114,7 @@ object Notifier {
                 context.resources.getQuantityString(R.plurals.notify_mail_unread, unread, unread),
             ).setNumber(unread)
                 .setSilent(silent)
-                .setContentIntent(openWeb(context, ID_MAIL, KyberiaUrls.MAIL_ID)),
+                .setContentIntent(openApp(context, MainActivity.TAB_MAIL)),
         )
     }
 
@@ -238,15 +236,6 @@ object Notifier {
             context,
             requestCode,
             MainActivity.intent(context, tab = null, node = nodeId),
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
-        )
-
-    /** Stránka na webe (pošta – tú appka zatiaľ nečíta). */
-    private fun openWeb(context: Context, requestCode: Int, nodeId: Long): PendingIntent =
-        PendingIntent.getActivity(
-            context,
-            requestCode,
-            Web.intent(context, KyberiaUrls.node(nodeId)),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
 

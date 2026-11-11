@@ -97,7 +97,18 @@ class NewsChecker(
     }
 
     /** Chyba pošty nepokazí zvyšok kontroly; o session rozhoduje len stránka s loginom. */
-    private suspend fun checkMail() {
+    /**
+     * Pošta pri obnovení otvorenej appky – jedna malá požiadavka (pár bajtov), ak o poštu používateľ stojí. Hlavne aby
+     * notifikácia zmizla hneď, keď si poštu prečítal na webe, a nie až pri ďalšej kontrole v pozadí. V tichom režime
+     * nič nové nehlási, len opraví alebo zruší to, čo visí.
+     */
+    suspend fun syncMail() {
+        val current = settings.current
+        if (!current.notifyMail || !auth.loggedIn.value) return
+        checkMail(notifyNew = !current.isQuiet(LocalTime.now().hour))
+    }
+
+    private suspend fun checkMail(notifyNew: Boolean = true) {
         val check = try {
             mail.check()
         } catch (e: IOException) {
@@ -107,7 +118,7 @@ class NewsChecker(
         val previous = tracker.updateMail(check.count) ?: return // prvá kontrola len nastaví základ
         when {
             check.count == 0 -> Notifier.cancelMail(context) // prečítané na webe
-            MailNews.added(previous, check.count) > 0 -> Notifier.mail(context, check.count, check.lastFrom)
+            MailNews.added(previous, check.count) > 0 -> Notifier.mail(context, check.count, check.lastFrom, silent = !notifyNew)
             check.count < previous -> Notifier.mail(context, check.count, check.lastFrom, silent = true)
         }
     }

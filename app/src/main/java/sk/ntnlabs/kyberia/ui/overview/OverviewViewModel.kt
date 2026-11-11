@@ -56,6 +56,8 @@ class OverviewViewModel(
     private val latest: LatestPage,
     private val settings: SettingsStore,
     private val scheduler: CheckScheduler,
+    /** Ľahká kontrola pošty po obnovení – notifikácia zmizne hneď, keď si poštu prečítal na webe. */
+    private val syncMail: suspend () -> Unit,
 ) : ViewModel() {
 
     var state by mutableStateOf(OverviewUiState())
@@ -91,6 +93,8 @@ class OverviewViewModel(
                 latest.publish(page, now)
                 // Kyberia práve videla načítanie – strážca session sa posunie.
                 scheduler.touch()
+                // Pošta zvlášť, aby jej chyba nepokazila obnovenie.
+                viewModelScope.launch { runCatching { syncMail() } }
                 state.copy(loading = false)
             } catch (e: SessionExpiredException) {
                 // Len keď kyberia naozaj ukázala prihlasovací formulár (pozri loggedInPage).
@@ -154,6 +158,7 @@ class OverviewViewModel(
                     container.latestPage,
                     container.settings,
                     container.scheduler,
+                    container.checker::syncMail,
                 )
             }
         }

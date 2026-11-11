@@ -98,8 +98,21 @@
         <item quantity="many">%d odpovede</item>
         <item quantity="other">%d odpovedí</item>
     </plurals>
-    <string name="work_in_progress">Pracujeme na tom.</string>
-    <string name="mail_open">Otvoriť poštu na webe</string>
+    <string name="mail_new">Nová správa</string>
+    <string name="mail_reply">odpovedať</string>
+    <string name="mail_reply_to">Odpoveď pre %1$s</string>
+    <string name="mail_to_someone">→ %1$s</string>
+    <string name="mail_to_nick">Nick adresáta</string>
+    <string name="mail_to_id">ID adresáta</string>
+    <string name="mail_new_badge">nová</string>
+    <string name="mail_unread_badge">nečítaná</string>
+    <string name="mail_sent">Odoslané</string>
+    <string name="mail_empty">Pošta je prázdna.</string>
+    <string name="mail_error">Poštu sa nepodarilo načítať.</string>
+    <string name="mail_more_on_web">Staršia pošta na webe</string>
+    <string name="mail_rejected">Kyberia správu neprijala: %1$s</string>
+    <string name="mail_unconfirmed">Kyberia chybu nehlásila, ale odoslanú správu v pošte nevidím. Pozri poštu na webe, kým ju pošleš znova.</string>
+    <string name="mail_network">Spojenie zlyhalo – správa možno odišla. Obnov poštu a pozri sa, kým ju pošleš znova.</string>
     <string name="k_mode_mine">Tvoje K</string>
     <string name="k_mode_hours">Za %1$d h</string>
     <string name="k_mode_top">Top K</string>

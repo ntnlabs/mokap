@@ -2,6 +2,9 @@ package sk.ntnlabs.kyberia.data
 
 import android.content.Context
 import androidx.core.content.edit
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import sk.ntnlabs.kyberia.parse.Bookmark
 import sk.ntnlabs.kyberia.parse.Friend
 import sk.ntnlabs.kyberia.parse.LastPost
@@ -14,6 +17,11 @@ import sk.ntnlabs.kyberia.parse.Reply
 class NewsTracker(context: Context) {
 
     private val prefs = context.getSharedPreferences("check_state", Context.MODE_PRIVATE)
+
+    private val mailState = MutableStateFlow(if (prefs.contains(KEY_MAIL)) prefs.getInt(KEY_MAIL, 0) else null)
+
+    /** Počet novej pošty z poslednej kontroly (null = ešte nebola) – číslo na záložke Pošta. */
+    val unreadMail: StateFlow<Int?> = mailState.asStateFlow()
 
     @Synchronized
     fun updateBookmarks(bookmarks: List<Bookmark>): List<Increase> {
@@ -41,6 +49,7 @@ class NewsTracker(context: Context) {
     fun updateMail(unread: Int): Int? {
         val previous = if (prefs.contains(KEY_MAIL)) prefs.getInt(KEY_MAIL, 0) else null
         prefs.edit { putInt(KEY_MAIL, unread) }
+        mailState.value = unread
         return previous
     }
 
@@ -87,6 +96,7 @@ class NewsTracker(context: Context) {
 
     fun reset() {
         prefs.edit { clear() }
+        mailState.value = null
     }
 
     private companion object {
