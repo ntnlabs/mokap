@@ -47,6 +47,23 @@ class NodeOutcomesTest {
     }
 
     @Test
+    fun kFromTopKList() {
+        val page = Jsoup.parse(html, url)
+        // Fixture má 12 K. Zo zoznamu 11 → narástlo = dané.
+        assertTrue(NodeOutcomes.kFromList(5001, 11, page) is KResult.Given)
+        // Zo zoznamu 13 → kleslo = hlásiť.
+        assertTrue(NodeOutcomes.kFromList(5001, 13, page) is KResult.Removed)
+        // Rovnako a bez „-❤️“ = nepotvrdené.
+        assertTrue(NodeOutcomes.kFromList(5001, 12, page) is KResult.Unconfirmed)
+        // Rovnako, ale kyberia ponúka „-❤️“ (revoKe) = K od teba tam už bolo.
+        val given = Jsoup.parse(html.replaceFirst("name=\"event\" value=\"K\"", "name=\"event\" value=\"revoKe\""), url)
+        assertTrue(NodeOutcomes.kFromList(5001, 12, given) is KResult.Already)
+        // Chyba z hlavičky má prednosť.
+        val error = Jsoup.parse(html.replace("<body>", "<body><center><span class='most_important'>nemas k</span></center>"), url)
+        assertEquals("nemas k", (NodeOutcomes.kFromList(5001, 11, error) as KResult.Rejected).message)
+    }
+
+    @Test
     fun kRejected() {
         val page = Jsoup.parse(html.replace("<body>", "<body><center><span class='most_important'>nemas k</span></center>"), url)
         assertEquals("nemas k", (NodeOutcomes.k(before, null, page) as KResult.Rejected).message)

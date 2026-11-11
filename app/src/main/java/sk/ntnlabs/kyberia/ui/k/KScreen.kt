@@ -2,13 +2,18 @@ package sk.ntnlabs.kyberia.ui.k
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
@@ -21,6 +26,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
@@ -60,6 +69,25 @@ fun KScreen(
     // alebo sa zmenil počet hodín. Nikdy v pozadí.
     LaunchedEffect(mode) { topK.refreshIfStale() }
     LaunchedEffect(mode, hours) { if (mode == KMode.HOURS) kHours.refreshIfStale(hours) }
+    // K sa nedá vziať späť z appky (odobratie len na webe, penalizované) – preto vždy potvrdenie.
+    var askK by rememberSaveable { mutableStateOf<Long?>(null) }
+    askK?.let { id ->
+        val item = topK.state.items?.firstOrNull { it.id == id }
+        if (item != null) {
+            AlertDialog(
+                onDismissRequest = { askK = null },
+                title = { Text(stringResource(R.string.node_k_confirm_title)) },
+                text = { Text(stringResource(R.string.node_k_confirm_text, listOfNotNull(item.author, Nsfw.label(item.title)).joinToString(": "))) },
+                confirmButton = {
+                    TextButton(onClick = {
+                        askK = null
+                        topK.giveK(item)
+                    }) { Text(stringResource(R.string.node_k_confirm)) }
+                },
+                dismissButton = { TextButton(onClick = { askK = null }) { Text(stringResource(R.string.cancel)) } },
+            )
+        }
+    }
     val openLink: (String) -> Unit = { url ->
         val id = if (UrlPolicy.isInternal(url)) KyberiaUrls.nodeId(url) else null
         if (id != null) onOpenNode(id) else onOpenWeb(url)
@@ -114,6 +142,9 @@ fun KScreen(
                     onLink = openLink,
                     onOpenNode = onOpenNode,
                     onOpenAll = { onOpenWeb(KyberiaUrls.TOP_K) },
+                    kStatus = topK.state.k,
+                    canGiveK = topK::canGiveK,
+                    onAskK = { askK = it.id },
                 )
             }
         }
@@ -168,6 +199,9 @@ private fun TopKList(
     onLink: (String) -> Unit,
     onOpenNode: (Long) -> Unit,
     onOpenAll: () -> Unit,
+    kStatus: Map<Long, TopKStatus>,
+    canGiveK: (TopKItem) -> Boolean,
+    onAskK: (TopKItem) -> Unit,
 ) {
     LazyColumn(Modifier.fillMaxSize()) {
         when {
@@ -176,7 +210,14 @@ private fun TopKList(
             items.isEmpty() -> item { Text(stringResource(R.string.k_top_empty), Modifier.padding(16.dp)) }
         }
         items(items.orEmpty(), key = { "topk:${it.id}" }) { item ->
-            TopKCard(item, externalImages, onLink, onOpenNode)
+            TopKCard(
+                item,
+                externalImages,
+                onLink,
+                onOpenNode,
+                kStatus = kStatus[item.id],
+                onK = if (canGiveK(item)) ({ onAskK(item) }) else null,
+            )
             HorizontalDivider()
         }
         if (items != null) {
@@ -190,7 +231,15 @@ private fun TopKList(
 }
 
 @Composable
-private fun TopKCard(item: TopKItem, externalImages: ImageLoader?, onLink: (String) -> Unit, onOpenNode: (Long) -> Unit) {
+private fun TopKCard(
+    item: TopKItem,
+    externalImages: ImageLoader?,
+    onLink: (String) -> Unit,
+    onOpenNode: (Long) -> Unit,
+    kStatus: TopKStatus?,
+    /** null = K sa tu dať nedá (vlastný príspevok, už dané, posiela sa, chýba token). */
+    onK: (() -> Unit)?,
+) {
     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Row(
             Modifier.fillMaxWidth().clickable { onOpenNode(item.id) },
@@ -227,13 +276,36 @@ private fun TopKCard(item: TopKItem, externalImages: ImageLoader?, onLink: (Stri
             )
         }
         if (item.content.isNotEmpty()) ContentView(item.content, onLink, externalImages)
-        item.children?.takeIf { it > 0 }?.let { count ->
-            Text(
-                pluralStringResource(R.plurals.node_replies, count, count),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.clickable { onOpenNode(item.id) },
-            )
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.weight(1f)) {
+                item.children?.takeIf { it > 0 }?.let { count ->
+                    Text(
+                        pluralStringResource(R.plurals.node_replies, count, count),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.clickable { onOpenNode(item.id) },
+                    )
+                }
+            }
+            when {
+                kStatus == TopKStatus.Sending -> CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
+                kStatus == TopKStatus.Done -> Text(
+                    stringResource(R.string.node_k_done),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                onK != null -> TextButton(onClick = onK, contentPadding = PaddingValues(horizontal = 8.dp)) {
+                    Text(stringResource(R.string.node_k_give))
+                }
+            }
         }
+        val problem = when (kStatus) {
+            is TopKStatus.Rejected -> stringResource(R.string.k_top_k_failed, kStatus.message)
+            TopKStatus.Unconfirmed -> stringResource(R.string.k_top_k_unconfirmed)
+            TopKStatus.Network -> stringResource(R.string.k_top_k_network)
+            TopKStatus.Removed -> stringResource(R.string.node_k_removed)
+            else -> null
+        }
+        problem?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
     }
 }

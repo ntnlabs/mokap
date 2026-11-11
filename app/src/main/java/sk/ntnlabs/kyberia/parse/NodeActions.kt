@@ -65,7 +65,7 @@ object NodeActionsParser {
 
     private fun target(form: FormElement, document: Document): PostTarget? {
         val token = form.control("anticsrf")?.attr("value")?.ifEmpty { null }
-            ?: document.select("input[name=anticsrf]").firstNotNullOfOrNull { it.attr("value").ifEmpty { null } }
+            ?: Forms.anticsrf(document)
             ?: return null
         return PostTarget(Forms.action(form, document), token, Forms.isMultipart(form))
     }

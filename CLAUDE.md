@@ -42,7 +42,10 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   len POST-om a kyberia ho neukladá – GET /id/19/ dá vždy 1 h; appka zatiaľ len tú (iný interval = možno nastavenie neskôr).
   „Top K“ = /id/8340566/: `div.item` s `div.icon-k` (avatar, „24 k“) a `div.title` (`<a>`príspevok, „in“ `<a>`rodič,
   „by“ `<a>`autor, „created: …“, „- 3ch“) + `div.content`. Sťahuje sa **len pri prepnutí na Top K** (staršie ako 5 min),
-  nikdy v pozadí; po ňom `Presence`.
+  nikdy v pozadí; po ňom `Presence`. **+K v Top K** ako web (`ajaxK`): urlencoded POST `/id/<node>/` s `event=K`
+  a `anticsrf` (token zo stránky Top K, `TopKPage`), jednorazový. Top K neukazuje, komu si K dal; výsledok z vrátenej
+  stránky nodu (`NodeOutcomes.kFromList`): počet narástol = dané, rovnaký s „-❤️“ = K od teba už bolo, „K ✓“ ostáva
+  aj po obnovení zoznamu. Na Top K sa K podľa používateľa nedá odobrať – `event=K` len pridáva.
   **„Za N h“** (tretí prepínač v záložke K: Tvoje K · Za N h · Top K; `KHoursViewModel`, `MyKRepository`): ten istý
   blok za N hodín (nastavenie v „Pokročilé“, 6–168 h, predvolene 24; text prepínača sa mení s ním). Ako web po „Hour“: formulár s intervalom je
   vnorený vo formulári bookmarkov, takže POST /id/19/ s `anticsrf`, `interval`, `template_event=Hour` (bez `event` –

@@ -15,6 +15,8 @@ import sk.ntnlabs.kyberia.data.CheckEntry
 import sk.ntnlabs.kyberia.data.CheckResult
 import sk.ntnlabs.kyberia.data.CheckTrigger
 import sk.ntnlabs.kyberia.data.DiagnosticsStore
+import sk.ntnlabs.kyberia.data.KResult
+import sk.ntnlabs.kyberia.data.LatestPage
 import sk.ntnlabs.kyberia.data.SessionExpiredException
 import sk.ntnlabs.kyberia.data.TopKRepository
 import sk.ntnlabs.kyberia.parse.TopKItem
@@ -28,13 +30,34 @@ data class TopKUiState(
     val loading: Boolean = false,
     val items: List<TopKItem>? = null,
     val error: Boolean = false,
+    /** Stav K pri príspevkoch (ID nodu). „Dané“ ostáva aj po obnovení – Top K neukazuje, komu si K dal. */
+    val k: Map<Long, TopKStatus> = emptyMap(),
 )
+
+/** K pri príspevku v Top K. */
+sealed interface TopKStatus {
+    data object Sending : TopKStatus
+
+    /** K od teba tam je – dané teraz alebo už predtým. */
+    data object Done : TopKStatus
+
+    data class Rejected(val message: String) : TopKStatus
+
+    data object Unconfirmed : TopKStatus
+
+    /** Spojenie zlyhalo po odoslaní – K možno prešlo. */
+    data object Network : TopKStatus
+
+    /** Počet K klesol – hlásiť, nikdy zámerne. */
+    data object Removed : TopKStatus
+}
 
 class TopKViewModel(
     private val repository: TopKRepository,
     private val auth: AuthRepository,
     private val diagnostics: DiagnosticsStore,
     private val scheduler: CheckScheduler,
+    private val latest: LatestPage,
 ) : ViewModel() {
 
     var state by mutableStateOf(TopKUiState())
@@ -42,11 +65,23 @@ class TopKViewModel(
 
     private var loadedAtMillis = 0L
 
+    /** Token session zo stránky Top K – len v pamäti, na K (ako web `ajaxK`). */
+    private var anticsrf: String? = null
+
+    /** Vlastné ID – vlastným príspevkom appka K neponúkne. */
+    val me: Long? get() = latest.flow.value?.page?.user?.userId
+
+    /** Či sa dá K dať (je token, nie je to vlastný príspevok, ešte nie je dané ani sa neposiela). */
+    fun canGiveK(item: TopKItem): Boolean =
+        anticsrf != null && (me == null || item.authorId != me) &&
+            state.k[item.id].let { it != TopKStatus.Sending && it != TopKStatus.Done }
+
     init {
         viewModelScope.launch {
             auth.loggedIn.collect { loggedIn ->
                 if (!loggedIn) {
                     loadedAtMillis = 0L
+                    anticsrf = null
                     state = TopKUiState()
                 }
             }
@@ -68,10 +103,11 @@ class TopKViewModel(
         state = state.copy(loading = true, error = false)
         viewModelScope.launch {
             state = try {
-                val items = repository.load()
+                val page = repository.load()
+                anticsrf = page.anticsrf
                 loadedAtMillis = System.currentTimeMillis()
                 scheduler.touch()
-                state.copy(loading = false, items = items)
+                state.copy(loading = false, items = page.items, k = state.k.filterValues { it == TopKStatus.Done })
             } catch (e: SessionExpiredException) {
                 diagnostics.record(CheckEntry(System.currentTimeMillis(), CheckResult.EXPIRED, CheckTrigger.APP, e.detail))
                 auth.sessionEnded()
@@ -82,11 +118,44 @@ class TopKViewModel(
         }
     }
 
+    /** Jedno K príspevku – len po potvrdení používateľa; nikdy znova samo, nikdy `revoKe`. */
+    fun giveK(item: TopKItem) {
+        val token = anticsrf ?: return
+        if (!canGiveK(item) || !auth.loggedIn.value) return
+        state = state.copy(k = state.k + (item.id to TopKStatus.Sending))
+        viewModelScope.launch {
+            val status = try {
+                val result = repository.giveK(item, token)
+                scheduler.touch()
+                // Počet K v zozname podľa vrátenej stránky nodu.
+                result.page.k?.let { count ->
+                    state = state.copy(items = state.items?.map { if (it.id == item.id) it.copy(k = count) else it })
+                }
+                when (result) {
+                    is KResult.Given, is KResult.Already -> TopKStatus.Done
+                    is KResult.Rejected -> TopKStatus.Rejected(result.message)
+                    is KResult.Unconfirmed -> TopKStatus.Unconfirmed
+                    is KResult.Removed -> TopKStatus.Removed
+                }
+            } catch (e: SessionExpiredException) {
+                diagnostics.record(CheckEntry(System.currentTimeMillis(), CheckResult.EXPIRED, CheckTrigger.APP, e.detail))
+                auth.sessionEnded()
+                state = TopKUiState()
+                return@launch
+            } catch (e: IOException) {
+                TopKStatus.Network
+            }
+            state = state.copy(k = state.k + (item.id to status))
+        }
+    }
+
     companion object {
         private const val STALE_AFTER_MILLIS = 5 * 60_000L
 
         fun factory(container: AppContainer) = viewModelFactory {
-            initializer { TopKViewModel(container.topK, container.auth, container.diagnostics, container.scheduler) }
+            initializer {
+                TopKViewModel(container.topK, container.auth, container.diagnostics, container.scheduler, container.latestPage)
+            }
         }
     }
 }

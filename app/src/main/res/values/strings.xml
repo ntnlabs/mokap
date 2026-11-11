@@ -69,6 +69,10 @@
     <string name="node_k_confirm">Dať K</string>
     <string name="node_k_given">K pridané</string>
     <string name="node_k_rejected">Kyberia K neprijala: %1$s</string>
+    <string name="node_k_already">K od teba tu už bolo.</string>
+    <string name="k_top_k_failed">K neprešlo: %1$s</string>
+    <string name="k_top_k_unconfirmed">Kyberia chybu nehlásila, ale K nepribudlo – pozri na webe.</string>
+    <string name="k_top_k_network">Spojenie zlyhalo – K možno prešlo. Obnov Top K.</string>
     <string name="node_k_removed">Pozor: počet K klesol – skontroluj node na webe.</string>
     <string name="node_k_unconfirmed">Kyberia chybu nehlásila, ale K na stránke nepribudlo. Pozri node na webe.</string>
     <string name="node_action_network">Spojenie zlyhalo – akcia možno prešla. Obnov node a pozri sa.</string>

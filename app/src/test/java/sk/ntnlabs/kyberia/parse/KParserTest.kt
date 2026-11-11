@@ -65,6 +65,16 @@ class KParserTest {
     }
 
     @Test
+    fun topKPageCarriesTokenForK() {
+        val page = TopKParser.page(Fixtures.load("topk.html", "https://kyberia.sk/id/8340566/"))
+        assertEquals(2, page.items.size)
+        assertEquals("topk-token", page.anticsrf)
+        assertTrue("token nesmie byť vo výpise", !page.toString().contains("topk-token"))
+        // Ako web (ajaxK): len event a token, nič iné.
+        assertEquals(listOf("event" to "K", "anticsrf" to "tok"), TopKParser.kFields("tok"))
+    }
+
+    @Test
     fun topKOnOtherPageIsEmpty() {
         assertTrue(TopKParser.parse(Fixtures.load("node.html", "https://kyberia.sk/id/5001/")).isEmpty())
     }
