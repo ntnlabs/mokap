@@ -45,8 +45,8 @@ Na používanie potrebuješ účet na kyberia.sk.
 mokap nie je oficiálna aplikácia kyberia.sk – vyvíja ju člen komunity vo voľnom čase.
 ```
 
-**Čo je nové:** pri každom builde v [`whats-new.txt`](whats-new.txt) – len po slovensky (`<sk>`), šablóna
-používateľa s `<br>`, rovno na skopírovanie do Release notes; job `apk` ho vypíše aj do súhrnu behu.
+**Čo je nové:** pri každom builde v [`whats-new.txt`](whats-new.txt) – len po slovensky v bloku `<sk>`…`</sk>`
+(bez ďalších značiek), rovno na skopírovanie do Release notes; job `apk` ho vypíše aj do súhrnu behu.
 
 ## English (en-US)
 

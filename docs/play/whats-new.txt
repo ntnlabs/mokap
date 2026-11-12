@@ -1,10 +1,10 @@
 <sk>
-Beta verzia, deviaty push na Google Play Developer Konzole<br>
-Codename: Capable Capybara<br>
-<br>
-• K môžeš dať aj vlastným príspevkom (node, odpovede, Top K)<br>
-• Na nadradený node vedie zelená šípka hore<br>
-• Pošta po odoslaní ukáže novú správu navrchu – netreba ju posielať znova<br>
-• Po odoslaní odpovede sa node posunie na ňu<br>
-• Nahlásiť chybu alebo nápad: prvý riadok v nastaveniach (GitHub)<br>
+Beta verzia, deviaty push na Google Play Developer Konzole
+Codename: Capable Capybara
+
+• K môžeš dať aj vlastným príspevkom (node, odpovede, Top K)
+• Na nadradený node vedie zelená šípka hore
+• Pošta po odoslaní ukáže novú správu navrchu – netreba ju posielať znova
+• Po odoslaní odpovede sa node posunie na ňu
+• Nahlásiť chybu alebo nápad: prvý riadok v nastaveniach (GitHub)
 </sk>
