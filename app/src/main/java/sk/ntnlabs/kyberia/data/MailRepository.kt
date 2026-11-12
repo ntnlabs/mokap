@@ -1,6 +1,7 @@
 package sk.ntnlabs.kyberia.data
 
 import java.nio.charset.StandardCharsets
+import kotlinx.coroutines.delay
 import org.jsoup.nodes.Document
 import sk.ntnlabs.kyberia.KyberiaUrls
 import sk.ntnlabs.kyberia.parse.MailCheck
@@ -29,6 +30,11 @@ object MailOutcomes {
     fun send(before: MailPage, response: Document): SendResult {
         val page = MailParser.parse(response)
         PageError.of(response)?.let { return SendResult.Rejected(page, it) }
+        return recheck(before, page)
+    }
+
+    /** Overenie na čerstvo načítanej pošte (po odoslaní kyberia novú správu niekedy hneď neukáže). */
+    fun recheck(before: MailPage, page: MailPage): SendResult {
         val known = before.mails.mapTo(HashSet()) { it.id }
         val sent = page.mails.firstOrNull { it.id !in known && page.outgoing(it) }
         return if (sent != null) SendResult.Sent(page, sent.id) else SendResult.Unconfirmed(page)
@@ -65,6 +71,18 @@ class MailRepository(private val client: KyberiaClient) {
             PageKind.LOGGED_OUT -> throw SessionExpiredException(LogoutDetail.of(form.action, response.url))
             PageKind.UNKNOWN -> throw UnexpectedPageException(response.code)
         }
-        return MailOutcomes.send(page, response.document)
+        var result = MailOutcomes.send(page, response.document)
+        // Kyberia chybu nehlásila, ale novú správu v odpovedi nevidno (stalo sa testerovi – poslal ju 4×). Chvíľu
+        // počkať a poštu načítať znova – najviac dvakrát, len v tomto prípade. Nikdy znova neposielať.
+        for (wait in RECHECK_DELAYS_MILLIS) {
+            if (result !is SendResult.Unconfirmed) break
+            delay(wait)
+            result = MailOutcomes.recheck(page, load())
+        }
+        return result
+    }
+
+    private companion object {
+        val RECHECK_DELAYS_MILLIS = listOf(2_000L, 3_000L)
     }
 }

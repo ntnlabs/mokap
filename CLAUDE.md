@@ -118,7 +118,10 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   `div.content`. Prvá stránka = 32 správ, staršie na webe. Odoslanie: `formular` (multipart) → POST **len** `anticsrf`,
   `mail_to`, `mail_to_type` (`id` pri odpovedi – ID druhej strany, `name` pri novej správe s nickom), `mail_text`,
   voliteľne `no_html=yes` a `event=send` (formulár má aj `delete_mail`, stránkovanie…). `oneShot`, nikdy znova samo;
-  úspech = v vrátenej pošte je nová správa od teba, chyba v hlavičke. Správy len v pamäti, nikam sa neukladajú;
+  úspech = v vrátenej pošte je nová správa od teba, chyba v hlavičke. Odpoveď na odoslanie novú správu niekedy neukáže
+  (tester tak poslal poštu 4×) → appka počká 2 s a 3 s a poštu načíta znova (`MailOutcomes.recheck`, najviac 2 GET,
+  len pri nepotvrdenom). Po nepotvrdenom odoslaní alebo chybe siete sa ďalšie „Odoslať“ najprv pýta (`TextSheet.confirmResend`)
+  – v pošte aj pri odpovediach v node. Správy len v pamäti, nikam sa neukladajú;
   vzorky skutočnej pošty len lokálne – do gitu ani nick, ani text.
 - Avatary: prepínač animácie (vypnutá = prvý snímok cez `BitmapFactoryDecoder`) a „len cez Wi-Fi“
   (na meranej sieti len z diskovej cache, `networkCachePolicy(DISABLED)`); `LocalAvatarOptions`.

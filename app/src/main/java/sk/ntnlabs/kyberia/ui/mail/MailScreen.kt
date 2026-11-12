@@ -158,6 +158,7 @@ fun MailScreen(
             hint = stringResource(R.string.node_reply_hint),
             confirmLabel = stringResource(R.string.node_reply_send),
             onConfirm = { viewModel.send(to, byId, draft, noHtml) },
+            confirmResend = state.problem == ReplyProblem.Unconfirmed || state.problem == ReplyProblem.Network,
             onDismiss = {
                 composing = false
                 viewModel.sendHandled()

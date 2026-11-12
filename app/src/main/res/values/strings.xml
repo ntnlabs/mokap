@@ -53,6 +53,9 @@
     <string name="node_reply_hint">Ako na webe – HTML aj nové riadky. Názov doplní kyberia.</string>
     <string name="node_reply_no_html">Bez HTML</string>
     <string name="node_reply_send">Odoslať</string>
+    <string name="resend_title">Poslať znova?</string>
+    <string name="resend_text">Kyberia predošlé odoslanie nepotvrdila – text možno už odišiel. Najprv sa pozri, či tam nie je, aby si ho neposlal dvakrát.</string>
+    <string name="resend_confirm">Poslať znova</string>
     <string name="node_reply_sent">Odoslané</string>
     <string name="node_reply_rejected">Kyberia príspevok neprijala: %1$s</string>
     <string name="node_reply_unconfirmed">Kyberia chybu nehlásila, ale nový príspevok na stránke nevidím. Pozri node na webe, kým to pošleš znova.</string>
@@ -115,7 +118,7 @@
     <string name="mail_error">Poštu sa nepodarilo načítať.</string>
     <string name="mail_more_on_web">Staršia pošta na webe</string>
     <string name="mail_rejected">Kyberia správu neprijala: %1$s</string>
-    <string name="mail_unconfirmed">Kyberia chybu nehlásila, ale odoslanú správu v pošte nevidím. Pozri poštu na webe, kým ju pošleš znova.</string>
+    <string name="mail_unconfirmed">Kyberia chybu nehlásila, ale ani po obnovení pošty odoslanú správu nevidím. Môže prísť s oneskorením – pozri poštu na webe, kým ju pošleš znova.</string>
     <string name="mail_network">Spojenie zlyhalo – správa možno odišla. Obnov poštu a pozri sa, kým ju pošleš znova.</string>
     <string name="k_mode_mine">Tvoje K</string>
     <string name="k_mode_hours">Za %1$d h</string>
