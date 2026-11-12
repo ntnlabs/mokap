@@ -55,6 +55,8 @@ jobs:
           distribution: temurin
           java-version: "17"
           cache: gradle
+      - name: Čo je nové (Play, ≤ 500 znakov)
+        run: python3 .github/scripts/whats_new.py
       - name: Lint and unit tests
         run: ./gradlew lintDebug testDebugUnitTest
       - name: Upload reports
@@ -99,6 +101,9 @@ jobs:
           echo "NDK $VERSION: ${NDK%/}"
           echo "MOKAP_NDK_PATH=${NDK%/}" >> "$GITHUB_ENV"
           echo "MOKAP_NDK_VERSION=$VERSION" >> "$GITHUB_ENV"
+      # Text pre Play Console → Release notes do súhrnu behu (overený už v checks).
+      - name: Čo je nové do súhrnu
+        run: python3 .github/scripts/whats_new.py --summary
       - name: Build debug and release
         # Tretia časť verzie (0.7.0112) = číslo behu tohto workflowu.
         env:

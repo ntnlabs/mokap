@@ -45,16 +45,8 @@ Na používanie potrebuješ účet na kyberia.sk.
 mokap nie je oficiálna aplikácia kyberia.sk – vyvíja ju člen komunity vo voľnom čase.
 ```
 
-**Čo je nové (0.8 Capable Capybara):**
-
-```
-• Odpovedanie do nodov aj na konkrétne odpovede
-• Dávanie K s potvrdením, „K ✓“ tam, kde už K máš
-• Úprava vlastných príspevkov
-• Téma nodu oddelená od diskusie, dlhé úvody zbalené
-• Šípka na nadradený node
-• Tvoje K za posledných 24 h (dá sa zmeniť v nastaveniach)
-```
+**Čo je nové:** pri každom builde v [`whats-new.txt`](whats-new.txt) – len po slovensky (`<sk>`), šablóna
+používateľa s `<br>`, rovno na skopírovanie do Release notes; job `apk` ho vypíše aj do súhrnu behu.
 
 ## English (en-US)
 
@@ -94,16 +86,7 @@ You need an account on kyberia.sk to use the app.
 mokap is not an official kyberia.sk app – it is developed by a community member in their spare time.
 ```
 
-**What's new (0.8 Capable Capybara):**
-
-```
-• Replying to nodes and to specific replies
-• Giving K with confirmation, "K ✓" where you already gave K
-• Editing your own posts
-• Node topic separated from the discussion, long intros collapsed
-• Arrow to the parent node
-• Your K for the last 24 h (adjustable in settings)
-```
+**What's new:** len slovensky – [`whats-new.txt`](whats-new.txt) (rozhodnutie používateľa).
 
 ## Ostatné polia
 
