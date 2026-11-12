@@ -1,0 +1,14 @@
+<sk-SK>
+• K môžeš dať aj vlastným príspevkom (node, odpovede, Top K)
+• Na nadradený node vedie zelená šípka hore
+• Pošta po odoslaní ukáže novú správu navrchu – netreba ju posielať znova
+• Po odoslaní odpovede sa node posunie na ňu
+• Nahlásiť chybu alebo nápad: prvý riadok v nastaveniach (GitHub)
+</sk-SK>
+<en-US>
+• You can give K to your own posts too (node, replies, Top K)
+• A green up arrow leads to the parent node
+• Mail shows your sent message at the top – no need to send it again
+• After replying, the node scrolls to your reply
+• Report a bug or idea: first row in settings (GitHub)
+</en-US>

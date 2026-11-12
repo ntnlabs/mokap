@@ -205,5 +205,8 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   vyrába a drží používateľ – nikdy nejde cez Clauda, do gitu ani do logov. Release AAB nesie aj R8 mapovanie.
   **Native symboly nie sú a byť nemôžu:** jediný native kód je `libandroidx.graphics.path.so` (Compose) a AndroidX ho
   dodáva už orezaný – AGP z neho nič nevytiahne („already been stripped“), varovanie Play o debug symboloch je neškodné.
+  **„Čo je nové“** (Play Release notes) je v `docs/play/whats-new.txt` (bloky `<sk-SK>`/`<en-US>`, ≤ 500 znakov na jazyk,
+  `.github/scripts/whats_new.py` ho overí v checks): pred každým buildom ho aktualizuj – zmeny od posledného buildu
+  pre používateľov, bez technických detailov; job `apk` ho vypíše do súhrnu behu.
   `ndk.debugSymbolLevel = SYMBOL_TABLE` ostáva pre prípad knižnice so symbolmi; NDK dáva job `apk` z runnera
   (`MOKAP_NDK_PATH`/`MOKAP_NDK_VERSION` → `ndkPath`/`ndkVersion` – AGP chce, aby sedeli). Krok „Native symboly v AAB“ len vypíše stav.
