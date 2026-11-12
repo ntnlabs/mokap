@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
@@ -203,7 +204,16 @@ fun NodeScreen(
         Box(Modifier.fillMaxSize().padding(padding)) {
             when {
                 page != null && actions != null -> PullToRefreshBox(isRefreshing = state.loading, onRefresh = { nodes.load(nodeId) }) {
-                    NodeContent(page, openLink, externalImages, onOpenNode, onMore = { openWeb(KyberiaUrls.node(nodeId)) }, actions)
+                    NodeContent(
+                        page,
+                        openLink,
+                        externalImages,
+                        onOpenNode,
+                        onMore = { openWeb(KyberiaUrls.node(nodeId)) },
+                        actions,
+                        newReply = state.newReply,
+                        onReplyShown = { nodes.replyShown(nodeId) },
+                    )
                 }
                 state.error -> Column(
                     Modifier.fillMaxSize().padding(24.dp),
@@ -436,12 +446,23 @@ private fun NodeContent(
     onOpenNode: (Long) -> Unit,
     onMore: () -> Unit,
     actions: NodeActions,
+    newReply: Long?,
+    onReplyShown: () -> Unit,
 ) {
     // Do štyroch úrovní; hlbšie odpovede sa otvoria ako vetva (node odpovede) v appke.
     val thread = remember(page.children) { ThreadView.items(page.children) }
     val replies = page.childrenTotal ?: page.children.size
+    // Odoslaná odpoveď pribudne často nad tým, čo je na obrazovke (zoznam drží pozíciu), a vyzeralo by to, že nič
+    // neprešlo – odrolovať na ňu. Ak je hlbšie ako vlákno ukazuje, ostane sa na mieste (potvrdí ju snackbar).
+    val listState = rememberLazyListState()
+    LaunchedEffect(newReply) {
+        val id = newReply ?: return@LaunchedEffect
+        val index = thread.indexOfFirst { it is ThreadItem.Reply && it.child.id == id }
+        if (index >= 0) listState.animateScrollToItem(index + HEADER_ITEMS)
+        onReplyShown()
+    }
     // Miesto pod tlačidlom „Odpovedať“, aby neprekrylo poslednú odpoveď.
-    LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = if (actions.reply != null) 88.dp else 8.dp)) {
+    LazyColumn(Modifier.fillMaxSize(), state = listState, contentPadding = PaddingValues(bottom = if (actions.reply != null) 88.dp else 8.dp)) {
         item(key = "topic") { Topic(page, onLink, externalImages, onOpenNode, actions) }
         item(key = "discussion") {
             Text(
@@ -628,6 +649,9 @@ private fun typeLabel(templateId: Int?): Int? = when (templateId) {
 }
 
 private fun indent(depth: Int) = (depth * INDENT_DP).dp
+
+/** Položky zoznamu pred vláknom: téma a nadpis „Diskusia“. */
+private const val HEADER_ITEMS = 2
 
 private fun ThreadItem.key(): String = when (this) {
     is ThreadItem.Reply -> "r${child.id}"
