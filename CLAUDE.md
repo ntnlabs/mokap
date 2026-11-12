@@ -206,8 +206,9 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   **Native symboly nie sú a byť nemôžu:** jediný native kód je `libandroidx.graphics.path.so` (Compose) a AndroidX ho
   dodáva už orezaný – AGP z neho nič nevytiahne („already been stripped“), varovanie Play o debug symboloch je neškodné.
   **„Čo je nové“** (Play Release notes) je v `docs/play/whats-new.txt`, **len po slovensky** v šablóne používateľa:
-  `<sk>`, „Beta verzia, N-tý push na Google Play Developer Konzole<br>“, „Codename: …<br>“, prázdny `<br>` a zmeny
-  od posledného buildu pre používateľov (bez technických detailov), každý riadok končí `<br>`; ≤ 500 znakov
+  blok `<sk>`…`</sk>` (iné značky ako `<br>` netreba – Play berie riadky tak, ako sú), „Beta verzia, N-tý push na
+  Google Play Developer Konzole“, „Codename: …“, prázdny riadok a zmeny od posledného buildu pre používateľov
+  (bez technických detailov); ≤ 500 znakov
   (`.github/scripts/whats_new.py` ho overí v checks, job `apk` ho vypíše do súhrnu behu). Pred každým buildom
   ho aktualizuj; poradie pushu vedie používateľ (posledný známy: deviaty, 12. 11. 2026) – pri pochybnosti sa spýtaj.
   `ndk.debugSymbolLevel = SYMBOL_TABLE` ostáva pre prípad knižnice so symbolmi; NDK dáva job `apk` z runnera

@@ -177,7 +177,7 @@ fun NodeScreen(
                         IconButton(onClick = { onOpenNode(parent) }) {
                             Icon(
                                 painterResource(R.drawable.ic_arrow_upward),
-                                contentDescription = page?.parentTitle?.let { stringResource(R.string.node_parent_open_named, Nsfw.label(it)) }
+                                contentDescription = page.parentTitle?.let { stringResource(R.string.node_parent_open_named, Nsfw.label(it)) }
                                     ?: stringResource(R.string.node_parent_open),
                                 tint = MaterialTheme.colorScheme.primary,
                             )
