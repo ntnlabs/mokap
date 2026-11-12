@@ -115,10 +115,15 @@ mokap is not an official kyberia.sk app – it is developed by a community membe
 | Contact e-mail | **tvoj** – vyplniť len v Play Console, nie do repa |
 | Privacy policy | `https://github.com/ntnlabs/mokap/blob/main/PRIVACY.md` |
 
-## Grafika (treba dodať)
+## Grafika
 
-- **Ikona 512 × 512** PNG (32-bit, bez priehľadnosti v rohoch – Play si ich zaoblí sám).
-- **Feature graphic 1024 × 500** PNG/JPG – bez loga kyberie.
+Hotové v [`graphics/`](graphics/), vyrobené skriptom [`make_graphics.py`](graphics/make_graphics.py) z launcher
+ikony appky. Pri zmene ikony ho spusti znova (`python3 docs/play/graphics/make_graphics.py`, Pillow + fonty DejaVu).
+
+- **Ikona 512 × 512:** [`icon-512.png`](graphics/icon-512.png) – rovnaké K ako launcher, bez priehľadnosti (rohy
+  si Play zaoblí sám).
+- **Feature graphic 1024 × 500:** [`feature-graphic-sk.png`](graphics/feature-graphic-sk.png) pre sk-SK,
+  [`feature-graphic-en.png`](graphics/feature-graphic-en.png) pre en-US – bez loga kyberie.
 - **Screenshoty z telefónu:** aspoň 2 (odporúčané 4–8), napr. Bookmarky, node s diskusiou, záložka K, notifikácie.
   Pred nahratím skontroluj, že na nich nie sú cudzie nicky, súkromná pošta či príspevky, ktoré by autori nechceli
   ukázať mimo kyberie – najlepšie vlastný alebo testovací účet a verejné nody.
