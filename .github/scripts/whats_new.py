@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""„Čo je nové“ pre Play Console: overí docs/play/whats-new.txt (jazykové bloky, ≤ 500 znakov). S --summary
+"""„Čo je nové“ pre Play Console: overí docs/play/whats-new.txt (blok <sk>, ≤ 500 znakov). S --summary
 ho zapíše do súhrnu behu v GitHub Actions, nech sa dá pri nahrávaní AAB rovno skopírovať do Release notes."""
 import os
 import re
@@ -9,9 +9,9 @@ PATH = "docs/play/whats-new.txt"
 LIMIT = 500
 
 text = open(PATH, encoding="utf-8").read().strip()
-blocks = re.findall(r"<([a-z]{2}-[A-Z]{2})>\n(.*?)\n</\1>", text, re.S)
+blocks = re.findall(r"<([a-z]{2}(?:-[A-Z]{2})?)>\n(.*?)\n</\1>", text, re.S)
 if not blocks:
-    print(f"::error file={PATH}::Chýbajú jazykové bloky <sk-SK>…</sk-SK>")
+    print(f"::error file={PATH}::Chýba jazykový blok <sk>…</sk>")
     sys.exit(1)
 too_long = False
 for lang, body in blocks:

@@ -45,8 +45,8 @@ Na používanie potrebuješ účet na kyberia.sk.
 mokap nie je oficiálna aplikácia kyberia.sk – vyvíja ju člen komunity vo voľnom čase.
 ```
 
-**Čo je nové:** pri každom builde v [`whats-new.txt`](whats-new.txt) – v Play formáte s jazykmi, rovno na
-skopírovanie do Release notes; job `apk` ho vypíše aj do súhrnu behu.
+**Čo je nové:** pri každom builde v [`whats-new.txt`](whats-new.txt) – len po slovensky (`<sk>`), šablóna
+používateľa s `<br>`, rovno na skopírovanie do Release notes; job `apk` ho vypíše aj do súhrnu behu.
 
 ## English (en-US)
 
@@ -86,7 +86,7 @@ You need an account on kyberia.sk to use the app.
 mokap is not an official kyberia.sk app – it is developed by a community member in their spare time.
 ```
 
-**What's new:** see [`whats-new.txt`](whats-new.txt) (both languages, Play format).
+**What's new:** len slovensky – [`whats-new.txt`](whats-new.txt) (rozhodnutie používateľa).
 
 ## Ostatné polia
 
