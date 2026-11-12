@@ -88,8 +88,8 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   syntaxe!“, prázdny obsah) je v hlavičke `center > span.most_important`. Úspech = na vrátenej stránke je nová odpoveď
   od teba; inak „nepotvrdené“. POST je `oneShot` (OkHttp ho po chybe spojenia neopakuje) a appka ho nikdy neposiela
   znova sama – pri chybe siete nevieme, či prešiel. Text v editore sa zahodí len po potvrdenom odoslaní.
-  Po potvrdenom odoslaní zoznam odroluje na novú odpoveď (`NodeUiState.newReply`) – LazyColumn drží pozíciu na prvej
-  viditeľnej položke, takže odpoveď pridaná nad ňu by ostala mimo obrazovky a vyzeralo by to, že nič neprešlo.
+  Po potvrdenom odoslaní zoznam odroluje na novú odpoveď (`NodeUiState.newReply`) – pre istotu; v node sa nová
+  odpoveď podľa používateľa ukazovala aj tak (na rozdiel od pošty, kde pribudne nad prvú viditeľnú).
 - **K** (`NodeActionsParser`, `NodeRepository.giveK`): len **dať**, nikdy odobrať (odobratie je na kyberii penalizované)
   a vždy po potvrdení. Na živej kyberii sa po K tlačidlo pri počte K zmení z „K+❤️“ (`event=K`) na „-❤️“
   (`event=revoKe`) – to je to webové „druhé stlačenie“ = odobratie. Appka `revoKe` **nikdy** neposiela; node s `revoKe`
@@ -122,9 +122,10 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   `mail_to`, `mail_to_type` (`id` pri odpovedi – ID druhej strany, `name` pri novej správe s nickom), `mail_text`,
   voliteľne `no_html=yes` a `event=send` (formulár má aj `delete_mail`, stránkovanie…). `oneShot`, nikdy znova samo;
   úspech = v vrátenej pošte je nová správa od teba, chyba v hlavičke. Odpoveď na odoslanie novú správu niekedy neukáže
-  (tester tak poslal poštu 4×) → appka počká 2 s a 3 s a poštu načíta znova (`MailOutcomes.recheck`, najviac 2 GET,
-  len pri nepotvrdenom). Keď sa zmení najnovšia správa (odoslaná, obnovenie), zoznam vyroluje hore – nová
-  správa pribudne nad prvú viditeľnú a bez toho by ju nebolo vidieť (to bol hlavný dôvod zmätku pri odosielaní). Po nepotvrdenom odoslaní alebo chybe siete sa ďalšie „Odoslať“ najprv pýta (`TextSheet.confirmResend`)
+  → appka raz počká 3 s a poštu načíta znova (`MailOutcomes.recheck`, 1 GET, len pri nepotvrdenom –
+  používateľ chce len jedno). Keď sa zmení najnovšia správa (odoslaná, obnovenie), zoznam vyroluje hore – nová
+  správa pribudne nad prvú viditeľnú a bez toho by ju nebolo vidieť (to bol hlavný dôvod zmätku pri odosielaní – tester
+  ju poslal 4×). Po nepotvrdenom odoslaní alebo chybe siete sa ďalšie „Odoslať“ najprv pýta (`TextSheet.confirmResend`)
   – v pošte aj pri odpovediach v node. Správy len v pamäti, nikam sa neukladajú;
   vzorky skutočnej pošty len lokálne – do gitu ani nick, ani text.
 - Avatary: prepínač animácie (vypnutá = prvý snímok cez `BitmapFactoryDecoder`) a „len cez Wi-Fi“

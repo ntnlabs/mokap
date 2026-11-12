@@ -72,17 +72,16 @@ class MailRepository(private val client: KyberiaClient) {
             PageKind.UNKNOWN -> throw UnexpectedPageException(response.code)
         }
         var result = MailOutcomes.send(page, response.document)
-        // Kyberia chybu nehlásila, ale novú správu v odpovedi nevidno (stalo sa testerovi – poslal ju 4×). Chvíľu
-        // počkať a poštu načítať znova – najviac dvakrát, len v tomto prípade. Nikdy znova neposielať.
-        for (wait in RECHECK_DELAYS_MILLIS) {
-            if (result !is SendResult.Unconfirmed) break
-            delay(wait)
+        // Kyberia chybu nehlásila, ale novú správu v odpovedi nevidno. Raz počkať a poštu načítať znova – len
+        // v tomto prípade, jedna požiadavka navyše (rozhodnutie používateľa). Nikdy znova neposielať.
+        if (result is SendResult.Unconfirmed) {
+            delay(RECHECK_DELAY_MILLIS)
             result = MailOutcomes.recheck(page, load())
         }
         return result
     }
 
     private companion object {
-        val RECHECK_DELAYS_MILLIS = listOf(2_000L, 3_000L)
+        const val RECHECK_DELAY_MILLIS = 3_000L
     }
 }
