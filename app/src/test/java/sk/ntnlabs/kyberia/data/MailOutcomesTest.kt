@@ -38,6 +38,15 @@ class MailOutcomesTest {
     }
 
     @Test
+    fun recheckFindsMailLater() {
+        // Odpoveď na odoslanie novú správu ešte neukázala, čerstvo načítaná pošta už áno.
+        assertTrue(MailOutcomes.send(before, Jsoup.parse(html, url)) is SendResult.Unconfirmed)
+        val later = MailParser.parse(withNewMail(777, "omega"))
+        assertEquals(9100L, (MailOutcomes.recheck(before, later) as SendResult.Sent).mailId)
+        assertTrue(MailOutcomes.recheck(before, before) is SendResult.Unconfirmed)
+    }
+
+    @Test
     fun kyberiaErrorIsRejected() {
         val page = Jsoup.parse(html.replace("<body>", "<body><center><span class='most_important'>Posta sa len tak nikomu neposiela.</span></center>"), url)
         assertEquals("Posta sa len tak nikomu neposiela.", (MailOutcomes.send(before, page) as SendResult.Rejected).message)

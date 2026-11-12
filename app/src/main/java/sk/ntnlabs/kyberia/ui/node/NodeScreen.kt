@@ -259,6 +259,7 @@ fun NodeScreen(
             hint = stringResource(R.string.node_reply_hint),
             confirmLabel = stringResource(R.string.node_reply_send),
             onConfirm = { nodes.reply(nodeId, draft, replyTo, noHtml) },
+            confirmResend = state.replyProblem == ReplyProblem.Unconfirmed || state.replyProblem == ReplyProblem.Network,
             onDismiss = {
                 composing = false
                 nodes.replyHandled(nodeId)
@@ -338,8 +339,28 @@ internal fun TextSheet(
     extra: (@Composable () -> Unit)? = null,
     /** Okrem textu musí byť vyplnené aj niečo iné (napr. adresát). */
     confirmEnabled: Boolean = true,
+    /**
+     * Predošlé odoslanie ostalo nepotvrdené (alebo spadlo spojenie) – text možno už odišiel. Ďalšie „Odoslať“ sa
+     * najprv opýta, aby nevznikli duplikáty (tester takto poslal poštu 4×).
+     */
+    confirmResend: Boolean = false,
 ) {
     val currentBusy by rememberUpdatedState(busy)
+    var askResend by remember { mutableStateOf(false) }
+    if (askResend && onConfirm != null) {
+        AlertDialog(
+            onDismissRequest = { askResend = false },
+            title = { Text(stringResource(R.string.resend_title)) },
+            text = { Text(stringResource(R.string.resend_text)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    askResend = false
+                    onConfirm()
+                }) { Text(stringResource(R.string.resend_confirm)) }
+            },
+            dismissButton = { TextButton(onClick = { askResend = false }) { Text(stringResource(R.string.cancel)) } },
+        )
+    }
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,
         confirmValueChange = { it != SheetValue.Hidden || !currentBusy },
@@ -385,7 +406,10 @@ internal fun TextSheet(
                 }
                 TextButton(onClick = onDismiss, enabled = !busy) { Text(stringResource(R.string.cancel)) }
                 if (onConfirm != null) {
-                    Button(onClick = onConfirm, enabled = !busy && draft.isNotBlank() && confirmEnabled) {
+                    Button(
+                        onClick = { if (confirmResend) askResend = true else onConfirm() },
+                        enabled = !busy && draft.isNotBlank() && confirmEnabled,
+                    ) {
                         if (busy) {
                             CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
                         } else {
