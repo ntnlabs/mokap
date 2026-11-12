@@ -452,8 +452,8 @@ private fun NodeContent(
     // Do štyroch úrovní; hlbšie odpovede sa otvoria ako vetva (node odpovede) v appke.
     val thread = remember(page.children) { ThreadView.items(page.children) }
     val replies = page.childrenTotal ?: page.children.size
-    // Odoslaná odpoveď pribudne často nad tým, čo je na obrazovke (zoznam drží pozíciu), a vyzeralo by to, že nič
-    // neprešlo – odrolovať na ňu. Ak je hlbšie ako vlákno ukazuje, ostane sa na mieste (potvrdí ju snackbar).
+    // Po odoslaní pre istotu odrolovať na novú odpoveď (zoznam drží pozíciu na prvej viditeľnej položke – v pošte
+    // tak nová správa ostala nad okrajom). Ak je hlbšie ako vlákno ukazuje, ostane sa na mieste (potvrdí ju snackbar).
     val listState = rememberLazyListState()
     LaunchedEffect(newReply) {
         val id = newReply ?: return@LaunchedEffect
