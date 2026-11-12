@@ -1,6 +1,6 @@
 # Zásady ochrany súkromia – mokap
 
-*Platné od 11. 11. 2026* · [English version below](#privacy-policy--mokap)
+*Platné od 12. 11. 2026* · [English version below](#privacy-policy--mokap)
 
 **mokap** je neoficiálny Android klient pre [kyberia.sk](https://kyberia.sk), ktorý vyvíja **ntnlabs**
 (zdrojový kód: <https://github.com/ntnlabs/mokap>). Nie je to oficiálna aplikácia kyberia.sk.
@@ -75,13 +75,14 @@ Zmeny týchto zásad sa zverejňujú v repozitári (história je v gite). Dátum
 
 ## Kontakt
 
-Otázky a pripomienky: <https://github.com/ntnlabs/mokap/issues>
+Otázky a pripomienky: <https://github.com/ntnlabs/mokap/issues> (aj z appky: Nastavenia → „Nahlásiť chybu alebo nápad“
+otvorí túto stránku v prehliadači; appka sama nič neposiela). Issues sú verejné – nepíš do nich heslo, cudzie nicky ani poštu.
 
 ---
 
 # Privacy policy – mokap
 
-*Effective 11 November 2026*
+*Effective 12 November 2026*
 
 **mokap** is an unofficial Android client for [kyberia.sk](https://kyberia.sk), developed by **ntnlabs**
 (source code: <https://github.com/ntnlabs/mokap>). It is not an official kyberia.sk app.
@@ -156,4 +157,5 @@ Changes to this policy are published in the repository (history is in git). The 
 
 ## Contact
 
-Questions and feedback: <https://github.com/ntnlabs/mokap/issues>
+Questions and feedback: <https://github.com/ntnlabs/mokap/issues> (also from the app: Settings → “Nahlásiť chybu alebo nápad”
+opens this page in your browser; the app itself sends nothing). Issues are public – do not post passwords, other people's nicks or mail.

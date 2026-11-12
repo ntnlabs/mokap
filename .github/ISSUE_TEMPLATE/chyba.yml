@@ -1,0 +1,50 @@
+name: Chyba
+description: Niečo v appke nefunguje, ako by malo.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Vďaka za hlásenie. **Issue je verejné** – nepíš sem heslo, cookies, cudzie nicky, súkromnú poštu
+        ani neverejný obsah z kyberie. Screenshoty pred nahratím skontroluj (pošta, nicky, avatary iných).
+  - type: input
+    id: version
+    attributes:
+      label: Verzia appky
+      description: Nastavenia → Pokročilé → Verzia.
+      placeholder: napr. 0.8.0283
+    validations:
+      required: true
+  - type: input
+    id: phone
+    attributes:
+      label: Telefón a Android
+      placeholder: napr. Pixel 7, Android 15
+  - type: textarea
+    id: what
+    attributes:
+      label: Čo sa stalo
+      description: Čo si čakal a čo appka urobila namiesto toho.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Ako to zopakovať
+      placeholder: |
+        1. Otvor záložku …
+        2. Ťukni na …
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostika
+      description: >-
+        Pri odhlasovaní a notifikáciách pomôže Nastavenia → Pokročilé (posledná kontrola, posledné odhlásenie,
+        história) – stačí screenshot, osobné údaje tam nie sú.
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Súkromie
+      options:
+        - label: V hlásení ani na screenshotoch nie je heslo, cudzie nicky, súkromná pošta ani neverejný obsah z kyberie.
+          required: true

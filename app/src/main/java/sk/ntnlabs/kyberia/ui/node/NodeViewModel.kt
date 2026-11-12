@@ -102,7 +102,7 @@ class NodesViewModel(
 
     fun kGiven(id: Long): Boolean = kGiven[id] == true
 
-    /** Vlastné ID z poslednej /id/19/ – podľa neho appka ponúkne úpravu a neponúkne K sebe. */
+    /** Vlastné ID z poslednej /id/19/ – podľa neho appka ponúkne úpravu vlastného príspevku. */
     val me: Long? get() = latest.flow.value?.page?.user?.userId
 
     fun state(id: Long): NodeUiState = states[id] ?: NodeUiState()
