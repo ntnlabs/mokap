@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -207,8 +208,17 @@ private fun MailList(
     onReply: (Mail) -> Unit,
     onOpenAll: () -> Unit,
 ) {
+    // Nová správa (odoslaná, dotiahnutá obnovením) pribudne navrchu – zoznam by ju nechal nad okrajom (drží pozíciu
+    // na správe, ktorá bola prvá), takže by sa zdalo, že sa nič nestalo. Pri zmene najnovšej správy preto hore.
+    val listState = rememberLazyListState()
+    val newest = page.mails.firstOrNull()?.id
+    var seenNewest by rememberSaveable { mutableStateOf(newest) }
+    LaunchedEffect(newest) {
+        if (newest != null && newest != seenNewest) listState.animateScrollToItem(0)
+        seenNewest = newest
+    }
     // Miesto pod tlačidlom „Nová správa“, aby neprekrylo poslednú správu.
-    LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 88.dp)) {
+    LazyColumn(Modifier.fillMaxSize(), state = listState, contentPadding = PaddingValues(bottom = 88.dp)) {
         if (page.mails.isEmpty()) {
             item { Text(stringResource(R.string.mail_empty), Modifier.padding(16.dp)) }
         }

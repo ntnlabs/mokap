@@ -31,6 +31,8 @@ data class NodeUiState(
     val sending: Boolean = false,
     /** Posledná odpoveď prešla – obrazovka zavrie editor a zahodí text ([NodesViewModel.replyHandled]). */
     val replySent: Boolean = false,
+    /** ID práve pridanej odpovede – obrazovka na ňu odroluje a potvrdí ([NodesViewModel.replyShown]). */
+    val newReply: Long? = null,
     val replyProblem: ReplyProblem? = null,
     /** Úprava vlastného príspevku; null = editor zavretý. */
     val edit: EditUiState? = null,
@@ -148,7 +150,7 @@ class NodesViewModel(
                 val outcome = repository.reply(page, content, replyTo, noHtml, me = latest.flow.value?.page?.user?.userId)
                 scheduler.touch()
                 when (outcome) {
-                    is ReplyResult.Added -> NodeUiState(page = outcome.page, replySent = true)
+                    is ReplyResult.Added -> NodeUiState(page = outcome.page, replySent = true, newReply = outcome.childId)
                     is ReplyResult.Rejected -> NodeUiState(page = outcome.page, replyProblem = ReplyProblem.Rejected(outcome.message))
                     is ReplyResult.Unconfirmed -> NodeUiState(page = outcome.page, replyProblem = ReplyProblem.Unconfirmed)
                 }
@@ -269,6 +271,11 @@ class NodesViewModel(
     fun replyHandled(id: Long) {
         val current = states[id] ?: return
         if (current.replySent || current.replyProblem != null) states[id] = current.copy(replySent = false, replyProblem = null)
+    }
+
+    fun replyShown(id: Long) {
+        val current = states[id] ?: return
+        if (current.newReply != null) states[id] = current.copy(newReply = null)
     }
 
     fun keepOnly(ids: Set<Long>) {
