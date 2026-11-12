@@ -16,7 +16,6 @@ import sk.ntnlabs.kyberia.data.CheckResult
 import sk.ntnlabs.kyberia.data.CheckTrigger
 import sk.ntnlabs.kyberia.data.DiagnosticsStore
 import sk.ntnlabs.kyberia.data.KResult
-import sk.ntnlabs.kyberia.data.LatestPage
 import sk.ntnlabs.kyberia.data.SessionExpiredException
 import sk.ntnlabs.kyberia.data.TopKRepository
 import sk.ntnlabs.kyberia.parse.TopKItem
@@ -57,7 +56,6 @@ class TopKViewModel(
     private val auth: AuthRepository,
     private val diagnostics: DiagnosticsStore,
     private val scheduler: CheckScheduler,
-    private val latest: LatestPage,
 ) : ViewModel() {
 
     var state by mutableStateOf(TopKUiState())
@@ -68,13 +66,9 @@ class TopKViewModel(
     /** Token session zo stránky Top K – len v pamäti, na K (ako web `ajaxK`). */
     private var anticsrf: String? = null
 
-    /** Vlastné ID – vlastným príspevkom appka K neponúkne. */
-    val me: Long? get() = latest.flow.value?.page?.user?.userId
-
-    /** Či sa dá K dať (je token, nie je to vlastný príspevok, ešte nie je dané ani sa neposiela). */
+    /** Či sa dá K dať (je token, ešte nie je dané ani sa neposiela). Aj vlastnému príspevku – kyberia to dovolí. */
     fun canGiveK(item: TopKItem): Boolean =
-        anticsrf != null && (me == null || item.authorId != me) &&
-            state.k[item.id].let { it != TopKStatus.Sending && it != TopKStatus.Done }
+        anticsrf != null && state.k[item.id].let { it != TopKStatus.Sending && it != TopKStatus.Done }
 
     init {
         viewModelScope.launch {
@@ -154,7 +148,7 @@ class TopKViewModel(
 
         fun factory(container: AppContainer) = viewModelFactory {
             initializer {
-                TopKViewModel(container.topK, container.auth, container.diagnostics, container.scheduler, container.latestPage)
+                TopKViewModel(container.topK, container.auth, container.diagnostics, container.scheduler)
             }
         }
     }

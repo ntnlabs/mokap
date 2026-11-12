@@ -42,6 +42,7 @@
     <string name="image_saved">Obrázok je v galérii (Obrázky/mokap)</string>
     <string name="image_save_failed">Obrázok sa nepodarilo uložiť</string>
     <string name="node_parent_open">Nadradený node</string>
+    <string name="node_parent_open_named">Nadradený node: %1$s</string>
     <string name="node_intro_more">Zobraziť celý úvod</string>
     <string name="node_intro_less">Zbaliť úvod</string>
     <string name="node_reply">Odpovedať</string>
@@ -196,6 +197,8 @@
     <string name="settings_presence">Ukazovať, že som v mokape</string>
     <string name="settings_presence_note">Priatelia na kyberii pri tebe namiesto „bookmarks“ uvidia, že si v mokape. Po každom obnovení si mokap načíta navyše jednu malú stránku.</string>
     <string name="settings_section_advanced">Pokročilé</string>
+    <string name="settings_feedback">Nahlásiť chybu alebo nápad</string>
+    <string name="settings_feedback_note">Otvorí GitHub issues (treba účet na GitHube). Hlásenia sú verejné – bez hesla, cudzích nickov a pošty. Verziu nájdeš v Pokročilých.</string>
     <string name="settings_expand">Rozbaliť</string>
     <string name="settings_collapse">Zbaliť</string>
     <string name="settings_version">Verzia: %1$s</string>

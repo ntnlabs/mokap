@@ -51,6 +51,7 @@ import sk.ntnlabs.kyberia.KyberiaUrls
 import sk.ntnlabs.kyberia.R
 import sk.ntnlabs.kyberia.data.Settings
 import sk.ntnlabs.kyberia.data.ThemeMode
+import sk.ntnlabs.kyberia.ui.common.Web
 import sk.ntnlabs.kyberia.work.NetworkProbe
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -81,6 +82,13 @@ fun SettingsScreen(container: AppContainer, onBack: () -> Unit) {
                 .padding(padding)
                 .verticalScroll(rememberScrollState()),
         ) {
+            // Spätná väzba hneď hore, nech ju testeri nájdu (horná lišta appky ostáva čistá). GitHub issues – výber
+            // šablóny (chyba / nápad) v prehliadači, appka nič neposiela.
+            ListItem(
+                headlineContent = { Text(stringResource(R.string.settings_feedback), color = MaterialTheme.colorScheme.primary) },
+                supportingContent = { Text(stringResource(R.string.settings_feedback_note)) },
+                modifier = Modifier.clickable { Web.open(context, FEEDBACK_URL) },
+            )
             SectionHeader(stringResource(R.string.settings_section_look))
             ChoiceRow(
                 label = stringResource(R.string.settings_theme),
@@ -248,6 +256,9 @@ private fun themeLabel(mode: ThemeMode): String = stringResource(
 )
 
 private fun hour(h: Int): String = String.format(Locale.ROOT, "%02d:00", h)
+
+/** Hlásenie chyby či nápadu – GitHub issues (verejné, treba GitHub účet). */
+private const val FEEDBACK_URL = "https://github.com/ntnlabs/mokap/issues/new/choose"
 
 @Composable
 private fun SectionHeader(text: String) {

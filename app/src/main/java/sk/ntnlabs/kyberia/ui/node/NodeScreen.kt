@@ -151,7 +151,7 @@ fun NodeScreen(
             } else {
                 null
             },
-            kNode = if (it.kNode != null && (me == null || it.ownerId != me) && !nodes.kGiven(nodeId)) ({ askK = nodeId }) else null,
+            kNode = if (it.kNode != null && !nodes.kGiven(nodeId)) ({ askK = nodeId }) else null,
             kChild = if (it.kChild != null) ({ child: NodeChild -> askK = child.id }) else null,
             kGiven = nodes::kGiven,
             edit = { target -> nodes.startEdit(nodeId, target) },
@@ -170,10 +170,16 @@ fun NodeScreen(
                     }
                 },
                 actions = {
-                    // Na rodiča (napr. z odpovede otvorenej zo záložky Odpovede) – zásobník ho nemusí mať.
+                    // Jediná cesta na rodiča (napr. z odpovede otvorenej zo záložky Odpovede) – zásobník ho nemusí mať.
+                    // Zelená, aby bola vidieť ako hlavný navigačný prvok; názov rodiča len pre čítačku.
                     page?.parentId?.let { parent ->
                         IconButton(onClick = { onOpenNode(parent) }) {
-                            Icon(painterResource(R.drawable.ic_arrow_upward), contentDescription = stringResource(R.string.node_parent_open))
+                            Icon(
+                                painterResource(R.drawable.ic_arrow_upward),
+                                contentDescription = page?.parentTitle?.let { stringResource(R.string.node_parent_open_named, Nsfw.label(it)) }
+                                    ?: stringResource(R.string.node_parent_open),
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
                         }
                     }
                     IconButton(onClick = { openWeb(KyberiaUrls.node(nodeId)) }) {
@@ -486,29 +492,6 @@ private fun Topic(page: NodePage, onLink: (String) -> Unit, externalImages: Imag
                 }
                 page.k?.let { Text(stringResource(R.string.node_k, it), color = MaterialTheme.colorScheme.primary) }
             }
-            val parentId = page.parentId
-            val parentTitle = page.parentTitle
-            if (parentId != null && parentTitle != null) {
-                Row(
-                    Modifier.clickable { onOpenNode(parentId) }.padding(vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                ) {
-                    Icon(
-                        painterResource(R.drawable.ic_arrow_upward),
-                        contentDescription = stringResource(R.string.node_parent_open),
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(18.dp),
-                    )
-                    Text(
-                        Nsfw.label(parentTitle),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-            }
             if (page.content.isNotEmpty()) TopicContent(page, onLink, externalImages)
             val own = actions.me != null && page.ownerId == actions.me
             val kNode = actions.kNode
@@ -599,7 +582,7 @@ private fun Child(child: NodeChild, onLink: (String) -> Unit, externalImages: Im
         }
         ContentView(child.content, onLink, externalImages)
         val own = actions.me != null && child.authorId == actions.me
-        val kChild = actions.kChild?.takeUnless { own || actions.kGiven(child.id) }
+        val kChild = actions.kChild?.takeUnless { actions.kGiven(child.id) }
         val reply = actions.reply
         if (kChild != null || own || reply != null) {
             Row(Modifier.align(Alignment.End)) {

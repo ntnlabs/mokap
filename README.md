@@ -29,10 +29,16 @@ zoradené, prefiltrované a s lokálnymi notifikáciami.
 | Pošta v appke (`/id/24/`) – čítanie, odpoveď, nová správa (nick alebo ID), počet nových na záložke | hotové |
 | Čítanie nodov priamo v appke – obsah, autor, K, odpovede vo vlákne (prvá stránka), odkazy na nody v appke | hotové |
 | Odpovedanie do nodu aj na konkrétnu odpoveď (ako na webe – HTML, „Bez HTML“) | hotové |
-| Dať K (len pridať, s potvrdením) v node aj v Top K a úprava vlastných príspevkov | hotové |
+| Dať K (len pridať, s potvrdením, aj sebe) v node aj v Top K a úprava vlastných príspevkov | hotové |
 | K „Za N h“ – tvoje príspevky s K za nastaviteľný čas (predvolene 24 h) v záložke K, len na požiadanie | hotové |
 | Téma nodu oddelená od diskusie | hotové |
 | Obrázky na celú obrazovku so zväčšením a uložením do galérie (Obrázky/mokap); text sa dá označiť a kopírovať | hotové |
+
+## Spätná väzba
+
+Chyby a nápady cez [GitHub issues](https://github.com/ntnlabs/mokap/issues/new/choose) – šablóny **Chyba** a **Nápad**
+(treba účet na GitHube). V appke: Nastavenia → „Nahlásiť chybu alebo nápad“. Issues sú verejné: žiadne heslá, cudzie
+nicky, súkromná pošta ani neverejný obsah z kyberie – ani na screenshotoch.
 
 ## Ako to funguje
 

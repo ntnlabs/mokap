@@ -94,16 +94,17 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   = K už je od teba (`NodePage.kGiven`, v appke „K ✓“, +K sa neponúkne) – bez stránky navyše (given_K netreba).
   Pri odpovediach stránka stav neukazuje: appka si pamätá K dané v relácii a pokles počtu K hlási. Node: formulár s tlačidlom K pri počte K (`span.node_info2`, mimo
   `formular`) → `anticsrf` + `event=K`. Odpoveď: `formular` + presne jedno `node_chosen[]` + `event=K` (`K.inc` dá K
-  každému zaškrtnutému). Chyby („datanode uz si k udelil“, „nemas k“) v hlavičke; úspech = počet K narástol. Sebe K appka
-  neponúka. Na stránke je jeden `anticsrf` pre celú session – chýba vo formulári → vezme sa z inej časti stránky.
+  každému zaškrtnutému). Chyby („datanode uz si k udelil“, „nemas k“) v hlavičke; úspech = počet K narástol. K sebe
+  appka ponúka tiež (kyberia to dovolí, používateľ to chce – aj v Top K). Na stránke je jeden `anticsrf` pre celú session – chýba vo formulári → vezme sa z inej časti stránky.
 - **Úprava vlastného príspevku** (node aj odpoveď; `ownerId`/`authorId` = vlastné ID z /id/19/): „conf“ stránka
   `/id/N/1961033` (`KyberiaUrls.configure`) má formulár s pôvodným textom (`textarea[name=node_content]`) a
   `event=configure_content` → POST len `anticsrf`, `node_content`, `event`. Ak formulár chýba, kyberia úpravu
   neponúkla. Po úprave odpovede sa node, v ktorom je, stiahne znova. Kyberia si starú verziu ukladá (tiamat).
 - **Téma vs. diskusia**: samotný node (fórum, článok, príspevok – šablóna z `tr#sidebar_template`) je v orámovanej
   karte; pod ňou „Diskusia · N odpovedí“ – kyberia rozlišuje node a submission (šablóna 4). Dlhý úvodník (nie príspevok,
-  šablóna ≠ 4; odhad ~900 znakov, obrázok ≈ 300) sa zbalí na pár riadkov s „Zobraziť celý úvod“. Na rodiča vedie šípka
-  v hornej lište aj riadok v karte (`tr#sidebar_parent`) – node otvorený zo zoznamu nemá rodiča v zásobníku.
+  šablóna ≠ 4; odhad ~900 znakov, obrázok ≈ 300) sa zbalí na pár riadkov s „Zobraziť celý úvod“. Na rodiča vedie len zelená
+  šípka v hornej lište (`tr#sidebar_parent`, želanie používateľa: jeden navigačný prvok, nie dva) – node otvorený
+  zo zoznamu nemá rodiča v zásobníku.
 - Pošta: `GET /ajax/check_new_mail.php` (web ho volá raz za minútu) vráti
   `<počet nových>;<nick posledného odosielateľa>;…` alebo `offline`. Nick ide len do notifikácie
   („Nová pošta od …“), nikam sa neukladá; posledné pole nemá overený význam. `offline` session
@@ -183,6 +184,9 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   Gradle cache cez `setup-java` (`cache: gradle`); `gradle/actions` nepoužívať – od v6 má proprietárne
   cachovanie. `gradle-wrapper.jar` sa v CI overuje proti oficiálnemu sha256 od Gradle.
 - Hotové kolo zmien sa hneď zlučuje do `main` cez PR (merge commit, po zelenom CI); dlhé vetvy nedržíme.
+- Spätná väzba: GitHub issues so šablónami Chyba/Nápad (`.github/ISSUE_TEMPLATE`, prázdne issue vypnuté – obe
+  pripomínajú, že issue je verejné). V appke prvý riadok nastavení „Nahlásiť chybu alebo nápad“ (nie ikona v hornej lište – tá ostáva čistá) otvorí výber šablóny
+  v prehliadači – appka nič neposiela ani nepredvypĺňa. Nicky a texty z issues do kódu ani fixtures nepatria.
 - Dependabot: patch a minor verzie zlučuj sám po zelenom CI; major verzie najprv vysvetli používateľovi
   (zmeny, licencia, riziko) a čakaj na súhlas.
 - Verzia `major.minor.build` + kódové meno: major, minor a meno vo `version.properties` (teraz 0.8 „Capable Capybara“)

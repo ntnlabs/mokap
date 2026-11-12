@@ -1,0 +1,26 @@
+name: Nápad
+description: Čo by appka mala vedieť alebo robiť inak.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Issue je verejné** – nepíš sem heslo, cudzie nicky, súkromnú poštu ani neverejný obsah z kyberie.
+  - type: textarea
+    id: idea
+    attributes:
+      label: Čo by si chcel
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Kedy by si to použil
+      description: Situácia, v ktorej ti to dnes chýba – pomôže vybrať najlepšie riešenie.
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Súkromie
+      options:
+        - label: V nápade ani na screenshotoch nie je heslo, cudzie nicky, súkromná pošta ani neverejný obsah z kyberie.
+          required: true
