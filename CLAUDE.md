@@ -227,7 +227,8 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   Google Play Developer Konzole“, „Codename: …“, prázdny riadok a zmeny od posledného buildu pre používateľov
   (bez technických detailov); ≤ 500 znakov
   (`.github/scripts/whats_new.py` ho overí v checks, job `apk` ho vypíše do súhrnu behu). Pred každým buildom
-  ho aktualizuj; poradie pushu vedie používateľ (posledný známy: deviaty = build 0.8.0304; nie každý build ide do Play –
-  0.8.0317 nešiel) – pri pochybnosti sa spýtaj, ktorý build je posledný v Play, a zmeny píš od neho.
+  ho aktualizuj; poradie pushu vedie používateľ (posledný známy: desiaty = build 0.8.0326, 13. 11. 2026). Používateľ
+  nahráva každý build, no niektorý sa vynechá (0.8.0317) – **pred každým buildom sa spýtaj, ktorý build je posledný
+  v Play**, a zmeny aj poradie pushu píš od neho.
   `ndk.debugSymbolLevel = SYMBOL_TABLE` ostáva pre prípad knižnice so symbolmi; NDK dáva job `apk` z runnera
   (`MOKAP_NDK_PATH`/`MOKAP_NDK_VERSION` → `ndkPath`/`ndkVersion` – AGP chce, aby sedeli). Krok „Native symboly v AAB“ len vypíše stav.
