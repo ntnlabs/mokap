@@ -105,7 +105,8 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   neponúkla. Po úprave odpovede sa node, v ktorom je, stiahne znova. Kyberia si starú verziu ukladá (tiamat).
 - **Téma vs. diskusia**: samotný node (fórum, článok, príspevok – šablóna z `tr#sidebar_template`) je v orámovanej
   karte; pod ňou „Diskusia · N odpovedí“ – kyberia rozlišuje node a submission (šablóna 4). Dlhý úvodník (nie príspevok,
-  šablóna ≠ 4; odhad ~900 znakov, obrázok ≈ 300) sa zbalí na pár riadkov s „Zobraziť celý úvod“. Na rodiča vedie len zelená
+  šablóna ≠ 4) sa zbalí s „Zobraziť celý úvod“ – podľa nameranej výšky (aj s obrázkami), nie odhadu znakov: vyšší ako
+  180 dp (~8 riadkov) sa ukáže len na 120 dp (~5 riadkov); používateľovi sa pôvodné ~900 znakov / 220 dp zdalo málo. Na rodiča vedie len zelená
   šípka v hornej lište (`tr#sidebar_parent`, želanie používateľa: jeden navigačný prvok, nie dva) – node otvorený
   zo zoznamu nemá rodiča v zásobníku.
 - Pošta: `GET /ajax/check_new_mail.php` (web ho volá raz za minútu) vráti
