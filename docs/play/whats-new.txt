@@ -6,4 +6,5 @@ Codename: Capable Capybara
 • K z noci (aj v tichom režime) ráno nezmiznú, appka ich dobehne
 • Notifikácie odpovedí zmiznú, keď otvoríš záložku Odpovede
 • Notifikácia „priateľ online“ zmizne, keď priateľ odíde
+• Ťuknutie na notifikáciu pošty či odpovede vždy ukáže čerstvý stav
 </sk>
