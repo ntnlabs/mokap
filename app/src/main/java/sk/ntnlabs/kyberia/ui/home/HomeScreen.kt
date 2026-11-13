@@ -109,20 +109,23 @@ fun HomeScreen(
     // Počet novej pošty z kontroly (v pozadí aj pri obnovení appky) – číslo na záložke Pošta.
     val unreadMail by container.newsTracker.unreadMail.collectAsStateWithLifecycle()
 
-    // Otvorené z notifikácie: prepni na správnu záložku a stiahni čerstvé dáta.
+    // Otvorené z notifikácie: prepni na správnu záložku a stiahni čerstvé dáta – vždy, aj bez obnovenia pri otvorení
+    // (záložka mohla byť otvorená už predtým a bez toho by ukázala starý stav). Len to, o čom notifikácia je:
+    // pošta poštu, ostatné /id/19/.
     LaunchedEffect(requestedTab) {
         val target = Tab.entries.firstOrNull { it.name == requestedTab } ?: return@LaunchedEffect
         tab = target
         settingsOpen = false
         nodeStack = longArrayOf()
-        overview.refresh()
+        if (target == Tab.MAIL) mail.refresh() else overview.refresh()
         onTabHandled()
     }
-    // Notifikácia odpovede alebo fóra: rovno ten node v appke.
+    // Notifikácia odpovede, fóra alebo K: rovno ten node v appke, stiahnutý znova – aj keď bol otvorený už predtým.
     LaunchedEffect(requestedNode) {
         val node = requestedNode ?: return@LaunchedEffect
         settingsOpen = false
         nodeStack = longArrayOf(node)
+        nodes.load(node)
         onNodeHandled()
     }
     // Záložka K alebo Odpovede priamo na obrazovke (nie node či nastavenia nad ňou): jej notifikácie sú videné.
