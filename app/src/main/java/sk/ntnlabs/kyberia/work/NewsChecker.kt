@@ -108,8 +108,8 @@ class NewsChecker(
     }
 
     /**
-     * /id/19/; po výpadku dlhšom ako hodina ([KCatchUp]) aj blok K za celý výpadok, inak by K z noci (tichý režim,
-     * Doze) z hodinového bloku vypadli. V tichom režime nie – K sa spracujú až po ňom.
+     * /id/19/; po výpadku dlhšom ako hodina ([KCatchUp]) s blokom K za celý výpadok (ten istý POST ako „Za N h“, nie
+     * požiadavka navyše), inak by K z noci (tichý režim, Doze) z hodinového bloku vypadli. V tichom režime nie.
      */
     private suspend fun loadPage(quiet: Boolean): BookmarksPage {
         val hours = if (quiet || !settings.current.notifyK) null else KCatchUp.hours(tracker.kCheckedAt, System.currentTimeMillis())
@@ -123,8 +123,7 @@ class NewsChecker(
     private fun processK(page: BookmarksPage, now: Long) {
         val current = settings.current
         if (current.isQuiet(LocalTime.now().hour)) return
-        val block = page.kNews ?: return
-        val gains = Nsfw.kGains(tracker.updateK(block, now), current.hideNsfw)
+        val gains = Nsfw.kGains(tracker.updateK(page.myK, now), current.hideNsfw)
         if (current.notifyK && gains.isNotEmpty()) Notifier.k(context, gains)
     }
 

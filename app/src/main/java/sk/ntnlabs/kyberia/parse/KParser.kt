@@ -40,6 +40,9 @@ object MyKParser {
 
     private val K = Regex("""(\d+)\s*k\b""", RegexOption.IGNORE_CASE)
 
+    /** Stránka má blok K – je to /id/19/ (formulár s intervalom je vnorený vo formulári bookmarkov). */
+    fun hasBlock(document: Document): Boolean = document.selectFirst("div.module_your_k_nodes") != null
+
     fun parse(document: Document): List<MyK> {
         val module = document.selectFirst("div.module_your_k_nodes") ?: return emptyList()
         return module.select("span.most_important").mapNotNull { span ->

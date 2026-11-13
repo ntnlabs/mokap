@@ -125,6 +125,7 @@
     <string name="k_mode_hours">Za %1$d h</string>
     <string name="k_mode_top">Top K</string>
     <string name="k_mine_header">Za poslednú hodinu</string>
+    <string name="k_mine_header_hours">Od poslednej kontroly – za posledných %1$d h</string>
     <string name="k_mine_empty">Za poslednú hodinu ti nikto nedal K.</string>
     <string name="k_added">+%1$d K</string>
     <string name="k_total">spolu %1$d K</string>

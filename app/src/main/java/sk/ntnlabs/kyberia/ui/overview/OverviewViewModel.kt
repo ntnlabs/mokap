@@ -38,8 +38,9 @@ data class OverviewUiState(
     val friends: List<Friend> = emptyList(),
     val last: List<LastPost> = emptyList(),
     val user: UserInfo? = null,
-    /** Tvoje príspevky s K za poslednú hodinu (blok na /id/19/). */
+    /** Tvoje príspevky s K za posledných [myKHours] hodín (blok na /id/19/; po dobiehaní za celý výpadok). */
     val myK: List<MyK> = emptyList(),
+    val myKHours: Int = 1,
     val error: Boolean = false,
     /** Kedy sa naposledy stiahla /id/19/ – v appke alebo kontrolou v pozadí. */
     val loadedAtMillis: Long? = null,
@@ -138,6 +139,7 @@ class OverviewViewModel(
             last = page.last,
             user = page.user,
             myK = page.myK,
+            myKHours = page.myKHours,
             loadedAtMillis = loaded.atMillis,
             // Skryté NSFW diskusie bodku nezapnú.
             changed = settings.current.hideNsfw.let { hide ->

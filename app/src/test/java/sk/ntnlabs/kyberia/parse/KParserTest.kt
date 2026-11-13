@@ -28,6 +28,9 @@ class KParserTest {
     fun noKInLastHour() {
         val empty = """<div class="module module_your_k_nodes"><form method="post">your K nodes for last: <input name="interval" value="1"></form></div>"""
         assertTrue(MyKParser.parse(Jsoup.parse(empty)).isEmpty())
+        // Prázdny blok je stále /id/19/ – dobiehanie odpoveď prijme; stránka bez bloku nie.
+        assertTrue(MyKParser.hasBlock(Jsoup.parse(empty)))
+        assertTrue(!MyKParser.hasBlock(Jsoup.parse("<p>iná stránka</p>")))
         assertTrue(MyKParser.parse(Fixtures.load("bookmarks.html", "https://kyberia.sk/id/19/")).isEmpty())
     }
 

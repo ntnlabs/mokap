@@ -174,9 +174,12 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   zmena ju prepíše **a zazvoní** (používateľ chce vedieť o každej zmene), zhodená sa pri ďalšom K ukáže nová; sama
   nezmizne (K o 3:00 musí ráno svietiť) – len ťuknutím (otvorí príspevok), zhodením alebo otvorením záložky K.
   Hodinový blok by K z noci stratil (tichý režim nekontroluje, Doze odkladá) → **dobiehanie**: keď od posledného
-  spracovania K ubehlo > 70 min, načítanie /id/19/ (kontrola aj appka, `NewsChecker.loadForApp`) pridá POST ako
-  „Za N h“ s intervalom za celý výpadok (najviac 24 h) – +1 požiadavka po výpadku, pred `Presence`. Zlyhá → K sa
-  nespracujú, skúsi sa nabudúce. V tichom režime sa K nespracúvajú vôbec (dobehne prvé načítanie po ňom).
+  spracovania K ubehlo > 70 min, /id/19/ sa načíta (kontrola aj appka, `NewsChecker.loadForApp`) **namiesto GET**
+  POST-om ako „Za N h“ s intervalom za celý výpadok (najviac 24 h) – **žiadna požiadavka navyše** (nápad používateľa).
+  Token (`anticsrf`, jeden na session) je uložený šifrovane so session (`SessionStore`/`SessionTokenStore`, zmaže ho
+  koniec cookies) – ráno býva proces zabitý a v pamäti nič. Odpoveď musí byť /id/19/ s blokom K (`MyKParser.hasBlock`),
+  inak obyčajný GET (+1 len pri chybe) a K z medzery sa stratia. „Tvoje K“ potom ukáže blok za celý výpadok
+  (`BookmarksPage.myKHours`, „Od poslednej kontroly – za posledných N h“). V tichom režime sa K nespracúvajú vôbec.
   Prepínač „K na moje príspevky“ (predvolene zapnutý); vypnutý = bez dobiehania.
 - Notifikácie ukazujú stav, nie prírastok: fórum celkový počet nových (ako „N NEW Child“), prečítané fórum svoju
   notifikáciu zruší, pošta pri čiastočnom prečítaní potichu opraví číslo; po prihlásení zmizne stará „Odhlásilo ťa“.

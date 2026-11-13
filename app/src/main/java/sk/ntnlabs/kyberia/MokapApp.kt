@@ -80,7 +80,8 @@ class MokapApp : Application(), SingletonImageLoader.Factory {
 /** Ručné DI – na pár tried netreba framework. */
 class AppContainer(context: Context) {
     private val appContext = context.applicationContext
-    private val cookieJar = KyberiaCookieJar(SessionStore(context))
+    private val sessionStore = SessionStore(context)
+    private val cookieJar = KyberiaCookieJar(sessionStore)
 
     // Nech admini kyberie vidia, čo k nim chodí a kde to nájdu.
     private val client = KyberiaClient(
@@ -100,7 +101,7 @@ class AppContainer(context: Context) {
     val latestPage = LatestPage()
     val auth = AuthRepository(client, cookieJar, newsTracker, scheduler, latestPage)
     private val presence = Presence(client) { settings.current.showPresence }
-    val bookmarks = BookmarksRepository(client, presence)
+    val bookmarks = BookmarksRepository(client, presence, tokens = sessionStore)
     val mail = MailRepository(client)
     val people = PeopleRepository(client, presence)
     val nodes = NodeRepository(client)
