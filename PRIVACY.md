@@ -28,7 +28,8 @@
 
 ## Čo appka ukladá v telefóne
 
-- prihlásenie do kyberie (session cookies), šifrované kľúčom z Android Keystore;
+- prihlásenie do kyberie (session cookies a bezpečnostný token tej istej session), šifrované kľúčom z Android Keystore;
+  odhlásením zanikne;
 - nastavenia appky a voľbu, či sa prihlasuješ nickom alebo ID (nie samotný nick či ID);
 - stav pre notifikácie: čísla nodov z bookmarkov a odpovedí a ich počty, čísla (ID) priateľov online,
   počet neprečítanej pošty, počty K pri tvojich príspevkoch a čas, kedy sa K naposledy kontrolovali;
@@ -46,7 +47,8 @@ Notifikácie sú lokálne – appka sama kontroluje kyberiu v intervale z nastav
 ani iný push server. Notifikácia o pošte môže obsahovať nick odosielateľa; nikam sa neukladá. Pri obnovení
 otvorenej appky sa skontroluje aj počet novej pošty (malá požiadavka), aby notifikácia zmizla, keď si poštu
 prečítal inde. Notifikácia o K berie údaje z tej istej stránky ako ostatné; po dlhšej prestávke (napr. tichý režim
-v noci) si appka raz vypýta od kyberie prehľad K za celý ten čas, nech sa žiadne K nestratí.
+v noci) appka pri najbližšom načítaní tej istej stránky požiada o prehľad K za celý ten čas (nie požiadavka navyše),
+nech sa žiadne K nestratí.
 
 ## Oprávnenia
 
@@ -111,7 +113,8 @@ otvorí túto stránku v prehliadači; appka sama nič neposiela). Issues sú ve
 
 ## What the app stores on the phone
 
-- your kyberia login (session cookies), encrypted with a key from the Android Keystore;
+- your kyberia login (session cookies and the security token of the same session), encrypted with a key from the
+  Android Keystore; logging out removes it;
 - app settings and whether you log in by nick or by ID (not the nick or ID itself);
 - notification state: node numbers from your bookmarks and replies with their counts, IDs of friends online,
   the number of unread mails, K counts of your posts and when K were last checked;
@@ -129,7 +132,8 @@ Notifications are local – the app checks kyberia itself at the interval set in
 Firebase or any other push server. A mail notification may contain the sender's nick; it is not stored. When the
 open app refreshes, it also checks the number of new mails (a small request), so the notification disappears once
 you have read your mail elsewhere. The K notification uses the same page as the others; after a longer break (e.g.
-quiet hours at night) the app asks kyberia once for a K overview covering the whole break, so no K gets lost.
+quiet hours at night) the next load of that same page asks for a K overview covering the whole break (not an extra
+request), so no K gets lost.
 
 ## Permissions
 

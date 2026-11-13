@@ -52,8 +52,8 @@ nicky, súkromná pošta ani neverejný obsah z kyberie – ani na screenshotoch
   Počet novej pošty zistí jednou malou požiadavkou na `/ajax/check_new_mail.php` (len ak je zapnutá).
   Ťuknutie na odpoveď/fórum/K otvorí daný node v appke. Žiadny Firebase, žiadny server.
   Notifikácie ukazujú stav: zmiznú, keď je novinka videná (prečítané fórum, pošta, otvorená záložka Odpovede či K,
-  priateľ odišiel). K sa berú z bloku „Tvoje K“ (posledná hodina); po dlhšej prestávke (tichý režim, Doze) si
-  kontrola raz vypýta blok za celý výpadok (najviac 24 h), nech sa K z noci nestratia.
+  priateľ odišiel). K sa berú z bloku „Tvoje K“ (posledná hodina); po dlhšej prestávke (tichý režim, Doze) sa
+  /id/19/ načíta POST-om s blokom za celý výpadok (najviac 24 h, nie požiadavka navyše), nech sa K z noci nestratia.
 - **Strážca session:** kyberia odhlási, ak 2 hodiny nevidí načítanie stránky, a Android kontroly
   v spánku odkladá aj na hodiny. Appka si preto natiahne jeden budík na „posledná požiadavka + 100 min“;
   pri bežných kontrolách sa nikdy nespustí, takže server nedostane nič navyše. V tichom režime

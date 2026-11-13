@@ -121,8 +121,17 @@ fun KScreen(
             when (mode) {
                 KMode.MINE -> MyKList(
                     overview.state.myK.filterNot { hideNsfw && Nsfw.matches(it.title) },
-                    header = stringResource(R.string.k_mine_header),
-                    empty = if (!overview.state.loading && overview.state.loadedAtMillis != null) stringResource(R.string.k_mine_empty) else null,
+                    // Po dobiehaní (noc, výpadok) je blok za celý ten čas, nie za hodinu.
+                    header = overview.state.myKHours.let { h ->
+                        if (h == 1) stringResource(R.string.k_mine_header) else stringResource(R.string.k_mine_header_hours, h)
+                    },
+                    empty = if (!overview.state.loading && overview.state.loadedAtMillis != null) {
+                        overview.state.myKHours.let { h ->
+                            if (h == 1) stringResource(R.string.k_mine_empty) else stringResource(R.string.k_hours_empty, h)
+                        }
+                    } else {
+                        null
+                    },
                     onOpenNode = onOpenNode,
                 )
                 KMode.HOURS -> MyKList(
