@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -56,6 +55,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
@@ -64,6 +64,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import coil3.ImageLoader
 import kotlinx.coroutines.launch
@@ -73,7 +74,6 @@ import sk.ntnlabs.kyberia.UrlPolicy
 import sk.ntnlabs.kyberia.data.Nsfw
 import sk.ntnlabs.kyberia.data.ThreadItem
 import sk.ntnlabs.kyberia.data.ThreadView
-import sk.ntnlabs.kyberia.parse.ContentBlock
 import sk.ntnlabs.kyberia.parse.NodeChild
 import sk.ntnlabs.kyberia.parse.NodePage
 import sk.ntnlabs.kyberia.ui.common.Avatar
@@ -538,15 +538,30 @@ private fun Topic(page: NodePage, onLink: (String) -> Unit, externalImages: Imag
 
 /**
  * Obsah témy. Dlhý úvodník fóra či nodeshellu (nie príspevok v diskusii – ten sa číta celý) sa zbalí na pár riadkov
- * s „Zobraziť celý úvod“ – niektoré majú aj dve strany a diskusia pod nimi by sa strácala.
+ * s „Zobraziť celý úvod“ – niektoré majú aj dve strany a diskusia pod nimi by sa strácala. Podľa skutočnej výšky
+ * (aj s obrázkami, keď sa načítajú), nie odhadu znakov: zbalí sa, čo je vyššie ako [COLLAPSE_ABOVE] dp.
  */
 @Composable
 private fun TopicContent(page: NodePage, onLink: (String) -> Unit, externalImages: ImageLoader?) {
-    val collapsible = remember(page.content, page.templateId) { page.templateId != SUBMISSION && isLong(page.content) }
+    val canCollapse = page.templateId != SUBMISSION
     var expanded by rememberSaveable(page.id) { mutableStateOf(false) }
-    val collapsed = collapsible && !expanded
-    Box(if (collapsed) Modifier.heightIn(max = COLLAPSED_HEIGHT.dp).clipToBounds() else Modifier) {
-        ContentView(page.content, onLink, externalImages)
+    var tooTall by remember(page.id) { mutableStateOf(false) }
+    val collapsed = canCollapse && tooTall && !expanded
+    Box {
+        Box(
+            Modifier
+                .layout { measurable, constraints ->
+                    // Celý obsah sa zmeria vždy; zbalený ukáže len prvých COLLAPSED_HEIGHT dp.
+                    val placeable = measurable.measure(constraints.copy(maxHeight = Constraints.Infinity))
+                    val tall = placeable.height > COLLAPSE_ABOVE.dp.roundToPx()
+                    if (tall != tooTall) tooTall = tall
+                    val height = if (collapsed) minOf(placeable.height, COLLAPSED_HEIGHT.dp.roundToPx()) else placeable.height
+                    layout(placeable.width, height) { placeable.place(0, 0) }
+                }
+                .clipToBounds(),
+        ) {
+            ContentView(page.content, onLink, externalImages)
+        }
         if (collapsed) {
             val fade = MaterialTheme.colorScheme.surface
             Box(
@@ -558,22 +573,11 @@ private fun TopicContent(page: NodePage, onLink: (String) -> Unit, externalImage
             )
         }
     }
-    if (collapsible) {
+    if (canCollapse && tooTall) {
         TextButton(onClick = { expanded = !expanded }, contentPadding = PaddingValues(horizontal = 0.dp)) {
             Text(stringResource(if (expanded) R.string.node_intro_less else R.string.node_intro_more))
         }
     }
-}
-
-/** Hrubý odhad dĺžky bez merania: znaky textu, obrázok či video ako ~300 znakov. */
-private fun isLong(blocks: List<ContentBlock>): Boolean {
-    val size = blocks.sumOf { block ->
-        when (block) {
-            is ContentBlock.Text -> block.spans.sumOf { it.text.length }
-            else -> MEDIA_CHARS
-        }
-    }
-    return size > LONG_CHARS
 }
 
 /** Odpoveď odsadená podľa hĺbky vo vlákne ([ThreadView] ju obmedzí na štyri úrovne). */
@@ -665,6 +669,8 @@ private fun Muted(text: String) {
 
 private const val INDENT_DP = 14
 private const val SUBMISSION = 4
-private const val LONG_CHARS = 900
-private const val MEDIA_CHARS = 300
-private const val COLLAPSED_HEIGHT = 220
+/** Zbalený úvod: ~5 riadkov textu. */
+private const val COLLAPSED_HEIGHT = 120
+
+/** Zbaliť len úvod vyšší ako ~8 riadkov – inak by „Zobraziť celý úvod“ skrýval len pár riadkov. */
+private const val COLLAPSE_ABOVE = 180
