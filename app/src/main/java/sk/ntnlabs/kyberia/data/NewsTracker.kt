@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import sk.ntnlabs.kyberia.parse.Bookmark
 import sk.ntnlabs.kyberia.parse.Friend
 import sk.ntnlabs.kyberia.parse.LastPost
+import sk.ntnlabs.kyberia.parse.MyK
 import sk.ntnlabs.kyberia.parse.Reply
 
 /**
@@ -43,6 +44,24 @@ class NewsTracker(context: Context) {
         prefs.edit { putString(KEY_FRIENDS, FriendNews.encode(friends.map { it.id })) }
         return previous?.let { FriendNews.cameOnline(it, friends) }.orEmpty()
     }
+
+    /**
+     * K na tvoje príspevky od minulého spracovania; prvý raz len základ. [block] musí siahať aspoň po minulé
+     * spracovanie ([KCatchUp]) – inak by sa K z medzery stratili.
+     */
+    @Synchronized
+    fun updateK(block: List<MyK>, nowMillis: Long): List<KGain> {
+        val previous = prefs.getString(KEY_K, null)?.let(KNews::decode)
+        prefs.edit {
+            putString(KEY_K, KNews.encode(KNews.snapshot(block)))
+            putLong(KEY_K_AT, nowMillis)
+        }
+        return previous?.let { KNews.gains(it, block) }.orEmpty()
+    }
+
+    /** Kedy sa K naposledy spracovali (null = ešte nikdy) – podľa toho kontrola dobieha ([KCatchUp]). */
+    val kCheckedAt: Long?
+        @Synchronized get() = if (prefs.contains(KEY_K_AT)) prefs.getLong(KEY_K_AT, 0L) else null
 
     /** Uloží počet neprečítaných a vráti predošlý; null = prvá kontrola (len základ, nič nehlásiť). */
     @Synchronized
@@ -104,6 +123,8 @@ class NewsTracker(context: Context) {
         const val KEY_REPLIES = "replies_seen"
         const val KEY_FRIENDS = "friends_online"
         const val KEY_MAIL = "mail_unread"
+        const val KEY_K = "k_totals"
+        const val KEY_K_AT = "k_checked_at"
         const val SEEN_BOOKMARKS = "seen_bookmarks"
         const val SEEN_REPLIES = "seen_replies"
         const val SEEN_LAST = "seen_last"

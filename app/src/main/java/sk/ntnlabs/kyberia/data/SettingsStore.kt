@@ -27,6 +27,7 @@ class SettingsStore(context: Context) {
             putBoolean(NOTIFY_MAIL, updated.notifyMail)
             putBoolean(NOTIFY_BOOKMARKS, updated.notifyBookmarks)
             putBoolean(NOTIFY_FRIENDS, updated.notifyFriends)
+            putBoolean(NOTIFY_K, updated.notifyK)
             putBoolean(QUIET, updated.quietEnabled)
             putInt(QUIET_FROM, updated.quietFromHour)
             putInt(QUIET_TO, updated.quietToHour)
@@ -53,6 +54,7 @@ class SettingsStore(context: Context) {
             notifyMail = prefs.getBoolean(NOTIFY_MAIL, defaults.notifyMail),
             notifyBookmarks = prefs.getBoolean(NOTIFY_BOOKMARKS, defaults.notifyBookmarks),
             notifyFriends = prefs.getBoolean(NOTIFY_FRIENDS, defaults.notifyFriends),
+            notifyK = prefs.getBoolean(NOTIFY_K, defaults.notifyK),
             quietEnabled = prefs.getBoolean(QUIET, defaults.quietEnabled),
             quietFromHour = prefs.getInt(QUIET_FROM, defaults.quietFromHour),
             quietToHour = prefs.getInt(QUIET_TO, defaults.quietToHour),
@@ -79,6 +81,7 @@ class SettingsStore(context: Context) {
         const val NOTIFY_MAIL = "notify_mail"
         const val NOTIFY_BOOKMARKS = "notify_bookmarks"
         const val NOTIFY_FRIENDS = "notify_friends"
+        const val NOTIFY_K = "notify_k"
         const val QUIET = "quiet_enabled"
         const val QUIET_FROM = "quiet_from"
         const val QUIET_TO = "quiet_to"

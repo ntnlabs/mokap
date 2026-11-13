@@ -19,7 +19,7 @@ zoradené, prefiltrované a s lokálnymi notifikáciami.
 | Motto z titulku kyberie pod názvom záložky | hotové |
 | Zelený pruh nad záložkami do ďalšieho obnovenia, bodka na záložkách s novinkami | hotové |
 | NSFW: „NSFW“ v názvoch ako 🔞, prepínač „Skryť NSFW“, predvolene zapnutý (zoznamy aj notifikácie) | hotové |
-| Notifikácie: odpovede, pošta, novinky v bookmarkoch, priateľ online | hotové, každá s vlastným kanálom a prepínačom |
+| Notifikácie: odpovede, pošta, novinky v bookmarkoch, priateľ online, K na tvoje príspevky | hotové, každá s vlastným kanálom a prepínačom |
 | Friends online – kde sú, nečinnosť, počet na záložke | hotové |
 | Prepínač vo Friends: Priatelia / Všetci online (`/id/27/`) / Diskusie – kde je najviac ľudí (`/id/4830026/`), sťahuje sa len na požiadanie | hotové |
 | Nastavenia: téma (systém/svetlá/tmavá/tlmená), avatary (animácia, len cez Wi-Fi), interval kontrol 15–60 min, tichý režim, notifikácie, odhlásenie | hotové |
@@ -50,7 +50,10 @@ nicky, súkromná pošta ani neverejný obsah z kyberie – ani na screenshotoch
 - **Notifikácie:** WorkManager podľa nastavenia (15–60 min; 15 je minimum Androidu) stiahne
   `/id/19/`, porovná ho s naposledy videným stavom a pri novinkách vytvorí lokálnu notifikáciu.
   Počet novej pošty zistí jednou malou požiadavkou na `/ajax/check_new_mail.php` (len ak je zapnutá).
-  Ťuknutie na odpoveď/fórum otvorí daný node v appke. Žiadny Firebase, žiadny server.
+  Ťuknutie na odpoveď/fórum/K otvorí daný node v appke. Žiadny Firebase, žiadny server.
+  Notifikácie ukazujú stav: zmiznú, keď je novinka videná (prečítané fórum, pošta, otvorená záložka Odpovede či K,
+  priateľ odišiel). K sa berú z bloku „Tvoje K“ (posledná hodina); po dlhšej prestávke (tichý režim, Doze) si
+  kontrola raz vypýta blok za celý výpadok (najviac 24 h), nech sa K z noci nestratia.
 - **Strážca session:** kyberia odhlási, ak 2 hodiny nevidí načítanie stránky, a Android kontroly
   v spánku odkladá aj na hodiny. Appka si preto natiahne jeden budík na „posledná požiadavka + 100 min“;
   pri bežných kontrolách sa nikdy nespustí, takže server nedostane nič navyše. V tichom režime

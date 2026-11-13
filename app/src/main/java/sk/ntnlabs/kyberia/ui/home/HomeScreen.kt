@@ -57,6 +57,7 @@ import sk.ntnlabs.kyberia.R
 import sk.ntnlabs.kyberia.data.RefreshTimer
 import sk.ntnlabs.kyberia.data.SeenArea
 import sk.ntnlabs.kyberia.data.Settings
+import sk.ntnlabs.kyberia.notify.Notifier
 import sk.ntnlabs.kyberia.ui.bookmarks.BookmarksScreen
 import sk.ntnlabs.kyberia.ui.common.Web
 import sk.ntnlabs.kyberia.ui.friends.FriendsScreen
@@ -124,12 +125,25 @@ fun HomeScreen(
         nodeStack = longArrayOf(node)
         onNodeHandled()
     }
+    // Záložka K alebo Odpovede priamo na obrazovke (nie node či nastavenia nad ňou): jej notifikácie sú videné.
+    val onTabItself = nodeStack.isEmpty() && !settingsOpen
+    val clearSeenNotifications = {
+        if (onTabItself) {
+            when (tab) {
+                Tab.K -> Notifier.cancelK(context)
+                Tab.REPLIES -> Notifier.cancelReplies(context)
+                else -> Unit
+            }
+        }
+    }
     // Pri každom návrate do appky obnov, ak je to zapnuté a dáta nie sú čerstvé.
     LifecycleEventEffect(Lifecycle.Event.ON_START) {
+        clearSeenNotifications()
         if (container.settings.current.refreshOnOpen) overview.refreshIfStale()
     }
     // Otvorená záložka je videná – aj keď na nej pribudnú dáta.
     LaunchedEffect(tab, overview.state.loadedAtMillis) { tab.area?.let(overview::markSeen) }
+    LaunchedEffect(tab, onTabItself, overview.state.loadedAtMillis) { clearSeenNotifications() }
     val settings by container.settings.settings.collectAsStateWithLifecycle()
     val changed = overview.state.changed
     val kWallet = overview.state.user?.kWallet

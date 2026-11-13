@@ -6,11 +6,13 @@ import java.time.LocalTime
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import sk.ntnlabs.kyberia.data.AuthRepository
+import sk.ntnlabs.kyberia.data.BookmarksPage
 import sk.ntnlabs.kyberia.data.BookmarksRepository
 import sk.ntnlabs.kyberia.data.CheckEntry
 import sk.ntnlabs.kyberia.data.CheckResult
 import sk.ntnlabs.kyberia.data.CheckTrigger
 import sk.ntnlabs.kyberia.data.DiagnosticsStore
+import sk.ntnlabs.kyberia.data.KCatchUp
 import sk.ntnlabs.kyberia.data.LatestPage
 import sk.ntnlabs.kyberia.data.MailNews
 import sk.ntnlabs.kyberia.data.MailRepository
@@ -62,7 +64,7 @@ class NewsChecker(
         }
 
         val page = try {
-            bookmarks.load()
+            loadPage(quiet)
         } catch (e: SessionExpiredException) {
             diagnostics.record(CheckEntry(now, CheckResult.EXPIRED, trigger, e.detail))
             auth.sessionEnded()
@@ -91,9 +93,39 @@ class NewsChecker(
         if (current.notifyReplies && shownReplies.isNotEmpty()) Notifier.replies(context, shownReplies)
         if (current.notifyBookmarks && shownIncreases.isNotEmpty()) Notifier.bookmarks(context, shownIncreases)
         if (current.notifyFriends && friends.isNotEmpty()) Notifier.friendsOnline(context, friends)
+        processK(page, now)
         // Pošta je jedna malá požiadavka navyše – len keď o ňu používateľ stojí.
         if (current.notifyMail) checkMail()
         true
+    }
+
+    /** /id/19/ pre obnovenie v appke – s dobiehaním a notifikáciami K ako kontrola v pozadí (záložka K nemá bodku). */
+    suspend fun loadForApp(): BookmarksPage {
+        val now = System.currentTimeMillis()
+        val page = loadPage(quiet = settings.current.isQuiet(LocalTime.now().hour))
+        processK(page, now)
+        return page
+    }
+
+    /**
+     * /id/19/; po výpadku dlhšom ako hodina ([KCatchUp]) aj blok K za celý výpadok, inak by K z noci (tichý režim,
+     * Doze) z hodinového bloku vypadli. V tichom režime nie – K sa spracujú až po ňom.
+     */
+    private suspend fun loadPage(quiet: Boolean): BookmarksPage {
+        val hours = if (quiet || !settings.current.notifyK) null else KCatchUp.hours(tracker.kCheckedAt, System.currentTimeMillis())
+        return bookmarks.load(kHours = hours)
+    }
+
+    /**
+     * K na tvoje príspevky – notifikácia pri každom náraste. V tichom režime nič (ani snímka), nočné K dobehne prvé
+     * načítanie po ňom. [now] = čas pred požiadavkou, nech ďalšie dobiehanie siaha radšej ďalej ako kratšie.
+     */
+    private fun processK(page: BookmarksPage, now: Long) {
+        val current = settings.current
+        if (current.isQuiet(LocalTime.now().hour)) return
+        val block = page.kNews ?: return
+        val gains = Nsfw.kGains(tracker.updateK(block, now), current.hideNsfw)
+        if (current.notifyK && gains.isNotEmpty()) Notifier.k(context, gains)
     }
 
     /** Chyba pošty nepokazí zvyšok kontroly; o session rozhoduje len stránka s loginom. */

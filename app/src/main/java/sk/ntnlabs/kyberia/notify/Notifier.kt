@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Bundle
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -15,6 +16,7 @@ import androidx.core.content.ContextCompat
 import sk.ntnlabs.kyberia.MainActivity
 import sk.ntnlabs.kyberia.R
 import sk.ntnlabs.kyberia.data.Increase
+import sk.ntnlabs.kyberia.data.KGain
 import sk.ntnlabs.kyberia.data.Nsfw
 import sk.ntnlabs.kyberia.parse.Bookmark
 import sk.ntnlabs.kyberia.parse.Friend
@@ -33,6 +35,7 @@ object Notifier {
     private const val CHANNEL_BOOKMARKS = "bookmarks"
     private const val CHANNEL_FRIENDS = "friends"
     private const val CHANNEL_ACCOUNT = "account"
+    private const val CHANNEL_K = "k"
     private const val GROUP_REPLIES = "sk.ntnlabs.kyberia.REPLIES"
     private const val GROUP_BOOKMARKS = "sk.ntnlabs.kyberia.BOOKMARKS"
     private const val ID_BOOKMARKS = 1
@@ -42,7 +45,10 @@ object Notifier {
     private const val ID_MAIL = 5
     private const val ID_REPLY_BASE = 10_000
     private const val ID_BOOKMARK_BASE = 20_000
+    private const val ID_K_BASE = 30_000
     private const val ID_RANGE = 10_000
+    /** Komu patrí notifikácia „priateľ online“ – aby zmizla, keď všetci z nej odídu. */
+    private const val EXTRA_FRIEND_IDS = "sk.ntnlabs.kyberia.FRIEND_IDS"
     private const val MAX_ITEMS = 5
 
     fun createChannels(context: Context) {
@@ -62,6 +68,9 @@ object Notifier {
                     .build(),
                 NotificationChannelCompat.Builder(CHANNEL_ACCOUNT, NotificationManagerCompat.IMPORTANCE_LOW)
                     .setName(context.getString(R.string.channel_account))
+                    .build(),
+                NotificationChannelCompat.Builder(CHANNEL_K, NotificationManagerCompat.IMPORTANCE_DEFAULT)
+                    .setName(context.getString(R.string.channel_k))
                     .build(),
             ),
         )
@@ -167,6 +176,31 @@ object Notifier {
         if (!left) manager.cancel(ID_BOOKMARKS)
     }
 
+    /** Záložka Odpovede je otvorená – odpovede sú videné, ich notifikácie (aj súhrn) zmiznú. */
+    fun cancelReplies(context: Context) = cancelChannel(context, CHANNEL_REPLIES)
+
+    /**
+     * K pri tvojom príspevku: jedna notifikácia na príspevok s tým, koľko K má teraz. Ďalšie K ju prepíše a zazvoní
+     * znova (používateľ chce vedieť o každej zmene); zhodená sa pri ďalšom K ukáže nová. Sama nezmizne.
+     */
+    fun k(context: Context, gains: List<KGain>) {
+        gains.forEach { gain ->
+            val id = ID_K_BASE + gain.nodeId.mod(ID_RANGE)
+            val text = gain.total?.let { context.getString(R.string.notify_k_total, it, gain.added) }
+                ?: context.getString(R.string.notify_k_added, gain.added)
+            post(
+                context,
+                id,
+                builder(context, CHANNEL_K, Nsfw.label(gain.title), text)
+                    .setNumber(gain.total ?: gain.added)
+                    .setContentIntent(openNode(context, id, gain.nodeId)),
+            )
+        }
+    }
+
+    /** Záložka K je otvorená – K sú videné. */
+    fun cancelK(context: Context) = cancelChannel(context, CHANNEL_K)
+
     fun friendsOnline(context: Context, friends: List<Friend>) {
         val notification = if (friends.size == 1) {
             // Nick je už v titulku; text povie len to, kde práve je.
@@ -182,7 +216,18 @@ object Notifier {
             builder(context, CHANNEL_FRIENDS, title, friends.joinToString(", ") { it.nick })
                 .setStyle(inbox(friends.map { friend -> friend.locationTitle?.let { "${friend.nick} – ${Nsfw.label(it)}" } ?: friend.nick }))
         }
+        notification.addExtras(Bundle().apply { putLongArray(EXTRA_FRIEND_IDS, friends.map { it.id }.toLongArray()) })
         post(context, ID_FRIENDS, notification.setContentIntent(openApp(context, MainActivity.TAB_FRIENDS)))
+    }
+
+    /** Notifikácia „priateľ online“ platí, kým je online aspoň jeden z nej; potom zmizne. */
+    fun cancelGoneFriends(context: Context, online: List<Friend>) {
+        val shown = context.getSystemService(NotificationManager::class.java).activeNotifications
+            .firstOrNull { it.id == ID_FRIENDS }
+            ?.notification?.extras?.getLongArray(EXTRA_FRIEND_IDS)
+            ?: return
+        val onlineIds = online.map { it.id }.toSet()
+        if (shown.none { it in onlineIds }) NotificationManagerCompat.from(context).cancel(ID_FRIENDS)
     }
 
     /** [dataSaverBlocks] = šetrič dát appke na pozadí zakázal sieť – povie to a ponúkne povolenie. */
@@ -214,6 +259,13 @@ object Notifier {
     }
 
     private fun bookmarkId(id: Long) = ID_BOOKMARK_BASE + id.mod(ID_RANGE)
+
+    private fun cancelChannel(context: Context, channel: String) {
+        val manager = NotificationManagerCompat.from(context)
+        context.getSystemService(NotificationManager::class.java).activeNotifications
+            .filter { it.notification.channelId == channel }
+            .forEach { manager.cancel(it.id) }
+    }
 
     private fun activeIds(context: Context): Set<Int> =
         context.getSystemService(NotificationManager::class.java).activeNotifications.map { it.id }.toSet()

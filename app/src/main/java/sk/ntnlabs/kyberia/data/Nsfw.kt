@@ -35,4 +35,7 @@ object Nsfw {
 
     fun increases(list: List<Increase>, hide: Boolean): List<Increase> =
         if (hide) list.filterNot { matches(it.bookmark.title) } else list
+
+    fun kGains(list: List<KGain>, hide: Boolean): List<KGain> =
+        if (hide) list.filterNot { matches(it.title) } else list
 }

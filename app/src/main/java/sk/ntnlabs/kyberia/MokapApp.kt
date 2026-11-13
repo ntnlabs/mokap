@@ -46,9 +46,13 @@ class MokapApp : Application(), SingletonImageLoader.Factory {
     override fun onCreate() {
         super.onCreate()
         Notifier.createChannels(this)
-        // Fórum prečítané na webe zruší svoju notifikáciu – pri každej /id/19/, z appky aj z pozadia.
+        // Notifikácie ukazujú stav: fórum prečítané na webe a priatelia, ktorí už odišli, zrušia svoju notifikáciu –
+        // pri každej /id/19/, z appky aj z pozadia.
         MainScope().launch {
-            container.latestPage.flow.filterNotNull().collect { Notifier.cancelReadBookmarks(this@MokapApp, it.page.bookmarks) }
+            container.latestPage.flow.filterNotNull().collect {
+                Notifier.cancelReadBookmarks(this@MokapApp, it.page.bookmarks)
+                Notifier.cancelGoneFriends(this@MokapApp, it.page.friends)
+            }
         }
     }
 

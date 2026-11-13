@@ -51,7 +51,8 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   vnorený vo formulári bookmarkov, takže POST /id/19/ s `anticsrf`, `interval`, `template_event=Hour` (bez `event` –
   nič sa nemení). Token z poslednej /id/19/ v pamäti (`BookmarksPage.anticsrf`), inak najprv GET. Sťahuje sa **len
   pri prepnutí naň** (najviac raz za minútu, hneď po zmene intervalu), nikdy v pozadí; po ňom `Presence`.
-  Kyberia pri tom prechádza všetky K za interval – preto najviac týždeň.
+  Kyberia pri tom prechádza všetky K za interval – preto najviac týždeň. Jediný POST v pozadí je dobiehanie
+  K notifikácií po výpadku (najviac 24 h, pozri „K notifikácie“).
 - Titulok stránky je `<názov> :: <motto>`; motto sa strieda a appka ho ukazuje pod názvom záložky.
 - `/id/19/` má aj blok „Friends“ (`div.active_friend`): avatar+nick, `[odkaz]` na node, kde
   priateľ práve je, a čas (napr. `84m39s`). Avatary sú animované GIFy (Coil + disková cache).
@@ -168,8 +169,19 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
 - **Šetrič dát** bez výnimky pre mokap zakáže appke na pozadí sieť na mobilných dátach – strážca session vtedy nepomôže.
   Appka to len oznámi (riadok v nastaveniach, text a tlačidlo v notifikácii o odhlásení) a otvorí systémové
   „neobmedzené dáta“ (`NetworkProbe.unrestrictedDataIntent`); sama nič neobchádza.
+- **K notifikácie** (`KNews`, `KCatchUp`, `NewsTracker.updateK`, `Notifier.k`): z bloku „Tvoje K“ na /id/19/ – snímka
+  celkových K príspevkov z posledného bloku; nárast = notifikácia. Jedna na príspevok („Má teraz N K (+x)“), každá
+  zmena ju prepíše **a zazvoní** (používateľ chce vedieť o každej zmene), zhodená sa pri ďalšom K ukáže nová; sama
+  nezmizne (K o 3:00 musí ráno svietiť) – len ťuknutím (otvorí príspevok), zhodením alebo otvorením záložky K.
+  Hodinový blok by K z noci stratil (tichý režim nekontroluje, Doze odkladá) → **dobiehanie**: keď od posledného
+  spracovania K ubehlo > 70 min, načítanie /id/19/ (kontrola aj appka, `NewsChecker.loadForApp`) pridá POST ako
+  „Za N h“ s intervalom za celý výpadok (najviac 24 h) – +1 požiadavka po výpadku, pred `Presence`. Zlyhá → K sa
+  nespracujú, skúsi sa nabudúce. V tichom režime sa K nespracúvajú vôbec (dobehne prvé načítanie po ňom).
+  Prepínač „K na moje príspevky“ (predvolene zapnutý); vypnutý = bez dobiehania.
 - Notifikácie ukazujú stav, nie prírastok: fórum celkový počet nových (ako „N NEW Child“), prečítané fórum svoju
   notifikáciu zruší, pošta pri čiastočnom prečítaní potichu opraví číslo; po prihlásení zmizne stará „Odhlásilo ťa“.
+  Odpovede zmiznú po otvorení záložky Odpovede, „priateľ online“, keď z nej nikto nie je online (ID v extras
+  notifikácie, `cancelGoneFriends`).
 - Chyba kontroly na pozadí zapíše do diagnostiky aj stav siete (`NetworkProbe`: bez siete / zablokovaná pre appku,
   Doze, šetriče, standby bucket) – „Unable to resolve host“ inak nerozlíši offline telefón od zákazu Androidu.
 - Čas pri priateľoch je **nečinnosť** (idle); zoznam je zoradený od najaktívnejšieho.

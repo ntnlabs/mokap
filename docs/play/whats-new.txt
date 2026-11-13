@@ -1,10 +1,9 @@
 <sk>
-Beta verzia, deviaty push na Google Play Developer Konzole
+Beta verzia, desiaty push na Google Play Developer Konzole
 Codename: Capable Capybara
 
-• K môžeš dať aj vlastným príspevkom (node, odpovede, Top K)
-• Na nadradený node vedie zelená šípka hore
-• Pošta po odoslaní ukáže novú správu navrchu – netreba ju posielať znova
-• Po odoslaní odpovede sa node posunie na ňu
-• Nahlásiť chybu alebo nápad: prvý riadok v nastaveniach (GitHub)
+• Nová notifikácia: K na tvoje príspevky – ukáže, koľko K má príspevok teraz, a ozve sa pri každej zmene
+• K z noci (aj v tichom režime) ráno nezmiznú, appka ich dobehne
+• Notifikácie odpovedí zmiznú, keď otvoríš záložku Odpovede
+• Notifikácia „priateľ online“ zmizne, keď priateľ odíde
 </sk>
