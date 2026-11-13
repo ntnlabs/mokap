@@ -45,8 +45,8 @@ class BookmarksRepository(
      * bez neho alebo keď odpoveď nie je /id/19/ s blokom K, obyčajná /id/19/. Potom „používa MOKAP“ ([Presence]).
      */
     suspend fun load(kHours: Int? = null): BookmarksPage {
-        val catchUp = kHours?.let { hours -> tokens?.readToken()?.let { token -> withInterval(hours, token) } }
-        val document = catchUp ?: client.loggedInPage(KyberiaUrls.BOOKMARKS)
+        val catchUp = kHours?.let { hours -> tokens?.readToken()?.let { token -> withInterval(hours, token)?.let { hours to it } } }
+        val document = catchUp?.second ?: client.loggedInPage(KyberiaUrls.BOOKMARKS)
         val token = MyKParser.token(document)
         token?.let { tokens?.writeToken(it) }
         presence?.mark()
@@ -57,7 +57,7 @@ class BookmarksRepository(
             last = LastParser.parse(document),
             user = UserInfoParser.parse(document),
             myK = MyKParser.parse(document),
-            myKHours = if (catchUp != null && kHours != null) kHours else 1,
+            myKHours = catchUp?.first ?: 1,
             anticsrf = token,
         )
     }

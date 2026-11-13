@@ -139,6 +139,8 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
 - `parse/` a čistá logika v `data/` nesmú závisieť od Android API – majú JVM unit testy.
 - Notifikácie sú lokálne (WorkManager, interval 15–60 min z nastavení – 15 je minimum Androidu),
   žiadny Firebase. Každý typ má vlastný kanál; jednotlivé odpovede/fóra otvárajú node v appke, pošta záložku Pošta.
+  Ťuknutie na notifikáciu **vždy** stiahne to, o čom je (aj bez „obnoviť pri otvorení“ a aj keď bola záložka či node
+  otvorený už predtým): pošta len poštu, node len ten node (`nodes.load`), ostatné /id/19/ – nič navyše.
 - Kontrolu robí `NewsChecker` (mutex), volá ho `CheckWorker` a strážca session (`SessionGuardReceiver`).
 - **Kyberia odhlási pri načítaní stránky, ak od predošlého ubehli > 2 h** (`LOGOUT_IDLE_SEC = 7200`,
   `$_SESSION['last_request']` v zdrojákoch Kyberia-bloodline; AJAX pošty sa nepočíta). Android kontroly
