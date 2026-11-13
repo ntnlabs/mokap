@@ -1,6 +1,6 @@
 # Zásady ochrany súkromia – mokap
 
-*Platné od 12. 11. 2026* · [English version below](#privacy-policy--mokap)
+*Platné od 13. 11. 2026* · [English version below](#privacy-policy--mokap)
 
 **mokap** je neoficiálny Android klient pre [kyberia.sk](https://kyberia.sk), ktorý vyvíja **ntnlabs**
 (zdrojový kód: <https://github.com/ntnlabs/mokap>). Nie je to oficiálna aplikácia kyberia.sk.
@@ -31,7 +31,7 @@
 - prihlásenie do kyberie (session cookies), šifrované kľúčom z Android Keystore;
 - nastavenia appky a voľbu, či sa prihlasuješ nickom alebo ID (nie samotný nick či ID);
 - stav pre notifikácie: čísla nodov z bookmarkov a odpovedí a ich počty, čísla (ID) priateľov online,
-  počet neprečítanej pošty;
+  počet neprečítanej pošty, počty K pri tvojich príspevkoch a čas, kedy sa K naposledy kontrolovali;
 - diagnostiku kontrol (čas, výsledok, stav siete) – bez osobných údajov, slúži na zistenie, prečo appku odhlásilo;
 - vyrovnávaciu pamäť obrázkov (avatary; cudzie obrázky, ak sú zapnuté);
 - obrázky, ktoré **sám uložíš** tlačidlom „Uložiť“ – do galérie (Obrázky/mokap). Appka ich vezme z vyrovnávacej
@@ -45,7 +45,8 @@ Nič z toho (okrem obrázkov, ktoré si uložil do galérie) sa **nezálohuje do
 Notifikácie sú lokálne – appka sama kontroluje kyberiu v intervale z nastavení. Nepoužíva Firebase
 ani iný push server. Notifikácia o pošte môže obsahovať nick odosielateľa; nikam sa neukladá. Pri obnovení
 otvorenej appky sa skontroluje aj počet novej pošty (malá požiadavka), aby notifikácia zmizla, keď si poštu
-prečítal inde.
+prečítal inde. Notifikácia o K berie údaje z tej istej stránky ako ostatné; po dlhšej prestávke (napr. tichý režim
+v noci) si appka raz vypýta od kyberie prehľad K za celý ten čas, nech sa žiadne K nestratí.
 
 ## Oprávnenia
 
@@ -82,7 +83,7 @@ otvorí túto stránku v prehliadači; appka sama nič neposiela). Issues sú ve
 
 # Privacy policy – mokap
 
-*Effective 12 November 2026*
+*Effective 13 November 2026*
 
 **mokap** is an unofficial Android client for [kyberia.sk](https://kyberia.sk), developed by **ntnlabs**
 (source code: <https://github.com/ntnlabs/mokap>). It is not an official kyberia.sk app.
@@ -113,7 +114,7 @@ otvorí túto stránku v prehliadači; appka sama nič neposiela). Issues sú ve
 - your kyberia login (session cookies), encrypted with a key from the Android Keystore;
 - app settings and whether you log in by nick or by ID (not the nick or ID itself);
 - notification state: node numbers from your bookmarks and replies with their counts, IDs of friends online,
-  the number of unread mails;
+  the number of unread mails, K counts of your posts and when K were last checked;
 - check diagnostics (time, result, network state) – no personal data, used to find out why you were logged out;
 - an image cache (avatars; third-party images if enabled);
 - images **you save** with the “Save” button – into your gallery (Pictures/mokap). The app takes them from the image
@@ -127,7 +128,8 @@ None of this (except images you saved to the gallery) is **backed up to the clou
 Notifications are local – the app checks kyberia itself at the interval set in settings. It does not use
 Firebase or any other push server. A mail notification may contain the sender's nick; it is not stored. When the
 open app refreshes, it also checks the number of new mails (a small request), so the notification disappears once
-you have read your mail elsewhere.
+you have read your mail elsewhere. The K notification uses the same page as the others; after a longer break (e.g.
+quiet hours at night) the app asks kyberia once for a K overview covering the whole break, so no K gets lost.
 
 ## Permissions
 

@@ -11,6 +11,7 @@ data class Settings(
     val notifyMail: Boolean = true,
     val notifyBookmarks: Boolean = true,
     val notifyFriends: Boolean = true,
+    val notifyK: Boolean = true,
     val quietEnabled: Boolean = false,
     val quietFromHour: Int = 22,
     val quietToHour: Int = 6,

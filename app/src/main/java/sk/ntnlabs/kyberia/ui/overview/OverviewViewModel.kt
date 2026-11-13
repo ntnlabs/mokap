@@ -11,7 +11,7 @@ import java.io.IOException
 import kotlinx.coroutines.launch
 import sk.ntnlabs.kyberia.AppContainer
 import sk.ntnlabs.kyberia.data.AuthRepository
-import sk.ntnlabs.kyberia.data.BookmarksRepository
+import sk.ntnlabs.kyberia.data.BookmarksPage
 import sk.ntnlabs.kyberia.data.CheckEntry
 import sk.ntnlabs.kyberia.data.CheckResult
 import sk.ntnlabs.kyberia.data.CheckTrigger
@@ -49,7 +49,8 @@ data class OverviewUiState(
 
 /** Dáta z /id/19/ – jedna požiadavka kŕmi bookmarky, odpovede, last, friends aj K_wallet. */
 class OverviewViewModel(
-    private val repository: BookmarksRepository,
+    /** /id/19/ s dobiehaním a notifikáciami K ([sk.ntnlabs.kyberia.work.NewsChecker.loadForApp]). */
+    private val load: suspend () -> BookmarksPage,
     private val tracker: NewsTracker,
     private val auth: AuthRepository,
     private val diagnostics: DiagnosticsStore,
@@ -83,7 +84,7 @@ class OverviewViewModel(
         state = state.copy(loading = true, error = false)
         viewModelScope.launch {
             state = try {
-                val page = repository.load()
+                val page = load()
                 // Čo používateľ videl v appke, už netreba hlásiť notifikáciou.
                 tracker.updateBookmarks(page.bookmarks)
                 tracker.updateReplies(page.replies, page.user.userId)
@@ -151,7 +152,7 @@ class OverviewViewModel(
         fun factory(container: AppContainer) = viewModelFactory {
             initializer {
                 OverviewViewModel(
-                    container.bookmarks,
+                    container.checker::loadForApp,
                     container.newsTracker,
                     container.auth,
                     container.diagnostics,

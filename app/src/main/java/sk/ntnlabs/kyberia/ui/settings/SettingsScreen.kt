@@ -164,6 +164,9 @@ fun SettingsScreen(container: AppContainer, onBack: () -> Unit) {
             SwitchRow(stringResource(R.string.settings_notify_friends), settings.notifyFriends) { on ->
                 store.update { it.copy(notifyFriends = on) }
             }
+            SwitchRow(stringResource(R.string.settings_notify_k), settings.notifyK) { on ->
+                store.update { it.copy(notifyK = on) }
+            }
             ListItem(
                 headlineContent = { Text(stringResource(R.string.settings_system_notifications)) },
                 modifier = Modifier.clickable {
