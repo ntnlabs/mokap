@@ -21,6 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import sk.ntnlabs.kyberia.data.MusicShare
+import sk.ntnlabs.kyberia.data.SharedMusic
 import sk.ntnlabs.kyberia.notify.Notifier
 import sk.ntnlabs.kyberia.ui.common.AvatarOptions
 import sk.ntnlabs.kyberia.ui.common.LocalAvatarOptions
@@ -41,6 +43,9 @@ class MainActivity : ComponentActivity() {
     /** Node, ktorý si vyžiadala notifikácia (odpoveď, fórum); HomeScreen ho otvorí v appke. */
     private val requestedNode = MutableStateFlow<Long?>(null)
 
+    /** Skladba poslaná cez Zdieľať; HomeScreen otvorí fórum z nastavení s predvyplneným príspevkom. */
+    private val requestedShare = MutableStateFlow<SharedMusic?>(null)
+
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(AppLocale.wrap(newBase))
     }
@@ -52,6 +57,7 @@ class MainActivity : ComponentActivity() {
         if (savedInstanceState == null) {
             requestedTab.value = intent?.getStringExtra(EXTRA_TAB)
             requestedNode.value = intent?.nodeExtra()
+            requestedShare.value = intent?.sharedMusic()
         }
 
         setContent {
@@ -76,6 +82,7 @@ class MainActivity : ComponentActivity() {
                         val loggedIn by container.auth.loggedIn.collectAsStateWithLifecycle()
                         val tab by requestedTab.collectAsStateWithLifecycle()
                         val node by requestedNode.collectAsStateWithLifecycle()
+                        val share by requestedShare.collectAsStateWithLifecycle()
                         if (loggedIn) {
                             LaunchedEffect(Unit) {
                                 // Ak systém plán kontrol zrušil (napr. force stop), obnov ho.
@@ -89,6 +96,8 @@ class MainActivity : ComponentActivity() {
                                 onTabHandled = { requestedTab.value = null },
                                 requestedNode = node,
                                 onNodeHandled = { requestedNode.value = null },
+                                requestedShare = share,
+                                onShareHandled = { requestedShare.value = null },
                             )
                         } else {
                             var diagnostics by rememberSaveable { mutableStateOf(false) }
@@ -112,6 +121,7 @@ class MainActivity : ComponentActivity() {
         setIntent(intent)
         intent.getStringExtra(EXTRA_TAB)?.let { requestedTab.value = it }
         intent.nodeExtra()?.let { requestedNode.value = it }
+        intent.sharedMusic()?.let { requestedShare.value = it }
     }
 
     companion object {
@@ -123,6 +133,13 @@ class MainActivity : ComponentActivity() {
         private const val EXTRA_NODE = "sk.ntnlabs.kyberia.NODE"
 
         private fun Intent.nodeExtra(): Long? = getLongExtra(EXTRA_NODE, 0L).takeIf { it > 0 }
+
+        /** Text zo Zdieľať (odkaz na skladbu); predmet býva názov. Odhlásenému počká do prihlásenia (len v pamäti). */
+        private fun Intent.sharedMusic(): SharedMusic? {
+            if (action != Intent.ACTION_SEND || type?.startsWith("text/") != true) return null
+            val text = getStringExtra(Intent.EXTRA_TEXT)?.takeIf { it.isNotBlank() } ?: return null
+            return MusicShare.parse(text, getStringExtra(Intent.EXTRA_SUBJECT))
+        }
 
         fun intent(context: Context, tab: String?, node: Long? = null): Intent =
             Intent(context, MainActivity::class.java)

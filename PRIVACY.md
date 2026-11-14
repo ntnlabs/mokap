@@ -1,6 +1,6 @@
 # Zásady ochrany súkromia – mokap
 
-*Platné od 13. 11. 2026* · [English version below](#privacy-policy--mokap)
+*Platné od 14. 11. 2026* · [English version below](#privacy-policy--mokap)
 
 **mokap** je neoficiálny Android klient pre [kyberia.sk](https://kyberia.sk), ktorý vyvíja **ntnlabs**
 (zdrojový kód: <https://github.com/ntnlabs/mokap>). Nie je to oficiálna aplikácia kyberia.sk.
@@ -24,6 +24,9 @@
   uvidia tvoju IP adresu, ako pri každom stiahnutí obrázka.
 - **Pošta:** appka ju stiahne len pri otvorení záložky Pošta (a keď ju potiahneš nadol) – kyberia ju tým, rovnako ako
   na webe, označí ako prečítanú. Správy appka drží len v pamäti počas behu, do telefónu ich neukladá.
+- **Zdieľanie do mokapu:** keď mokapu cez „Zdieľať“ pošleš skladbu, appka z odkazu len predvyplní príspevok do fóra
+  z nastavení (odkaz na YouTube ako vložené video, bez sledovacích parametrov). Na kyberia.sk ho odošle až po tvojom
+  potvrdení. „Nájsť na YouTube“ otvorí YouTube v prehliadači či jeho appke – mokap sám z YouTube nič nesťahuje.
 - Odkazy mimo kyberie sa otvárajú v tvojom prehliadači.
 
 ## Čo appka ukladá v telefóne
@@ -85,7 +88,7 @@ otvorí túto stránku v prehliadači; appka sama nič neposiela). Issues sú ve
 
 # Privacy policy – mokap
 
-*Effective 13 November 2026*
+*Effective 14 November 2026*
 
 **mokap** is an unofficial Android client for [kyberia.sk](https://kyberia.sk), developed by **ntnlabs**
 (source code: <https://github.com/ntnlabs/mokap>). It is not an official kyberia.sk app.
@@ -109,6 +112,9 @@ otvorí túto stránku v prehliadači; appka sama nič neposiela). Issues sú ve
   address, as with any image download.
 - **Mail:** the app downloads it only when you open the Mail tab (or pull to refresh) – like on the web, kyberia then
   marks it as read. The app keeps messages in memory only while running; it does not store them on the phone.
+- **Sharing into mokap:** when you share a song to mokap, the app only pre-fills a post for the forum set in settings
+  (a YouTube link as an embedded video, without tracking parameters). It sends it to kyberia.sk only after you
+  confirm. “Nájsť na YouTube” opens YouTube in your browser or its app – mokap itself downloads nothing from YouTube.
 - Links outside kyberia open in your browser.
 
 ## What the app stores on the phone

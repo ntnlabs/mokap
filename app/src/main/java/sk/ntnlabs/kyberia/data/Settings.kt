@@ -36,6 +36,8 @@ data class Settings(
     val kHours: Int = DEFAULT_K_HOURS,
     /** Záložka K sa otvára na Top K – podľa testerov ho chce vidieť väčšina. */
     val kStart: KStart = KStart.TOP,
+    /** Ciele na kyberii: fórum, kam sa predvyplní zdieľaná skladba; null = vypnuté. */
+    val musicNodeId: Long? = DEFAULT_MUSIC_NODE,
 ) {
     fun isQuiet(hour: Int): Boolean = quietEnabled && QuietHours.contains(quietFromHour, quietToHour, hour)
 
@@ -52,6 +54,9 @@ data class Settings(
         /** Najviac týždeň – dotaz na kyberii prechádza všetky K za interval. */
         val K_HOURS = listOf(6, 12, 24, 48, 72, 168)
         const val DEFAULT_K_HOURS = 24
+
+        /** Fórum s hudbou, ktorú počúvame. */
+        const val DEFAULT_MUSIC_NODE = 2007674L
 
         fun sanitizeKHours(hours: Int): Int = K_HOURS.firstOrNull { it >= hours } ?: K_HOURS.last()
     }

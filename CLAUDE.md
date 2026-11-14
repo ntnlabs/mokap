@@ -86,7 +86,7 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   `NodesViewModel` drží len nody zo zásobníka v `HomeScreen`.
 - **Odpovedanie** (`ReplyFormParser`, `NodeRepository.reply`, `Replies`): formulár `formular` s `textarea[name=node_content]`
   kyberia ukáže len s právom zápisu – inak appka odpovedať neponúkne. POST (multipart ako web) posiela **len** `anticsrf`,
-  `node_name` (prázdny – „Re: …“ doplní kyberia), `node_content`, `template_id` (4), `node_parent`, voliteľne `no_html=yes`
+  `node_name` (prázdny – „Re: …“ doplní kyberia; názov len pri zdieľanej skladbe), `node_content`, `template_id` (4), `node_parent`, voliteľne `no_html=yes`
   a `node_chosen[]` (odpoveď na odpoveď) a `event=add` – nikdy celý formulár: obsahuje aj tlačidlá K/put/delete_hardlink,
   výber bookmarkov a zaškrtávacie `node_chosen[]` pri odpovediach. Text ide ako na webe (HTML cez kyberiin `htmlparse`, nové riadky cez `nl2br`). Chyba („Chyba HTML
   syntaxe!“, prázdny obsah) je v hlavičke `center > span.most_important`. Úspech = na vrátenej stránke je nová odpoveď
@@ -133,6 +133,15 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   ju poslal 4×). Po nepotvrdenom odoslaní alebo chybe siete sa ďalšie „Odoslať“ najprv pýta (`TextSheet.confirmResend`)
   – v pošte aj pri odpovediach v node. Správy len v pamäti, nikam sa neukladajú;
   vzorky skutočnej pošty len lokálne – do gitu ani nick, ani text.
+- **Zdieľanie hudby** (`MusicShare`, `SharedMusic`, intent-filter `ACTION_SEND text/plain` na `MainActivity`, štítok
+  „mokap – hudba“): odkaz z YouTube / YouTube Music (youtu.be, watch, shorts, embed, music.youtube.com) → ID videa →
+  príspevok = embed iframe ako z YouTube „Vložiť“, **bez `si`/`is`** (sledovanie). Názov príspevku (`node_name`)
+  z `EXTRA_SUBJECT`, ak ho appka poslala, inak ho používateľ dopíše. Iný odkaz (Spotify…) ostane, ako prišiel, a sheet
+  ponúkne „Nájsť na YouTube“ – **len otvorí** vyhľadávanie (prehliadač/appka YouTube), mokap z YouTube nič nesťahuje
+  (žiadny API kľúč, žiadne parsovanie YouTube – rozhodnutie používateľa); nájdené video sa nazdieľa späť. Cieľ =
+  Pokročilé → **Ciele na kyberii** → „Hudba – fórum“ (`Settings.musicNodeId`, predvolene 2007674, číslo alebo odkaz,
+  prázdne = vypnuté; ďalšie workflowy pribudnú sem). Otvorí sa node cieľa s predvyplnenou odpoveďou – **nikdy
+  automaticky neodošle**. Bez práva zápisu len hláška.
 - Avatary: prepínač animácie (vypnutá = prvý snímok cez `BitmapFactoryDecoder`) a „len cez Wi-Fi“
   (na meranej sieti len z diskovej cache, `networkCachePolicy(DISABLED)`); `LocalAvatarOptions`.
 

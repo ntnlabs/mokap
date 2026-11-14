@@ -71,7 +71,9 @@ import kotlinx.coroutines.launch
 import sk.ntnlabs.kyberia.KyberiaUrls
 import sk.ntnlabs.kyberia.R
 import sk.ntnlabs.kyberia.UrlPolicy
+import sk.ntnlabs.kyberia.data.MusicShare
 import sk.ntnlabs.kyberia.data.Nsfw
+import sk.ntnlabs.kyberia.data.SharedMusic
 import sk.ntnlabs.kyberia.data.ThreadItem
 import sk.ntnlabs.kyberia.data.ThreadView
 import sk.ntnlabs.kyberia.parse.NodeChild
@@ -92,6 +94,9 @@ fun NodeScreen(
     externalImages: ImageLoader?,
     onBack: () -> Unit,
     onOpenNode: (Long) -> Unit,
+    /** Zdieľaná skladba na predvyplnenie odpovede (fórum z Cieľov na kyberii); NodeScreen ju vezme po načítaní. */
+    share: SharedMusic? = null,
+    onShareHandled: () -> Unit = {},
 ) {
     LaunchedEffect(nodeId) { nodes.open(nodeId) }
     val state = nodes.state(nodeId)
@@ -109,6 +114,11 @@ fun NodeScreen(
     var replyTo by rememberSaveable(nodeId) { mutableStateOf<Long?>(null) }
     var draft by rememberSaveable(nodeId) { mutableStateOf("") }
     var noHtml by rememberSaveable(nodeId) { mutableStateOf(false) }
+    // Zo zdieľania: názov príspevku (null = bežná odpoveď, „Re: …“ doplní kyberia), čo hľadať na YouTube a čím sa
+    // text naposledy predvyplnil (nový odkaz ho nahradí, kým ho nikto neupravil).
+    var postTitle by rememberSaveable(nodeId) { mutableStateOf<String?>(null) }
+    var searchQuery by rememberSaveable(nodeId) { mutableStateOf<String?>(null) }
+    var sharedPost by rememberSaveable(nodeId) { mutableStateOf<String?>(null) }
     // Komu dať K (po potvrdení): nodeId = samotný node, inak ID odpovede.
     var askK by rememberSaveable(nodeId) { mutableStateOf<Long?>(null) }
     val snackbar = remember { SnackbarHostState() }
@@ -120,10 +130,31 @@ fun NodeScreen(
             composing = false
             draft = ""
             replyTo = null
+            postTitle = null
+            searchQuery = null
+            sharedPost = null
             nodes.replyHandled(nodeId)
             val text = resources.getString(R.string.node_reply_sent)
             scope.launch { snackbar.showSnackbar(text) }
         }
+    }
+    // Zdieľaná skladba: odpoveď predvyplnená embedom (alebo odkazom) a názvom; odošle sa až po potvrdení.
+    LaunchedEffect(share, state.page != null) {
+        val incoming = share ?: return@LaunchedEffect
+        val loaded = nodes.state(nodeId).page ?: return@LaunchedEffect
+        if (loaded.replyForm == null) {
+            val text = resources.getString(R.string.share_no_write)
+            scope.launch { snackbar.showSnackbar(text) }
+        } else {
+            draft = if (draft.isBlank() || draft == sharedPost) incoming.post else draft.trimEnd() + "\n" + incoming.post
+            sharedPost = draft
+            postTitle = incoming.title ?: postTitle.orEmpty()
+            searchQuery = incoming.query.takeIf { incoming.youTubeId == null }
+            replyTo = null
+            noHtml = false
+            composing = true
+        }
+        onShareHandled()
     }
     LaunchedEffect(state.notice) {
         val notice = state.notice ?: return@LaunchedEffect
@@ -274,7 +305,7 @@ fun NodeScreen(
             },
             hint = stringResource(R.string.node_reply_hint),
             confirmLabel = stringResource(R.string.node_reply_send),
-            onConfirm = { nodes.reply(nodeId, draft, replyTo, noHtml) },
+            onConfirm = { nodes.reply(nodeId, draft, replyTo, noHtml, postTitle.orEmpty()) },
             confirmResend = state.replyProblem == ReplyProblem.Unconfirmed || state.replyProblem == ReplyProblem.Network,
             onDismiss = {
                 composing = false
@@ -282,6 +313,18 @@ fun NodeScreen(
             },
             noHtml = noHtml,
             onNoHtml = { noHtml = it },
+            // Lambda vždy, vetvenie vnútri – @Composable lambda v `if` výraze kompilátor neodvodí.
+            extra = {
+                if (postTitle != null || searchQuery != null) {
+                    SharedMusicFields(
+                        title = postTitle,
+                        onTitle = { postTitle = it },
+                        searchQuery = searchQuery,
+                        onSearch = { query -> openWeb(MusicShare.searchUrl(query)) },
+                        enabled = !state.sending,
+                    )
+                }
+            },
         )
     }
 
@@ -576,6 +619,37 @@ private fun TopicContent(page: NodePage, onLink: (String) -> Unit, externalImage
     if (canCollapse && tooTall) {
         TextButton(onClick = { expanded = !expanded }, contentPadding = PaddingValues(horizontal = 0.dp)) {
             Text(stringResource(if (expanded) R.string.node_intro_less else R.string.node_intro_more))
+        }
+    }
+}
+
+/**
+ * Pri zdieľanej skladbe: názov príspevku (z predmetu zdieľania, dá sa prepísať) a pri inom ako YouTube odkaze
+ * „Nájsť na YouTube“ – otvorí vyhľadávanie v prehliadači či appke YouTube; nájdené video sa nazdieľa späť do mokapu.
+ */
+@Composable
+private fun SharedMusicFields(
+    title: String?,
+    onTitle: (String) -> Unit,
+    searchQuery: String?,
+    onSearch: (String) -> Unit,
+    enabled: Boolean,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        if (title != null) {
+            OutlinedTextField(
+                value = title,
+                onValueChange = onTitle,
+                enabled = enabled,
+                singleLine = true,
+                label = { Text(stringResource(R.string.share_title)) },
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+        if (searchQuery != null) {
+            TextButton(onClick = { onSearch(searchQuery) }, enabled = enabled, contentPadding = PaddingValues(horizontal = 0.dp)) {
+                Text(stringResource(R.string.share_find_on_youtube))
+            }
         }
     }
 }
