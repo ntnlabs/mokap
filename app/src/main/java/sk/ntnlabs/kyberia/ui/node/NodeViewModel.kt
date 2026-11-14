@@ -140,14 +140,14 @@ class NodesViewModel(
      * Odošle odpoveď do nodu (alebo na odpoveď [replyTo]). Len na ťuknutie používateľa, nikdy znova sama –
      * pri chybe spojenia nevieme, či prešla, a druhý pokus by mohol príspevok zdvojiť.
      */
-    fun reply(id: Long, content: String, replyTo: Long?, noHtml: Boolean) {
+    fun reply(id: Long, content: String, replyTo: Long?, noHtml: Boolean, title: String = "") {
         val current = state(id)
         val page = current.page ?: return
         if (current.sending || current.loading || page.replyForm == null || content.isBlank() || !auth.loggedIn.value) return
         states[id] = current.copy(sending = true, replySent = false, replyProblem = null)
         viewModelScope.launch {
             val result = try {
-                val outcome = repository.reply(page, content, replyTo, noHtml, me = latest.flow.value?.page?.user?.userId)
+                val outcome = repository.reply(page, content, replyTo, noHtml, me = latest.flow.value?.page?.user?.userId, title = title)
                 scheduler.touch()
                 when (outcome) {
                     is ReplyResult.Added -> NodeUiState(page = outcome.page, replySent = true, newReply = outcome.childId)

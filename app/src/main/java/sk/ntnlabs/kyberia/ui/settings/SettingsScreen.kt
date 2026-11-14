@@ -22,6 +22,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -50,6 +51,7 @@ import sk.ntnlabs.kyberia.AppContainer
 import sk.ntnlabs.kyberia.KyberiaUrls
 import sk.ntnlabs.kyberia.R
 import sk.ntnlabs.kyberia.data.KStart
+import sk.ntnlabs.kyberia.data.KyberiaTarget
 import sk.ntnlabs.kyberia.data.Settings
 import sk.ntnlabs.kyberia.data.ThemeMode
 import sk.ntnlabs.kyberia.ui.common.Web
@@ -221,6 +223,15 @@ fun SettingsScreen(container: AppContainer, onBack: () -> Unit) {
                     onSelect = { hours -> store.update { it.copy(kHours = hours) } },
                 )
                 Note(stringResource(R.string.settings_k_hours_note))
+                // Ciele na kyberii: kam smerujú workflowy (zdieľaná hudba…) – menia sa tu, bez novej verzie appky.
+                SubHeader(stringResource(R.string.settings_targets))
+                TargetRow(
+                    label = stringResource(R.string.settings_target_music),
+                    nodeId = settings.musicNodeId,
+                    default = Settings.DEFAULT_MUSIC_NODE,
+                    onChange = { id -> store.update { it.copy(musicNodeId = id) } },
+                )
+                Note(stringResource(R.string.settings_target_music_note))
                 DiagnosticsRows(container)
             }
 
@@ -313,6 +324,59 @@ private fun ExpandableHeader(text: String, expanded: Boolean, onToggle: () -> Un
             contentDescription = stringResource(if (expanded) R.string.settings_collapse else R.string.settings_expand),
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.rotate(if (expanded) 180f else 0f),
+        )
+    }
+}
+
+@Composable
+private fun SubHeader(text: String) {
+    Text(
+        text,
+        style = MaterialTheme.typography.labelLarge,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp),
+    )
+}
+
+/** Node na kyberii: číslo alebo odkaz; prázdne = vypnuté, „Predvolené“ vráti pôvodný cieľ. */
+@Composable
+private fun TargetRow(label: String, nodeId: Long?, default: Long, onChange: (Long?) -> Unit) {
+    var editing by remember { mutableStateOf(false) }
+    ListItem(
+        headlineContent = { Text(label) },
+        supportingContent = {
+            Text(nodeId?.let { stringResource(R.string.settings_target_value, it) } ?: stringResource(R.string.settings_target_none))
+        },
+        modifier = Modifier.clickable { editing = true },
+    )
+    if (editing) {
+        var input by remember { mutableStateOf(nodeId?.toString().orEmpty()) }
+        val parsed = KyberiaTarget.parse(input)
+        val valid = input.isBlank() || parsed != null
+        AlertDialog(
+            onDismissRequest = { editing = false },
+            title = { Text(label) },
+            text = {
+                OutlinedTextField(
+                    value = input,
+                    onValueChange = { input = it },
+                    singleLine = true,
+                    isError = !valid,
+                    label = { Text(stringResource(R.string.settings_target_hint)) },
+                )
+            },
+            confirmButton = {
+                TextButton(enabled = valid, onClick = {
+                    onChange(parsed)
+                    editing = false
+                }) { Text(stringResource(R.string.node_edit_save)) }
+            },
+            dismissButton = {
+                Row {
+                    TextButton(onClick = { input = default.toString() }) { Text(stringResource(R.string.settings_target_default)) }
+                    TextButton(onClick = { editing = false }) { Text(stringResource(R.string.cancel)) }
+                }
+            },
         )
     }
 }

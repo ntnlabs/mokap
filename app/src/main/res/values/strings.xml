@@ -223,6 +223,18 @@
     <string name="settings_section_look">Vzhľad</string>
     <string name="settings_section_k">Záložka K</string>
     <string name="settings_k_start">Po otvorení ukázať</string>
+    <string name="settings_targets">Ciele na kyberii</string>
+    <string name="settings_target_music">Hudba – fórum</string>
+    <string name="settings_target_music_note">Sem mokap predvyplní príspevok, keď mu cez Zdieľať pošleš skladbu (YouTube, YouTube Music…). Odošle sa až po tvojom potvrdení.</string>
+    <string name="settings_target_value">/id/%1$d</string>
+    <string name="settings_target_none">Vypnuté</string>
+    <string name="settings_target_hint">Číslo nodu alebo odkaz (prázdne = vypnuté)</string>
+    <string name="settings_target_default">Predvolené</string>
+    <string name="share_label">mokap – hudba</string>
+    <string name="share_no_target">Nastav fórum pre hudbu: Nastavenia → Pokročilé → Ciele na kyberii</string>
+    <string name="share_no_write">Do tohto fóra nemôžeš písať.</string>
+    <string name="share_find_on_youtube">Nájsť na YouTube</string>
+    <string name="share_title">Názov príspevku</string>
     <string name="settings_theme">Téma</string>
     <string name="theme_system">Podľa systému</string>
     <string name="theme_light">Svetlá</string>

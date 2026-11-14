@@ -42,9 +42,10 @@ object ReplyFormParser {
      * delete_hardlink, výber bookmarkov a zaškrtávacie `node_chosen[]` pri odpovediach. [replyTo] = odpoveď na
      * konkrétnu odpoveď (`node_chosen[]`, kyberia ju použije ako rodiča). Názov prázdny – kyberia doplní „Re: …“.
      */
-    fun fields(form: ReplyForm, content: String, replyTo: Long?, noHtml: Boolean): List<Pair<String, String>> = buildList {
+    /** [title] = názov príspevku; prázdny = „Re: …“ doplní kyberia (bežná odpoveď). */
+    fun fields(form: ReplyForm, content: String, replyTo: Long?, noHtml: Boolean, title: String = ""): List<Pair<String, String>> = buildList {
         add("anticsrf" to form.anticsrf)
-        add("node_name" to "")
+        add("node_name" to title.trim())
         if (noHtml) add("no_html" to "yes")
         add(CONTENT to content)
         add("template_id" to form.templateId)

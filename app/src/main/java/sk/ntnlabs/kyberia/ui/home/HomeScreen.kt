@@ -3,6 +3,7 @@ package sk.ntnlabs.kyberia.ui.home
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
@@ -30,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -57,6 +59,7 @@ import sk.ntnlabs.kyberia.R
 import sk.ntnlabs.kyberia.data.RefreshTimer
 import sk.ntnlabs.kyberia.data.SeenArea
 import sk.ntnlabs.kyberia.data.Settings
+import sk.ntnlabs.kyberia.data.SharedMusic
 import sk.ntnlabs.kyberia.notify.Notifier
 import sk.ntnlabs.kyberia.ui.bookmarks.BookmarksScreen
 import sk.ntnlabs.kyberia.ui.common.Web
@@ -92,6 +95,8 @@ fun HomeScreen(
     onTabHandled: () -> Unit,
     requestedNode: Long?,
     onNodeHandled: () -> Unit,
+    requestedShare: SharedMusic? = null,
+    onShareHandled: () -> Unit = {},
 ) {
     var tab by rememberSaveable { mutableStateOf(Tab.BOOKMARKS) }
     var settingsOpen by rememberSaveable { mutableStateOf(false) }
@@ -129,6 +134,23 @@ fun HomeScreen(
         nodes.load(node)
         onNodeHandled()
     }
+    // Zdieľaná skladba: fórum z nastavení (Ciele na kyberii) s predvyplneným príspevkom – odošle sa až po potvrdení.
+    // Kým ho NodeScreen nevezme, drží sa tu spolu s cieľom (otvorený node sa medzitým môže zmeniť).
+    var pendingShare by remember { mutableStateOf<Pair<Long, SharedMusic>?>(null) }
+    LaunchedEffect(requestedShare) {
+        val share = requestedShare ?: return@LaunchedEffect
+        val target = container.settings.current.musicNodeId
+        if (target == null) {
+            Toast.makeText(context, R.string.share_no_target, Toast.LENGTH_LONG).show()
+            nodeStack = longArrayOf()
+            settingsOpen = true
+        } else {
+            settingsOpen = false
+            nodeStack = longArrayOf(target)
+            pendingShare = target to share
+        }
+        onShareHandled()
+    }
     // Záložka K alebo Odpovede priamo na obrazovke (nie node či nastavenia nad ňou): jej notifikácie sú videné.
     val onTabItself = nodeStack.isEmpty() && !settingsOpen
     val clearSeenNotifications = {
@@ -162,12 +184,15 @@ fun HomeScreen(
     NotificationPermissionRequest()
 
     if (nodeStack.isNotEmpty()) {
+        val nodeId = nodeStack.last()
         NodeScreen(
             nodes,
-            nodeStack.last(),
+            nodeId,
             externalImages = externalImages,
             onBack = { nodeStack = nodeStack.copyOf(nodeStack.size - 1) },
             onOpenNode = openNode,
+            share = pendingShare?.takeIf { it.first == nodeId }?.second,
+            onShareHandled = { pendingShare = null },
         )
         return
     }

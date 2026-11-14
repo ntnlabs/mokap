@@ -26,9 +26,9 @@ class NodeRepository(private val client: KyberiaClient) {
      * stránky. Odoslanie je jednorazové: OkHttp ho po chybe spojenia neopakuje, aby nevznikol príspevok dvakrát;
      * IOException teda znamená „nevieme, či prešlo“. [me] = vlastné ID na potvrdenie novej odpovede.
      */
-    suspend fun reply(page: NodePage, content: String, replyTo: Long?, noHtml: Boolean, me: Long?): ReplyResult {
+    suspend fun reply(page: NodePage, content: String, replyTo: Long?, noHtml: Boolean, me: Long?, title: String = ""): ReplyResult {
         val form = checkNotNull(page.replyForm) { "Node bez formulára na odpoveď" }
-        val response = post(form.action, ReplyFormParser.fields(form, content, replyTo, noHtml), form.multipart)
+        val response = post(form.action, ReplyFormParser.fields(form, content, replyTo, noHtml, title), form.multipart)
         return Replies.outcome(page, response, me)
     }
 

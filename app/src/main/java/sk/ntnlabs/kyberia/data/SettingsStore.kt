@@ -43,6 +43,8 @@ class SettingsStore(context: Context) {
             putBoolean(EXTERNAL_MEDIA, updated.showExternalMedia)
             putInt(K_HOURS, updated.kHours)
             putString(K_START, updated.kStart.name)
+            // Vypnutý cieľ sa ukladá ako 0, nech sa nevráti predvolený.
+            putLong(TARGET_MUSIC, updated.musicNodeId ?: 0L)
         }
         state.value = updated
     }
@@ -71,6 +73,7 @@ class SettingsStore(context: Context) {
             showExternalMedia = prefs.getBoolean(EXTERNAL_MEDIA, defaults.showExternalMedia),
             kHours = Settings.sanitizeKHours(prefs.getInt(K_HOURS, defaults.kHours)),
             kStart = enumOrDefault(prefs.getString(K_START, null), defaults.kStart),
+            musicNodeId = if (prefs.contains(TARGET_MUSIC)) prefs.getLong(TARGET_MUSIC, 0L).takeIf { it > 0 } else defaults.musicNodeId,
         )
     }
 
@@ -85,6 +88,7 @@ class SettingsStore(context: Context) {
         const val NOTIFY_FRIENDS = "notify_friends"
         const val NOTIFY_K = "notify_k"
         const val K_START = "k_start"
+        const val TARGET_MUSIC = "target_music"
         const val QUIET = "quiet_enabled"
         const val QUIET_FROM = "quiet_from"
         const val QUIET_TO = "quiet_to"

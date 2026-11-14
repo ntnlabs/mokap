@@ -66,6 +66,10 @@ class ReplyFormTest {
         assertEquals(listOf("5101"), reply.filter { it.first == "node_chosen[]" }.map { it.second })
         assertEquals(listOf("yes"), reply.filter { it.first == "no_html" }.map { it.second })
         assertEquals(listOf("add"), reply.filter { it.first == "event" }.map { it.second })
+        // Bežná odpoveď bez názvu („Re: …“ doplní kyberia), zdieľaná skladba s názvom.
+        assertEquals(listOf(""), reply.filter { it.first == "node_name" }.map { it.second })
+        val titled = ReplyFormParser.fields(form, "x", replyTo = null, noHtml = false, title = " Interpret – Skladba ")
+        assertEquals(listOf("Interpret – Skladba"), titled.filter { it.first == "node_name" }.map { it.second })
     }
 
     @Test
