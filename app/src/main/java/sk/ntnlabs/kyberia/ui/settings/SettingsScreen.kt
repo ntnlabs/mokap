@@ -49,6 +49,7 @@ import kotlinx.coroutines.launch
 import sk.ntnlabs.kyberia.AppContainer
 import sk.ntnlabs.kyberia.KyberiaUrls
 import sk.ntnlabs.kyberia.R
+import sk.ntnlabs.kyberia.data.KStart
 import sk.ntnlabs.kyberia.data.Settings
 import sk.ntnlabs.kyberia.data.ThemeMode
 import sk.ntnlabs.kyberia.ui.common.Web
@@ -113,6 +114,15 @@ fun SettingsScreen(container: AppContainer, onBack: () -> Unit) {
                 store.update { it.copy(showExternalMedia = on) }
             }
             Note(stringResource(R.string.settings_external_media_note))
+
+            SectionHeader(stringResource(R.string.settings_section_k))
+            ChoiceRow(
+                label = stringResource(R.string.settings_k_start),
+                value = kStartLabel(settings.kStart),
+                options = KStart.entries,
+                optionLabel = { kStartLabel(it) },
+                onSelect = { start -> store.update { it.copy(kStart = start) } },
+            )
 
             SectionHeader(stringResource(R.string.settings_section_checks))
             // Šetrič dát bez výnimky pre mokap = na mobilných dátach kontroly na pozadí neprejdú; overí sa pri každom návrate.
@@ -247,6 +257,14 @@ fun SettingsScreen(container: AppContainer, onBack: () -> Unit) {
 }
 
 private val HOURS = (0..23).toList()
+
+@Composable
+private fun kStartLabel(start: KStart): String = stringResource(
+    when (start) {
+        KStart.MINE -> R.string.k_mode_mine
+        KStart.TOP -> R.string.k_mode_top
+    },
+)
 
 @Composable
 private fun themeLabel(mode: ThemeMode): String = stringResource(

@@ -4,6 +4,9 @@ enum class ThemeMode { SYSTEM, LIGHT, DARK, DIM }
 
 enum class BookmarkSort { ALPHABET, NEWS }
 
+/** Čo ukáže záložka K po otvorení: tvoje K alebo Top K („Za N h“ nie – je drahšie pre kyberiu). */
+enum class KStart { MINE, TOP }
+
 /** Používateľské nastavenia. Čistý Kotlin – ukladanie rieši [SettingsStore]. */
 data class Settings(
     val intervalMinutes: Int = DEFAULT_INTERVAL,
@@ -31,6 +34,8 @@ data class Settings(
     val showExternalMedia: Boolean = false,
     /** Záložka „K za N h“: za koľko hodín ukázať tvoje príspevky s K (kyberia počíta K z celého webu – väčší = ťažší). */
     val kHours: Int = DEFAULT_K_HOURS,
+    /** Záložka K sa otvára na Top K – podľa testerov ho chce vidieť väčšina. */
+    val kStart: KStart = KStart.TOP,
 ) {
     fun isQuiet(hour: Int): Boolean = quietEnabled && QuietHours.contains(quietFromHour, quietToHour, hour)
 

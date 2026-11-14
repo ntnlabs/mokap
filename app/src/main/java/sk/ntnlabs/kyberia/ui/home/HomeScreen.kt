@@ -63,6 +63,7 @@ import sk.ntnlabs.kyberia.ui.common.Web
 import sk.ntnlabs.kyberia.ui.friends.FriendsScreen
 import sk.ntnlabs.kyberia.ui.friends.PeopleViewModel
 import sk.ntnlabs.kyberia.ui.k.KHoursViewModel
+import sk.ntnlabs.kyberia.ui.k.KMode
 import sk.ntnlabs.kyberia.ui.k.KScreen
 import sk.ntnlabs.kyberia.ui.k.TopKViewModel
 import sk.ntnlabs.kyberia.ui.last.LastScreen
@@ -133,7 +134,8 @@ fun HomeScreen(
     val clearSeenNotifications = {
         if (onTabItself) {
             when (tab) {
-                Tab.K -> Notifier.cancelK(context)
+                // Na Top K tvoje K nevidno – ich notifikácie ostanú.
+                Tab.K -> if (topK.state.mode != KMode.TOP) Notifier.cancelK(context)
                 Tab.REPLIES -> Notifier.cancelReplies(context)
                 else -> Unit
             }
@@ -146,7 +148,9 @@ fun HomeScreen(
     }
     // Otvorená záložka je videná – aj keď na nej pribudnú dáta.
     LaunchedEffect(tab, overview.state.loadedAtMillis) { tab.area?.let(overview::markSeen) }
-    LaunchedEffect(tab, onTabItself, overview.state.loadedAtMillis) { clearSeenNotifications() }
+    LaunchedEffect(tab, onTabItself, overview.state.loadedAtMillis, topK.state.mode) { clearSeenNotifications() }
+    // Záložka K sa pri každom otvorení začne tým, čo je v nastaveniach (Tvoje K / Top K).
+    LaunchedEffect(tab) { if (tab != Tab.K) topK.resetToStart() }
     val settings by container.settings.settings.collectAsStateWithLifecycle()
     val changed = overview.state.changed
     val kWallet = overview.state.user?.kWallet

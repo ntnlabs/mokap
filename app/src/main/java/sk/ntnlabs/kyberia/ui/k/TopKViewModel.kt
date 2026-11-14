@@ -16,7 +16,9 @@ import sk.ntnlabs.kyberia.data.CheckResult
 import sk.ntnlabs.kyberia.data.CheckTrigger
 import sk.ntnlabs.kyberia.data.DiagnosticsStore
 import sk.ntnlabs.kyberia.data.KResult
+import sk.ntnlabs.kyberia.data.KStart
 import sk.ntnlabs.kyberia.data.SessionExpiredException
+import sk.ntnlabs.kyberia.data.SettingsStore
 import sk.ntnlabs.kyberia.data.TopKRepository
 import sk.ntnlabs.kyberia.parse.TopKItem
 import sk.ntnlabs.kyberia.work.CheckScheduler
@@ -56,9 +58,10 @@ class TopKViewModel(
     private val auth: AuthRepository,
     private val diagnostics: DiagnosticsStore,
     private val scheduler: CheckScheduler,
+    private val settings: SettingsStore,
 ) : ViewModel() {
 
-    var state by mutableStateOf(TopKUiState())
+    var state by mutableStateOf(TopKUiState(mode = startMode()))
         private set
 
     private var loadedAtMillis = 0L
@@ -76,11 +79,19 @@ class TopKViewModel(
                 if (!loggedIn) {
                     loadedAtMillis = 0L
                     anticsrf = null
-                    state = TopKUiState()
+                    state = TopKUiState(mode = startMode())
                 }
             }
         }
     }
+
+    /** Záložka K je zavretá – pri ďalšom otvorení ukáže to, čo je v nastaveniach (Tvoje K / Top K). */
+    fun resetToStart() {
+        val start = startMode()
+        if (state.mode != start) state = state.copy(mode = start, error = false)
+    }
+
+    private fun startMode(): KMode = if (settings.current.kStart == KStart.TOP) KMode.TOP else KMode.MINE
 
     fun select(mode: KMode) {
         state = state.copy(mode = mode, error = false)
@@ -148,7 +159,7 @@ class TopKViewModel(
 
         fun factory(container: AppContainer) = viewModelFactory {
             initializer {
-                TopKViewModel(container.topK, container.auth, container.diagnostics, container.scheduler)
+                TopKViewModel(container.topK, container.auth, container.diagnostics, container.scheduler, container.settings)
             }
         }
     }
