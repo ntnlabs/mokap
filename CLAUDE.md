@@ -46,6 +46,9 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   a `anticsrf` (token zo stránky Top K, `TopKPage`), jednorazový. Top K neukazuje, komu si K dal; výsledok z vrátenej
   stránky nodu (`NodeOutcomes.kFromList`): počet narástol = dané, rovnaký s „-❤️“ = K od teba už bolo, „K ✓“ ostáva
   aj po obnovení zoznamu. Na Top K sa K podľa používateľa nedá odobrať – `event=K` len pridáva.
+  Záložka K sa pri každom otvorení začne podľa nastavenia „Záložka K → Po otvorení ukázať“ (`Settings.kStart`:
+  Tvoje K / Top K, predvolene **Top K** – spätná väzba testerov; „Za N h“ ako voľba nie). Pri odchode zo záložky
+  `TopKViewModel.resetToStart`.
   **„Za N h“** (tretí prepínač v záložke K: Tvoje K · Za N h · Top K; `KHoursViewModel`, `MyKRepository`): ten istý
   blok za N hodín (nastavenie v „Pokročilé“, 6–168 h, predvolene 24; text prepínača sa mení s ním). Ako web po „Hour“: formulár s intervalom je
   vnorený vo formulári bookmarkov, takže POST /id/19/ s `anticsrf`, `interval`, `template_event=Hour` (bez `event` –
@@ -175,7 +178,8 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
 - **K notifikácie** (`KNews`, `KCatchUp`, `NewsTracker.updateK`, `Notifier.k`): z bloku „Tvoje K“ na /id/19/ – snímka
   celkových K príspevkov z posledného bloku; nárast = notifikácia. Jedna na príspevok („Má teraz N K (+x)“), každá
   zmena ju prepíše **a zazvoní** (používateľ chce vedieť o každej zmene), zhodená sa pri ďalšom K ukáže nová; sama
-  nezmizne (K o 3:00 musí ráno svietiť) – len ťuknutím (otvorí príspevok), zhodením alebo otvorením záložky K.
+  nezmizne (K o 3:00 musí ráno svietiť) – len ťuknutím (otvorí príspevok), zhodením alebo keď sú na obrazovke tvoje K
+  (záložka K mimo Top K).
   Hodinový blok by K z noci stratil (tichý režim nekontroluje, Doze odkladá) → **dobiehanie**: keď od posledného
   spracovania K ubehlo > 70 min, /id/19/ sa načíta (kontrola aj appka, `NewsChecker.loadForApp`) **namiesto GET**
   POST-om ako „Za N h“ s intervalom za celý výpadok (najviac 24 h) – **žiadna požiadavka navyše** (nápad používateľa).

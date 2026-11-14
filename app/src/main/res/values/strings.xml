@@ -221,6 +221,8 @@
     <string name="diag_app">v appke</string>
     <string name="diag_keepalive">strážca session</string>
     <string name="settings_section_look">Vzhľad</string>
+    <string name="settings_section_k">Záložka K</string>
+    <string name="settings_k_start">Po otvorení ukázať</string>
     <string name="settings_theme">Téma</string>
     <string name="theme_system">Podľa systému</string>
     <string name="theme_light">Svetlá</string>

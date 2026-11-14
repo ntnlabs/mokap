@@ -42,6 +42,7 @@ class SettingsStore(context: Context) {
             putBoolean(SHOW_PRESENCE, updated.showPresence)
             putBoolean(EXTERNAL_MEDIA, updated.showExternalMedia)
             putInt(K_HOURS, updated.kHours)
+            putString(K_START, updated.kStart.name)
         }
         state.value = updated
     }
@@ -69,6 +70,7 @@ class SettingsStore(context: Context) {
             showPresence = prefs.getBoolean(SHOW_PRESENCE, defaults.showPresence),
             showExternalMedia = prefs.getBoolean(EXTERNAL_MEDIA, defaults.showExternalMedia),
             kHours = Settings.sanitizeKHours(prefs.getInt(K_HOURS, defaults.kHours)),
+            kStart = enumOrDefault(prefs.getString(K_START, null), defaults.kStart),
         )
     }
 
@@ -82,6 +84,7 @@ class SettingsStore(context: Context) {
         const val NOTIFY_BOOKMARKS = "notify_bookmarks"
         const val NOTIFY_FRIENDS = "notify_friends"
         const val NOTIFY_K = "notify_k"
+        const val K_START = "k_start"
         const val QUIET = "quiet_enabled"
         const val QUIET_FROM = "quiet_from"
         const val QUIET_TO = "quiet_to"
