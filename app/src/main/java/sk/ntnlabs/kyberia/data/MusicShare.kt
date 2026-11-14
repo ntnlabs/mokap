@@ -2,7 +2,6 @@ package sk.ntnlabs.kyberia.data
 
 import java.net.URI
 import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 import sk.ntnlabs.kyberia.KyberiaUrls
 import sk.ntnlabs.kyberia.UrlPolicy
 
@@ -67,7 +66,8 @@ object MusicShare {
 
     /** Vyhľadanie na YouTube – otvorí ho prehliadač či appka YouTube, mokap nič nesťahuje. */
     fun searchUrl(query: String): String =
-        "https://www.youtube.com/results?search_query=" + URLEncoder.encode(query, StandardCharsets.UTF_8)
+        // encode(String, Charset) je až od API 33 – verzia s názvom kódovania ide všade (minSdk 29).
+        "https://www.youtube.com/results?search_query=" + URLEncoder.encode(query, "UTF-8")
 
     private fun clean(text: String): String? = text.replace(Regex("""\s+"""), " ").trim().ifEmpty { null }
 }
