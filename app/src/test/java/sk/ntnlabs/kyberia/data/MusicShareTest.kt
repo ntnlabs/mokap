@@ -46,6 +46,13 @@ class MusicShareTest {
     }
 
     @Test
+    fun youTubeMusicPhraseIsDroppedFromTitle() {
+        val share = MusicShare.parse("https://music.youtube.com/watch?v=abcDEF12345&si=xyz", subject = "Check out Skladba")
+        assertEquals("Skladba", share.title)
+        assertNull(MusicShare.parse("https://youtu.be/abcDEF12345", subject = "Check out ").title)
+    }
+
+    @Test
     fun subjectThatIsJustLinkIsNoTitle() {
         val share = MusicShare.parse("https://youtu.be/abcDEF12345", subject = "https://youtu.be/abcDEF12345")
         assertNull(share.title)

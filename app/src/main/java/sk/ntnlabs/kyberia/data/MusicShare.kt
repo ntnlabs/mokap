@@ -31,7 +31,7 @@ object MusicShare {
     fun parse(text: String, subject: String?): SharedMusic {
         val urls = URL.findAll(text).map { it.value.trimEnd('.', ',', ')', '"') }.toList()
         val youTube = urls.firstNotNullOfOrNull(::youTubeId)
-        val title = subject?.let(::clean)?.takeUnless { URL.containsMatchIn(it) }
+        val title = subject?.let(::withoutPrefix)?.let(::clean)?.takeUnless { URL.containsMatchIn(it) }
         return SharedMusic(
             youTubeId = youTube,
             otherLink = if (youTube == null) urls.firstOrNull() else null,
@@ -70,6 +70,18 @@ object MusicShare {
         "https://www.youtube.com/results?search_query=" + URLEncoder.encode(query, "UTF-8")
 
     private fun clean(text: String): String? = text.replace(Regex("""\s+"""), " ").trim().ifEmpty { null }
+
+    /**
+     * Fráza, ktorú appka pridá pred názov do predmetu – YouTube Music „Check out OMG“. Ďalšie (iný jazyk telefónu)
+     * sa pridajú, keď sa ukážu.
+     */
+    private val SUBJECT_PREFIXES = listOf("Check out ")
+
+    private fun withoutPrefix(subject: String): String {
+        val text = subject.trimStart()
+        val prefix = SUBJECT_PREFIXES.firstOrNull { text.startsWith(it, ignoreCase = true) } ?: return text
+        return text.substring(prefix.length)
+    }
 }
 
 /** Cieľ na kyberii z nastavení: číslo nodu alebo odkaz naň; prázdne = vypnuté. */

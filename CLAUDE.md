@@ -136,7 +136,8 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
 - **Zdieľanie hudby** (`MusicShare`, `SharedMusic`, intent-filter `ACTION_SEND text/plain` na `MainActivity`, štítok
   „mokap – hudba“): odkaz z YouTube / YouTube Music (youtu.be, watch, shorts, embed, music.youtube.com) → ID videa →
   príspevok = embed iframe ako z YouTube „Vložiť“, **bez `si`/`is`** (sledovanie). Názov príspevku (`node_name`)
-  z `EXTRA_SUBJECT`, ak ho appka poslala, inak ho používateľ dopíše. Iný odkaz (Spotify…) ostane, ako prišiel, a sheet
+  z `EXTRA_SUBJECT`, ak ho appka poslala (YT Music: „Check out <skladba>“ – fráza sa odreže; interpret v zdieľaní
+  nie je, oEmbed zatiaľ nie – rozhodnutie používateľa), inak ho používateľ dopíše. Iný odkaz (Spotify…) ostane, ako prišiel, a sheet
   ponúkne „Nájsť na YouTube“ – **len otvorí** vyhľadávanie (prehliadač/appka YouTube), mokap z YouTube nič nesťahuje
   (žiadny API kľúč, žiadne parsovanie YouTube – rozhodnutie používateľa); nájdené video sa nazdieľa späť. Cieľ =
   Pokročilé → **Ciele na kyberii** → „Hudba – fórum“ (`Settings.musicNodeId`, predvolene 2007674, číslo alebo odkaz,
