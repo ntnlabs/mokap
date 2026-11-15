@@ -224,6 +224,7 @@
     <string name="settings_section_k">Záložka K</string>
     <string name="settings_k_start">Po otvorení ukázať</string>
     <string name="settings_targets">Ciele na kyberii</string>
+    <string name="settings_diagnostics">Verzia a diagnostika</string>
     <string name="settings_target_music">Hudba – fórum</string>
     <string name="settings_target_music_note">Sem mokap predvyplní príspevok, keď mu cez Zdieľať pošleš skladbu (YouTube, YouTube Music…). Odošle sa až po tvojom potvrdení.</string>
     <string name="settings_target_value">/id/%1$d</string>
