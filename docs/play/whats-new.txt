@@ -1,10 +1,8 @@
 <sk>
-Beta verzia, desiaty push na Google Play Developer Konzole
+Beta verzia, jedenásty push na Google Play Developer Konzole
 Codename: Capable Capybara
 
-• Nová notifikácia: K na tvoje príspevky – ukáže, koľko K má príspevok teraz, a ozve sa pri každej zmene
-• K z noci (aj v tichom režime) ráno nezmiznú, appka ich dobehne
-• Notifikácie odpovedí zmiznú, keď otvoríš záložku Odpovede
-• Notifikácia „priateľ online“ zmizne, keď priateľ odíde
-• Ťuknutie na notifikáciu pošty či odpovede vždy ukáže čerstvý stav
+• Zdieľať → mokap – hudba: skladba z YouTube či YouTube Music sa predvyplní ako video do hudobného fóra (cieľ v Pokročilé → Ciele na kyberii)
+• Záložka K sa otvára na Top K alebo tvojich K – podľa nastavení
+• Dlhé úvody nodov sa zbalia viac
 </sk>
