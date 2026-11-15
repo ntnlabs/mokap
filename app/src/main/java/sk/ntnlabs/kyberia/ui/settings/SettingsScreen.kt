@@ -232,6 +232,7 @@ fun SettingsScreen(container: AppContainer, onBack: () -> Unit) {
                     onChange = { id -> store.update { it.copy(musicNodeId = id) } },
                 )
                 Note(stringResource(R.string.settings_target_music_note))
+                SubHeader(stringResource(R.string.settings_diagnostics))
                 DiagnosticsRows(container)
             }
 
@@ -328,8 +329,10 @@ private fun ExpandableHeader(text: String, expanded: Boolean, onToggle: () -> Un
     }
 }
 
+/** Podskupina v rozbalenej sekcii (Pokročilé) – s jemnou čiarou, nech sa skupiny navzájom nezlievajú. */
 @Composable
 private fun SubHeader(text: String) {
+    HorizontalDivider(Modifier.padding(start = 16.dp, top = 8.dp), color = MaterialTheme.colorScheme.outlineVariant)
     Text(
         text,
         style = MaterialTheme.typography.labelLarge,
