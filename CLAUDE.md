@@ -133,8 +133,11 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   ju poslal 4×). Po nepotvrdenom odoslaní alebo chybe siete sa ďalšie „Odoslať“ najprv pýta (`TextSheet.confirmResend`)
   – v pošte aj pri odpovediach v node. Správy len v pamäti, nikam sa neukladajú;
   vzorky skutočnej pošty len lokálne – do gitu ani nick, ani text.
-- **Zdieľanie hudby** (`MusicShare`, `SharedMusic`, intent-filter `ACTION_SEND text/plain` na `MainActivity`, štítok
-  „mokap – hudba“): odkaz z YouTube / YouTube Music (youtu.be, watch, shorts, embed, music.youtube.com) → ID videa →
+- **Odkaz na kyberiu** (`KyberiaTarget.linkIn`, aj bez https, nie „notkyberia.sk“): zdieľaný do mokapu (Zdieľať →
+  mokap) alebo vložený do hľadania v bookmarkoch rovno otvorí node; napísané číslo v hľadaní ponúkne „Otvoriť node
+  /id/N“ (issue #82).
+- **Zdieľanie hudby** (`MusicShare`, `SharedMusic`, intent-filter `ACTION_SEND text/plain` na `MainActivity`, v ponuke
+  „mokap“; text s odkazom na kyberiu ide na node, všetko ostatné sem): odkaz z YouTube / YouTube Music (youtu.be, watch, shorts, embed, music.youtube.com) → ID videa →
   príspevok = embed iframe ako z YouTube „Vložiť“, **bez `si`/`is`** (sledovanie). Názov príspevku (`node_name`)
   z `EXTRA_SUBJECT`, ak ho appka poslala (YT Music: „Check out <skladba>“ – fráza sa odreže; interpret v zdieľaní
   nie je, oEmbed zatiaľ nie – rozhodnutie používateľa), inak ho používateľ dopíše. Iný odkaz (Spotify…) ostane, ako prišiel, a sheet

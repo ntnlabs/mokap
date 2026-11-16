@@ -87,6 +87,12 @@ object MusicShare {
 /** Cieľ na kyberii z nastavení: číslo nodu alebo odkaz naň; prázdne = vypnuté. */
 object KyberiaTarget {
 
+    // Pred hostom nesmie byť písmeno ani bodka – „notkyberia.sk“ nie je kyberia.
+    private val LINK = Regex("""(?<![\w.-])(?:https?://)?(?:[\w-]+\.)*kyberia\.sk/id/(\d+)""", RegexOption.IGNORE_CASE)
+
+    /** Node z odkazu na kyberiu kdekoľvek v texte (vložený či zdieľaný z prehliadača); samé číslo odkaz nie je. */
+    fun linkIn(text: String): Long? = LINK.find(text)?.groupValues?.get(1)?.toLongOrNull()?.takeIf { it > 0 }
+
     fun parse(input: String): Long? {
         val text = input.trim()
         if (text.isEmpty()) return null

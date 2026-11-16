@@ -138,6 +138,7 @@
 
     <string name="bookmarks_search">Hľadať v bookmarkoch</string>
     <string name="bookmarks_search_clear">Vymazať hľadanie</string>
+    <string name="bookmarks_open_id">Otvoriť node /id/%1$d</string>
     <string name="bookmarks_only_news">Len nové</string>
     <string name="bookmarks_sort_alphabet">A–Z</string>
     <string name="bookmarks_sort_news">Novinky</string>
@@ -231,7 +232,6 @@
     <string name="settings_target_none">Vypnuté</string>
     <string name="settings_target_hint">Číslo nodu alebo odkaz (prázdne = vypnuté)</string>
     <string name="settings_target_default">Predvolené</string>
-    <string name="share_label">mokap – hudba</string>
     <string name="share_no_target">Nastav fórum pre hudbu: Nastavenia → Pokročilé → Ciele na kyberii</string>
     <string name="share_no_write">Do tohto fóra nemôžeš písať.</string>
     <string name="share_find_on_youtube">Nájsť na YouTube</string>

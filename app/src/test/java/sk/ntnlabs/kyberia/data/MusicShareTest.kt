@@ -60,6 +60,19 @@ class MusicShareTest {
     }
 
     @Test
+    fun kyberiaLinkAnywhereInText() {
+        assertEquals(1234567L, KyberiaTarget.linkIn("https://kyberia.sk/id/1234567/"))
+        assertEquals(42L, KyberiaTarget.linkIn("pozri toto https://www.kyberia.sk/id/42 je to dobré"))
+        assertEquals(77L, KyberiaTarget.linkIn("kyberia.sk/id/77/1961033"))
+        assertEquals(5L, KyberiaTarget.linkIn("HTTP://KYBERIA.SK/id/5/"))
+        assertNull(KyberiaTarget.linkIn("https://example.com/id/5/"))
+        assertNull(KyberiaTarget.linkIn("https://notkyberia.sk.evil.example/id/5"))
+        assertNull(KyberiaTarget.linkIn("https://notkyberia.sk/id/5"))
+        assertNull(KyberiaTarget.linkIn("1234567"))
+        assertNull(KyberiaTarget.linkIn("https://kyberia.sk/id/0/"))
+    }
+
+    @Test
     fun targetFromNumberOrKyberiaLink() {
         assertEquals(1234567L, KyberiaTarget.parse(" 1234567 "))
         assertEquals(1234567L, KyberiaTarget.parse("https://kyberia.sk/id/1234567/"))
