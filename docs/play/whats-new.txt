@@ -1,8 +1,11 @@
 <sk>
-Beta verzia, jedenásty push na Google Play Developer Konzole
+Beta verzia, dvanásty push na Google Play Developer Konzole
 Codename: Capable Capybara
 
-• Zdieľať → mokap – hudba: skladba z YouTube či YouTube Music sa predvyplní ako video do hudobného fóra (cieľ v Pokročilé → Ciele na kyberii)
-• Záložka K sa otvára na Top K alebo tvojich K – podľa nastavení
-• Dlhé úvody nodov sa zbalia viac
+• Lišta záložiek aj pri čítaní nodov – vysunie sa pri rolovaní hore
+• Po návrate z nodov sa bookmarky samé obnovia
+• Notifikácia odpovede otvorí príspevok rovno pri tej odpovedi
+• Odkaz na kyberiu alebo číslo nodu vložené do hľadania v bookmarkoch otvorí node
+• Zo skladby zdieľanej z YouTube Music zmizne „Check out“
+• Prehľadnejšie Pokročilé nastavenia
 </sk>
