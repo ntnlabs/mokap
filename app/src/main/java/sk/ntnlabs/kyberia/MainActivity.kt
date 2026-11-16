@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import sk.ntnlabs.kyberia.data.KyberiaTarget
 import sk.ntnlabs.kyberia.data.MusicShare
 import sk.ntnlabs.kyberia.data.SharedMusic
 import sk.ntnlabs.kyberia.notify.Notifier
@@ -56,8 +57,8 @@ class MainActivity : ComponentActivity() {
         val container = (application as MokapApp).container
         if (savedInstanceState == null) {
             requestedTab.value = intent?.getStringExtra(EXTRA_TAB)
-            requestedNode.value = intent?.nodeExtra()
-            requestedShare.value = intent?.sharedMusic()
+            requestedNode.value = intent?.nodeExtra() ?: intent?.sharedNode()
+            requestedShare.value = intent?.takeIf { it.sharedNode() == null }?.sharedMusic()
         }
 
         setContent {
@@ -120,8 +121,8 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         intent.getStringExtra(EXTRA_TAB)?.let { requestedTab.value = it }
-        intent.nodeExtra()?.let { requestedNode.value = it }
-        intent.sharedMusic()?.let { requestedShare.value = it }
+        (intent.nodeExtra() ?: intent.sharedNode())?.let { requestedNode.value = it }
+        if (intent.sharedNode() == null) intent.sharedMusic()?.let { requestedShare.value = it }
     }
 
     companion object {
@@ -134,10 +135,19 @@ class MainActivity : ComponentActivity() {
 
         private fun Intent.nodeExtra(): Long? = getLongExtra(EXTRA_NODE, 0L).takeIf { it > 0 }
 
+        /** Zdieľaný odkaz na kyberiu (napr. z prehliadača) – otvorí ten node v appke, nie hudobný workflow. */
+        private fun Intent.sharedNode(): Long? = sharedText()?.let(KyberiaTarget::linkIn)
+
+        private fun Intent.sharedText(): String? =
+            if (action == Intent.ACTION_SEND && type?.startsWith("text/") == true) {
+                getStringExtra(Intent.EXTRA_TEXT)?.takeIf { it.isNotBlank() }
+            } else {
+                null
+            }
+
         /** Text zo Zdieľať (odkaz na skladbu); predmet býva názov. Odhlásenému počká do prihlásenia (len v pamäti). */
         private fun Intent.sharedMusic(): SharedMusic? {
-            if (action != Intent.ACTION_SEND || type?.startsWith("text/") != true) return null
-            val text = getStringExtra(Intent.EXTRA_TEXT)?.takeIf { it.isNotBlank() } ?: return null
+            val text = sharedText() ?: return null
             return MusicShare.parse(text, getStringExtra(Intent.EXTRA_SUBJECT))
         }
 

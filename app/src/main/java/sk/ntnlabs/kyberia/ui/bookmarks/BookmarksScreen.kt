@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import sk.ntnlabs.kyberia.R
 import sk.ntnlabs.kyberia.data.BookmarkFilter
+import sk.ntnlabs.kyberia.data.KyberiaTarget
 import sk.ntnlabs.kyberia.data.Nsfw
 import sk.ntnlabs.kyberia.data.BookmarkSort
 import sk.ntnlabs.kyberia.data.SettingsStore
@@ -70,7 +71,16 @@ fun BookmarksScreen(viewModel: OverviewViewModel, settingsStore: SettingsStore, 
     Column(Modifier.fillMaxSize()) {
         OutlinedTextField(
             value = query,
-            onValueChange = { query = it },
+            onValueChange = { value ->
+                // Vložený odkaz na kyberiu (napr. z prehliadača) rovno otvorí ten node – jeden krok.
+                val linked = KyberiaTarget.linkIn(value)
+                if (linked != null) {
+                    query = ""
+                    onOpenNode(linked)
+                } else {
+                    query = value
+                }
+            },
             placeholder = { Text(stringResource(R.string.bookmarks_search)) },
             leadingIcon = { Icon(painterResource(R.drawable.ic_search), contentDescription = null) },
             trailingIcon = {
@@ -130,6 +140,20 @@ fun BookmarksScreen(viewModel: OverviewViewModel, settingsStore: SettingsStore, 
             modifier = Modifier.fillMaxSize(),
         ) {
             LazyColumn(Modifier.fillMaxSize(), state = listState) {
+                // Napísané číslo: ponúknuť ten node (bookmark s takým názvom by bol nižšie).
+                val typedId = query.trim().takeIf { it.length >= 2 && it.all(Char::isDigit) }?.toLongOrNull()
+                if (typedId != null) {
+                    item(key = "open-id") {
+                        ListItem(
+                            headlineContent = { Text(stringResource(R.string.bookmarks_open_id, typedId), color = MaterialTheme.colorScheme.primary) },
+                            modifier = Modifier.clickable {
+                                query = ""
+                                onOpenNode(typedId)
+                            },
+                        )
+                        HorizontalDivider()
+                    }
+                }
                 when {
                     state.error -> item { LoadError(onRetry = viewModel::refresh) }
                     !state.loading && shown.isEmpty() -> item {
