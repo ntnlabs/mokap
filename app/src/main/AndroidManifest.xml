@@ -26,9 +26,8 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <!-- Zdieľať → mokap: odkaz na kyberiu otvorí node, skladba (odkaz na YouTube…) predvyplní príspevok do fóra
-                 z nastavení. Nové oprávnenie netreba. -->
-            <intent-filter>
+            <!-- Zdieľať → mokap – hudba: skladba (odkaz na YouTube…) predvyplní príspevok do fóra z nastavení. Nové oprávnenie netreba. -->
+            <intent-filter android:label="@string/share_label">
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="text/plain" />

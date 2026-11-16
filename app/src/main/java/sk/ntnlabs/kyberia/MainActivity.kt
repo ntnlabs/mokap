@@ -21,8 +21,9 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import sk.ntnlabs.kyberia.data.KyberiaTarget
 import sk.ntnlabs.kyberia.data.MusicShare
+import sk.ntnlabs.kyberia.data.NodeRequest
+import sk.ntnlabs.kyberia.data.ReplyFocus
 import sk.ntnlabs.kyberia.data.SharedMusic
 import sk.ntnlabs.kyberia.notify.Notifier
 import sk.ntnlabs.kyberia.ui.common.AvatarOptions
@@ -42,7 +43,7 @@ class MainActivity : ComponentActivity() {
     private val requestedTab = MutableStateFlow<String?>(null)
 
     /** Node, ktorý si vyžiadala notifikácia (odpoveď, fórum); HomeScreen ho otvorí v appke. */
-    private val requestedNode = MutableStateFlow<Long?>(null)
+    private val requestedNode = MutableStateFlow<NodeRequest?>(null)
 
     /** Skladba poslaná cez Zdieľať; HomeScreen otvorí fórum z nastavení s predvyplneným príspevkom. */
     private val requestedShare = MutableStateFlow<SharedMusic?>(null)
@@ -57,8 +58,8 @@ class MainActivity : ComponentActivity() {
         val container = (application as MokapApp).container
         if (savedInstanceState == null) {
             requestedTab.value = intent?.getStringExtra(EXTRA_TAB)
-            requestedNode.value = intent?.nodeExtra() ?: intent?.sharedNode()
-            requestedShare.value = intent?.takeIf { it.sharedNode() == null }?.sharedMusic()
+            requestedNode.value = intent?.nodeRequest()
+            requestedShare.value = intent?.sharedMusic()
         }
 
         setContent {
@@ -121,8 +122,8 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         intent.getStringExtra(EXTRA_TAB)?.let { requestedTab.value = it }
-        (intent.nodeExtra() ?: intent.sharedNode())?.let { requestedNode.value = it }
-        if (intent.sharedNode() == null) intent.sharedMusic()?.let { requestedShare.value = it }
+        intent.nodeRequest()?.let { requestedNode.value = it }
+        intent.sharedMusic()?.let { requestedShare.value = it }
     }
 
     companion object {
@@ -133,10 +134,17 @@ class MainActivity : ComponentActivity() {
         private const val EXTRA_TAB = "sk.ntnlabs.kyberia.TAB"
         private const val EXTRA_NODE = "sk.ntnlabs.kyberia.NODE"
 
-        private fun Intent.nodeExtra(): Long? = getLongExtra(EXTRA_NODE, 0L).takeIf { it > 0 }
+        private const val EXTRA_FOCUS_AUTHOR = "sk.ntnlabs.kyberia.FOCUS_AUTHOR"
+        private const val EXTRA_FOCUS_SNIPPET = "sk.ntnlabs.kyberia.FOCUS_SNIPPET"
 
-        /** Zdieľaný odkaz na kyberiu (napr. z prehliadača) – otvorí ten node v appke, nie hudobný workflow. */
-        private fun Intent.sharedNode(): Long? = sharedText()?.let(KyberiaTarget::linkIn)
+        /** Node z notifikácie; pri odpovedi aj autor a úryvok, aby sa node posunul na ňu. */
+        private fun Intent.nodeRequest(): NodeRequest? {
+            val node = getLongExtra(EXTRA_NODE, 0L).takeIf { it > 0 } ?: return null
+            val focus = getStringExtra(EXTRA_FOCUS_SNIPPET)?.let { snippet ->
+                ReplyFocus(getLongExtra(EXTRA_FOCUS_AUTHOR, 0L).takeIf { it > 0 }, snippet)
+            }
+            return NodeRequest(node, focus)
+        }
 
         private fun Intent.sharedText(): String? =
             if (action == Intent.ACTION_SEND && type?.startsWith("text/") == true) {
@@ -151,12 +159,16 @@ class MainActivity : ComponentActivity() {
             return MusicShare.parse(text, getStringExtra(Intent.EXTRA_SUBJECT))
         }
 
-        fun intent(context: Context, tab: String?, node: Long? = null): Intent =
+        fun intent(context: Context, tab: String?, node: Long? = null, focus: ReplyFocus? = null): Intent =
             Intent(context, MainActivity::class.java)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 .apply {
                     if (tab != null) putExtra(EXTRA_TAB, tab)
                     if (node != null) putExtra(EXTRA_NODE, node)
+                    if (focus != null) {
+                        focus.authorId?.let { putExtra(EXTRA_FOCUS_AUTHOR, it) }
+                        putExtra(EXTRA_FOCUS_SNIPPET, focus.snippet)
+                    }
                 }
     }
 }

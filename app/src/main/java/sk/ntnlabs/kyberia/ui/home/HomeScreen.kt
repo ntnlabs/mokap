@@ -69,6 +69,8 @@ import sk.ntnlabs.kyberia.R
 import sk.ntnlabs.kyberia.data.RefreshTimer
 import sk.ntnlabs.kyberia.data.SeenArea
 import sk.ntnlabs.kyberia.data.Settings
+import sk.ntnlabs.kyberia.data.NodeRequest
+import sk.ntnlabs.kyberia.data.ReplyFocus
 import sk.ntnlabs.kyberia.data.SharedMusic
 import sk.ntnlabs.kyberia.notify.Notifier
 import sk.ntnlabs.kyberia.ui.bookmarks.BookmarksScreen
@@ -103,7 +105,7 @@ fun HomeScreen(
     container: AppContainer,
     requestedTab: String?,
     onTabHandled: () -> Unit,
-    requestedNode: Long?,
+    requestedNode: NodeRequest?,
     onNodeHandled: () -> Unit,
     requestedShare: SharedMusic? = null,
     onShareHandled: () -> Unit = {},
@@ -137,11 +139,14 @@ fun HomeScreen(
         onTabHandled()
     }
     // Notifikácia odpovede, fóra alebo K: rovno ten node v appke, stiahnutý znova – aj keď bol otvorený už predtým.
+    // Pri odpovedi aj odpoveď, na ktorú sa má node posunúť – drží sa, kým ju NodeScreen nevezme.
+    var pendingFocus by remember { mutableStateOf<Pair<Long, ReplyFocus>?>(null) }
     LaunchedEffect(requestedNode) {
-        val node = requestedNode ?: return@LaunchedEffect
+        val request = requestedNode ?: return@LaunchedEffect
         settingsOpen = false
-        nodeStack = longArrayOf(node)
-        nodes.load(node)
+        nodeStack = longArrayOf(request.nodeId)
+        nodes.load(request.nodeId)
+        pendingFocus = request.focus?.let { request.nodeId to it }
         onNodeHandled()
     }
     // Zdieľaná skladba: fórum z nastavení (Ciele na kyberii) s predvyplneným príspevkom – odošle sa až po potvrdení.
@@ -234,6 +239,8 @@ fun HomeScreen(
                     onOpenNode = openNode,
                     share = pendingShare?.takeIf { it.first == nodeId }?.second,
                     onShareHandled = { pendingShare = null },
+                    focus = pendingFocus?.takeIf { it.first == nodeId }?.second,
+                    onFocusHandled = { pendingFocus = null },
                 )
             }
             AnimatedVisibility(visible = tabBarShown, enter = expandVertically(), exit = shrinkVertically()) {
