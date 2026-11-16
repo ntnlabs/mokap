@@ -133,11 +133,11 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   ju poslal 4×). Po nepotvrdenom odoslaní alebo chybe siete sa ďalšie „Odoslať“ najprv pýta (`TextSheet.confirmResend`)
   – v pošte aj pri odpovediach v node. Správy len v pamäti, nikam sa neukladajú;
   vzorky skutočnej pošty len lokálne – do gitu ani nick, ani text.
-- **Odkaz na kyberiu** (`KyberiaTarget.linkIn`, aj bez https, nie „notkyberia.sk“): zdieľaný do mokapu (Zdieľať →
-  mokap) alebo vložený do hľadania v bookmarkoch rovno otvorí node; napísané číslo v hľadaní ponúkne „Otvoriť node
-  /id/N“ (issue #82).
-- **Zdieľanie hudby** (`MusicShare`, `SharedMusic`, intent-filter `ACTION_SEND text/plain` na `MainActivity`, v ponuke
-  „mokap“; text s odkazom na kyberiu ide na node, všetko ostatné sem): odkaz z YouTube / YouTube Music (youtu.be, watch, shorts, embed, music.youtube.com) → ID videa →
+- **Odkaz na kyberiu** (`KyberiaTarget.linkIn`, aj bez https, nie „notkyberia.sk“) vložený do hľadania v bookmarkoch
+  rovno otvorí node; napísané číslo v hľadaní ponúkne „Otvoriť node /id/N“ (issue #82). Zdieľanie odkazu z prehliadača
+  do mokapu zámerne nie (rozhodnutie používateľa – nemá prínos).
+- **Zdieľanie hudby** (`MusicShare`, `SharedMusic`, intent-filter `ACTION_SEND text/plain` na `MainActivity`, štítok
+  „mokap – hudba“): odkaz z YouTube / YouTube Music (youtu.be, watch, shorts, embed, music.youtube.com) → ID videa →
   príspevok = embed iframe ako z YouTube „Vložiť“, **bez `si`/`is`** (sledovanie). Názov príspevku (`node_name`)
   z `EXTRA_SUBJECT`, ak ho appka poslala (YT Music: „Check out <skladba>“ – fráza sa odreže; interpret v zdieľaní
   nie je, oEmbed zatiaľ nie – rozhodnutie používateľa), inak ho používateľ dopíše. Iný odkaz (Spotify…) ostane, ako prišiel, a sheet
@@ -158,6 +158,10 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   žiadny Firebase. Každý typ má vlastný kanál; jednotlivé odpovede/fóra otvárajú node v appke, pošta záložku Pošta.
   Ťuknutie na notifikáciu **vždy** stiahne to, o čom je (aj bez „obnoviť pri otvorení“ a aj keď bola záložka či node
   otvorený už predtým): pošta len poštu, node len ten node (`nodes.load`), ostatné /id/19/ – nič navyše.
+  Odpoveď otvorí tvoj príspevok (ID odpovede /id/19/ nedáva) a posunie sa na ňu (`ReplyFocus` v intente: autor +
+  úryvok; `ReplyFocusFinder` – zhoda začiatku úryvku od autora, inak jeho prvá nová odpoveď; hľadá sa až v čerstvo
+  stiahnutom node). Súhrn odpovedí, ktoré sú všetky pod jedným príspevkom, otvorí rovno ten node (príspevok v extras
+  každej notifikácie); pod viacerými záložku Odpovede.
 - Kontrolu robí `NewsChecker` (mutex), volá ho `CheckWorker` a strážca session (`SessionGuardReceiver`).
 - **Kyberia odhlási pri načítaní stránky, ak od predošlého ubehli > 2 h** (`LOGOUT_IDLE_SEC = 7200`,
   `$_SESSION['last_request']` v zdrojákoch Kyberia-bloodline; AJAX pošty sa nepočíta). Android kontroly

@@ -232,6 +232,7 @@
     <string name="settings_target_none">Vypnuté</string>
     <string name="settings_target_hint">Číslo nodu alebo odkaz (prázdne = vypnuté)</string>
     <string name="settings_target_default">Predvolené</string>
+    <string name="share_label">mokap – hudba</string>
     <string name="share_no_target">Nastav fórum pre hudbu: Nastavenia → Pokročilé → Ciele na kyberii</string>
     <string name="share_no_write">Do tohto fóra nemôžeš písať.</string>
     <string name="share_find_on_youtube">Nájsť na YouTube</string>

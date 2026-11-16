@@ -73,6 +73,8 @@ import sk.ntnlabs.kyberia.R
 import sk.ntnlabs.kyberia.UrlPolicy
 import sk.ntnlabs.kyberia.data.MusicShare
 import sk.ntnlabs.kyberia.data.Nsfw
+import sk.ntnlabs.kyberia.data.ReplyFocus
+import sk.ntnlabs.kyberia.data.ReplyFocusFinder
 import sk.ntnlabs.kyberia.data.SharedMusic
 import sk.ntnlabs.kyberia.data.ThreadItem
 import sk.ntnlabs.kyberia.data.ThreadView
@@ -97,6 +99,9 @@ fun NodeScreen(
     /** Zdieľaná skladba na predvyplnenie odpovede (fórum z Cieľov na kyberii); NodeScreen ju vezme po načítaní. */
     share: SharedMusic? = null,
     onShareHandled: () -> Unit = {},
+    /** Odpoveď z notifikácie, na ktorú sa po načítaní posunúť (nájde sa podľa autora a úryvku). */
+    focus: ReplyFocus? = null,
+    onFocusHandled: () -> Unit = {},
 ) {
     LaunchedEffect(nodeId) { nodes.open(nodeId) }
     val state = nodes.state(nodeId)
@@ -235,6 +240,14 @@ fun NodeScreen(
         Box(Modifier.fillMaxSize().padding(padding)) {
             when {
                 page != null && actions != null -> PullToRefreshBox(isRefreshing = state.loading, onRefresh = { nodes.load(nodeId) }) {
+                    // Nová vlastná odpoveď má prednosť; inak odpoveď z notifikácie (ak sa v node nájde).
+                    // Hľadá sa až v čerstvo stiahnutom node – v starom z pamäte nová odpoveď ešte nie je.
+                    val focusTarget = remember(page.children, focus, state.loading) {
+                        if (state.loading) null else focus?.let { ReplyFocusFinder.find(page.children, it) }
+                    }
+                    LaunchedEffect(focus, focusTarget, state.loading) {
+                        if (focus != null && !state.loading && focusTarget == null) onFocusHandled()
+                    }
                     NodeContent(
                         page,
                         openLink,
@@ -242,8 +255,8 @@ fun NodeScreen(
                         onOpenNode,
                         onMore = { openWeb(KyberiaUrls.node(nodeId)) },
                         actions,
-                        newReply = state.newReply,
-                        onReplyShown = { nodes.replyShown(nodeId) },
+                        newReply = state.newReply ?: focusTarget,
+                        onReplyShown = { if (state.newReply != null) nodes.replyShown(nodeId) else onFocusHandled() },
                     )
                 }
                 state.error -> Column(

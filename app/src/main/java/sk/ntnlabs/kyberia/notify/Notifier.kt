@@ -18,6 +18,7 @@ import sk.ntnlabs.kyberia.R
 import sk.ntnlabs.kyberia.data.Increase
 import sk.ntnlabs.kyberia.data.KGain
 import sk.ntnlabs.kyberia.data.Nsfw
+import sk.ntnlabs.kyberia.data.ReplyFocus
 import sk.ntnlabs.kyberia.parse.Bookmark
 import sk.ntnlabs.kyberia.parse.Friend
 import sk.ntnlabs.kyberia.parse.Reply
@@ -47,6 +48,8 @@ object Notifier {
     private const val ID_BOOKMARK_BASE = 20_000
     private const val ID_K_BASE = 30_000
     private const val ID_RANGE = 10_000
+    /** Príspevok, pod ktorým odpoveď v notifikácii je – súhrn podľa toho vie, či otvoriť rovno node. */
+    private const val EXTRA_NODE_ID = "sk.ntnlabs.kyberia.NODE_ID"
     /** Komu patrí notifikácia „priateľ online“ – aby zmizla, keď všetci z nej odídu. */
     private const val EXTRA_FRIEND_IDS = "sk.ntnlabs.kyberia.FRIEND_IDS"
     private const val MAX_ITEMS = 5
@@ -86,13 +89,19 @@ object Notifier {
                     .setStyle(NotificationCompat.BigTextStyle().bigText(reply.snippet))
                     .setSubText(Nsfw.label(reply.nodeTitle))
                     .setGroup(GROUP_REPLIES)
-                    // Otvorí môj príspevok – odpoveď visí pod ním, takže je vidieť aj kontext.
-                    .setContentIntent(openNode(context, id, reply.nodeId)),
+                    .addExtras(Bundle().apply { putLong(EXTRA_NODE_ID, reply.nodeId) })
+                    // Otvorí môj príspevok (ID odpovede /id/19/ nedáva) a posunie sa na odpoveď podľa autora a úryvku.
+                    .setContentIntent(openNode(context, id, reply.nodeId, ReplyFocus(reply.authorId, reply.snippet))),
             )
         }
-        if (replies.size > 1) {
-            val title = context.resources.getQuantityString(R.plurals.notify_replies_title, replies.size, replies.size)
-            val lines = replies.map { "${it.author}: ${it.snippet}" }
+        // Súhrn podľa všetkých odpovedí v skupine (aj zo starších kontrol): pod jedným príspevkom otvorí rovno ten,
+        // pod viacerými záložku Odpovede. Práve poslané ešte nemusia byť v aktívnych, preto aj tie z tejto dávky.
+        val shown = activeReplyNodes(context) + replies.take(MAX_ITEMS).map { it.key.hashCode().mod(ID_RANGE) to it.nodeId }
+        val count = shown.map { it.first }.toSet().size
+        if (count > 1) {
+            val title = context.resources.getQuantityString(R.plurals.notify_replies_title, count, count)
+            val lines = replies.map { "${it.author}: ${it.snippet}" }.ifEmpty { listOf(title) }
+            val nodes = shown.map { it.second }.toSet()
             post(
                 context,
                 ID_REPLIES,
@@ -100,10 +109,20 @@ object Notifier {
                     .setStyle(inbox(lines))
                     .setGroup(GROUP_REPLIES)
                     .setGroupSummary(true)
-                    .setContentIntent(openApp(context, MainActivity.TAB_REPLIES)),
+                    .setContentIntent(
+                        nodes.singleOrNull()?.let { openNode(context, ID_REPLIES, it) } ?: openApp(context, MainActivity.TAB_REPLIES),
+                    ),
             )
         }
     }
+
+    /** Odpovede, ktoré ešte visia: (ID notifikácie v rozsahu, príspevok). */
+    private fun activeReplyNodes(context: Context): List<Pair<Int, Long>> =
+        context.getSystemService(NotificationManager::class.java).activeNotifications
+            .filter { it.id in ID_REPLY_BASE until ID_REPLY_BASE + ID_RANGE }
+            .mapNotNull { sbn ->
+                sbn.notification.extras.getLong(EXTRA_NODE_ID, 0L).takeIf { it > 0 }?.let { (sbn.id - ID_REPLY_BASE) to it }
+            }
 
     /**
      * Jedna notifikácia s počtom neprečítaných a tým, kto písal naposledy; ťuknutie otvorí poštu v appke.
@@ -283,11 +302,11 @@ object Notifier {
         NotificationCompat.InboxStyle().also { style -> lines.take(MAX_ITEMS + 1).forEach(style::addLine) }
 
     /** Node v appke. */
-    private fun openNode(context: Context, requestCode: Int, nodeId: Long): PendingIntent =
+    private fun openNode(context: Context, requestCode: Int, nodeId: Long, focus: ReplyFocus? = null): PendingIntent =
         PendingIntent.getActivity(
             context,
             requestCode,
-            MainActivity.intent(context, tab = null, node = nodeId),
+            MainActivity.intent(context, tab = null, node = nodeId, focus = focus),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
 
