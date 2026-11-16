@@ -8,13 +8,19 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -37,6 +43,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -151,6 +161,17 @@ fun HomeScreen(
         }
         onShareHandled()
     }
+    // Návrat z nodov (zavretý posledný): /id/19/ znova – čítanie fór mení počty nových, a to aj bez „obnoviť pri
+    // otvorení“. Pošta nie – tú čítanie nodov nemení a stiahne sa sama pri otvorení.
+    var wasInNodes by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(nodeStack.isEmpty()) {
+        if (nodeStack.isNotEmpty()) {
+            wasInNodes = true
+        } else if (wasInNodes) {
+            wasInNodes = false
+            if (tab != Tab.MAIL) overview.refresh()
+        }
+    }
     // Záložka K alebo Odpovede priamo na obrazovke (nie node či nastavenia nad ňou): jej notifikácie sú videné.
     val onTabItself = nodeStack.isEmpty() && !settingsOpen
     val clearSeenNotifications = {
@@ -185,15 +206,44 @@ fun HomeScreen(
 
     if (nodeStack.isNotEmpty()) {
         val nodeId = nodeStack.last()
-        NodeScreen(
-            nodes,
-            nodeId,
-            externalImages = externalImages,
-            onBack = { nodeStack = nodeStack.copyOf(nodeStack.size - 1) },
-            onOpenNode = openNode,
-            share = pendingShare?.takeIf { it.first == nodeId }?.second,
-            onShareHandled = { pendingShare = null },
-        )
+        // Lišta záložiek aj v nodoch – cesta „domov“ či rovno na inú záložku. Pri čítaní (rolovanie dole) sa schová,
+        // pri rolovaní hore sa vysunie; pri každom novom node je vidieť.
+        var tabBarShown by remember { mutableStateOf(true) }
+        LaunchedEffect(nodeStack.size) { tabBarShown = true }
+        val hideOnScroll = remember {
+            object : NestedScrollConnection {
+                override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                    if (available.y < -SCROLL_SLOP) tabBarShown = false else if (available.y > SCROLL_SLOP) tabBarShown = true
+                    return Offset.Zero
+                }
+            }
+        }
+        Column(Modifier.fillMaxSize()) {
+            Box(
+                Modifier
+                    .weight(1f)
+                    // Spodný okraj systému rieši lišta, kým je vidieť – inak by bola pod nodom prázdna medzera.
+                    .then(if (tabBarShown) Modifier.consumeWindowInsets(WindowInsets.navigationBars) else Modifier)
+                    .nestedScroll(hideOnScroll),
+            ) {
+                NodeScreen(
+                    nodes,
+                    nodeId,
+                    externalImages = externalImages,
+                    onBack = { nodeStack = nodeStack.copyOf(nodeStack.size - 1) },
+                    onOpenNode = openNode,
+                    share = pendingShare?.takeIf { it.first == nodeId }?.second,
+                    onShareHandled = { pendingShare = null },
+                )
+            }
+            AnimatedVisibility(visible = tabBarShown, enter = expandVertically(), exit = shrinkVertically()) {
+                // Ťuknutie zavrie všetky nody a prepne záložku; tá, z ktorej si prišiel, je „domov“.
+                TabBar(tab, friendsOnline, unreadMail, changed) { item ->
+                    tab = item
+                    nodeStack = longArrayOf()
+                }
+            }
+        }
         return
     }
 
@@ -234,29 +284,7 @@ fun HomeScreen(
         bottomBar = {
             Column {
                 RefreshBar(overview.state.loadedAtMillis, settings, onDue = overview::refresh)
-                NavigationBar {
-                    Tab.entries.forEach { item ->
-                        NavigationBarItem(
-                            selected = item == tab,
-                            onClick = { tab = item },
-                            icon = {
-                                BadgedBox(
-                                    badge = {
-                                        when {
-                                            item == Tab.FRIENDS && friendsOnline > 0 -> Badge { Text("$friendsOnline") }
-                                            item == Tab.MAIL && (unreadMail ?: 0) > 0 -> Badge { Text("$unreadMail") }
-                                            // Bodka: od poslednej návštevy záložky tu pribudlo niečo nové.
-                                            item.area != null && item.area in changed -> Badge()
-                                        }
-                                    },
-                                ) {
-                                    // Bez textu pod ikonou – záložiek je veľa; názov je v hornej lište a pre čítačku tu.
-                                    Icon(painterResource(item.icon), contentDescription = stringResource(item.label))
-                                }
-                            },
-                        )
-                    }
-                }
+                TabBar(tab, friendsOnline, unreadMail, changed) { tab = it }
             }
         },
     ) { padding ->
@@ -269,6 +297,34 @@ fun HomeScreen(
                 Tab.MAIL -> MailScreen(mail, externalImages, onOpenNode = openNode, onOpenWeb = openWeb)
                 Tab.K -> KScreen(overview, topK, kHours, settings.kHours, settings.hideNsfw, externalImages, onOpenNode = openNode, onOpenWeb = openWeb)
             }
+        }
+    }
+}
+
+/** Spodná lišta záložiek – na hlavnej obrazovke aj v nodoch. */
+@Composable
+private fun TabBar(selected: Tab, friendsOnline: Int, unreadMail: Int?, changed: Set<SeenArea>, onSelect: (Tab) -> Unit) {
+    NavigationBar {
+        Tab.entries.forEach { item ->
+            NavigationBarItem(
+                selected = item == selected,
+                onClick = { onSelect(item) },
+                icon = {
+                    BadgedBox(
+                        badge = {
+                            when {
+                                item == Tab.FRIENDS && friendsOnline > 0 -> Badge { Text("$friendsOnline") }
+                                item == Tab.MAIL && (unreadMail ?: 0) > 0 -> Badge { Text("$unreadMail") }
+                                // Bodka: od poslednej návštevy záložky tu pribudlo niečo nové.
+                                item.area != null && item.area in changed -> Badge()
+                            }
+                        },
+                    ) {
+                        // Bez textu pod ikonou – záložiek je veľa; názov je v hornej lište a pre čítačku tu.
+                        Icon(painterResource(item.icon), contentDescription = stringResource(item.label))
+                    }
+                },
+            )
         }
     }
 }
@@ -297,6 +353,9 @@ private fun RefreshBar(loadedAtMillis: Long?, settings: Settings, onDue: () -> U
 }
 
 private const val RETRY_MILLIS = 60_000L
+
+/** Najmenší posun prsta (px), pri ktorom sa lišta v node schová či vysunie – nech sa netrasie pri drobnom pohybe. */
+private const val SCROLL_SLOP = 6f
 
 /** Aktuálny čas, ktorý tiká raz za sekundu – len kým je appka na obrazovke. */
 @Composable

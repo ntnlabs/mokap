@@ -211,6 +211,9 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   ich otvárajú v tej istej karte namiesto novej.
 - UI je pre mobil: každá oblasť má vlastnú záložku (Bookmarky, Odpovede, Last, Pošta, K, Friends),
   v spodnej lište len ikony (popis pre čítačku).
+  Lišta záložiek je aj v nodoch (cesta „domov“): pri rolovaní dole sa schová, pri rolovaní hore a pri novom node
+  vysunie; ťuknutie zavrie všetky nody a prepne záložku. **Návrat z nodov** (zavretý posledný node) stiahne /id/19/
+  aj bez „obnoviť pri otvorení“ – čítanie fór mení počty nových (želanie používateľa); pri Pošte nie.
   Bookmarky predvolene A–Z (slovenský Collator); radenie/filter si appka pamätá v nastaveniach.
 - NSFW: **len názov samotného nodu** obsahuje „NSFW“ (samostatné slovo, `Nsfw`) – nikdy obsah, úryvky
   ani rodič (NSFW sa dedí, všetko aj tak nechytíme; v textoch priveľa omylov). V názvoch sa ukazuje 🔞;
