@@ -694,7 +694,8 @@ private fun Child(child: NodeChild, onLink: (String) -> Unit, externalImages: Im
             Text(Nsfw.label(child.title), style = MaterialTheme.typography.labelLarge, maxLines = 2, overflow = TextOverflow.Ellipsis)
         }
         ContentView(child.content, onLink, externalImages)
-        val own = actions.me != null && child.authorId == actions.me
+        // Odkaz „conf“ v hlavičke odpovede = smieš ju upravovať; vlastné ID z /id/19/ je len záloha.
+        val own = child.confTemplate != null || (actions.me != null && child.authorId == actions.me)
         val kChild = actions.kChild?.takeUnless { actions.kGiven(child.id) }
         val reply = actions.reply
         if (kChild != null || own || reply != null) {

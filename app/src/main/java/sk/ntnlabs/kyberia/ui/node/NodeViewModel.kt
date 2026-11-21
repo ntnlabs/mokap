@@ -208,8 +208,10 @@ class NodesViewModel(
         states[id] = current.copy(edit = EditUiState(target))
         viewModelScope.launch {
             val edit = try {
-                // Šablóna z odkazu „conf“ na stránke nodu – u každého iná; odpoveď ju zdedí z nodu, v ktorom je.
-                val form = repository.editSource(target, current.page?.confTemplate)
+                // Šablóna z odkazu „conf“ – u každého iná: odpovede z jej hlavičky, inak zo stránky nodu.
+                val page = current.page
+                val template = page?.children?.firstOrNull { it.id == target }?.confTemplate ?: page?.confTemplate
+                val form = repository.editSource(target, template)
                 scheduler.touch()
                 if (form == null) EditUiState(target, unavailable = true) else EditUiState(target, form = form)
             } catch (e: SessionExpiredException) {
