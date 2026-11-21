@@ -44,6 +44,8 @@ data class NodePage(
     val kGiven: Boolean = false,
     /** Kam poslať K pre odpoveď (`formular` + `node_chosen[]`). */
     val kChild: PostTarget? = null,
+    /** Šablóna „conf“ z odkazu pri názve – je = smieš node upravovať ([NodeActionsParser.confTemplate]). */
+    val confTemplate: Long? = null,
 )
 
 /**
@@ -80,6 +82,7 @@ object NodeParser {
             kNode = NodeActionsParser.kNode(document),
             kGiven = NodeActionsParser.kGiven(document),
             kChild = NodeActionsParser.kChild(document),
+            confTemplate = NodeActionsParser.confTemplate(document, nodeId),
         )
     }
 

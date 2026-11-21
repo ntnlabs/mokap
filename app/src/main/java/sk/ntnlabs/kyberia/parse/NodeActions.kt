@@ -47,6 +47,18 @@ object NodeActionsParser {
         add("event" to K)
     }
 
+    /**
+     * Šablóna „conf“ z odkazu „conf“ pri názve nodu (`/id/N/<šablóna>`). Kyberia ho ukáže len tomu, kto smie node
+     * upravovať – jeho prítomnosť je teda právo na úpravu. Šablóna sa líši podľa nastavení používateľa, preto
+     * nie natvrdo. Null = odkaz nie je.
+     */
+    fun confTemplate(document: Document, nodeId: Long): Long? {
+        val path = Regex("""/id/$nodeId/(\d+)""")
+        return document.select("a[href]")
+            .firstOrNull { it.text().trim().equals("conf", ignoreCase = true) && path.containsMatchIn(it.attr("href")) }
+            ?.let { path.find(it.attr("href"))?.groupValues?.get(1)?.toLongOrNull() }
+    }
+
     /** Formulár s pôvodným textom (`textarea[name=node_content]`) a tlačidlom `configure_content`. */
     fun edit(document: Document): EditForm? {
         val form = Forms.find(document) {

@@ -96,4 +96,15 @@ druhý riadok</textarea>
         assertEquals("datanode uz si k udelil", PageError.of(Jsoup.parse("<center><span class='most_important'>datanode uz si k udelil</span></center>")))
         assertNull(PageError.of(node))
     }
+
+    @Test
+    fun confLinkGivesTemplateAndEditRight() {
+        val html = """<div class='title'><a href='/id/5100/'>^</a> <a href='/id/5101/7777'> conf </a> Moja téma</div>
+            <a href='/id/9999/7777'>conf</a>"""
+        val document = Jsoup.parse(html, "https://kyberia.sk/id/5101/")
+        assertEquals(7777L, NodeActionsParser.confTemplate(document, 5101))
+        // „conf“ iného nodu (napr. rodiča) neplatí pre tento.
+        assertEquals(null, NodeActionsParser.confTemplate(document, 5100))
+        assertEquals(null, NodeActionsParser.confTemplate(Jsoup.parse("<a href='/id/5101/7777'>edit</a>"), 5101))
+    }
 }
