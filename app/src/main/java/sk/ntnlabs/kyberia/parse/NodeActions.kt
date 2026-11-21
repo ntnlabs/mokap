@@ -48,13 +48,13 @@ object NodeActionsParser {
     }
 
     /**
-     * Šablóna „conf“ z odkazu „conf“ pri názve nodu (`/id/N/<šablóna>`). Kyberia ho ukáže len tomu, kto smie node
-     * upravovať – jeho prítomnosť je teda právo na úpravu. Šablóna sa líši podľa nastavení používateľa, preto
-     * nie natvrdo. Null = odkaz nie je.
+     * Šablóna „conf“ z odkazu „conf“ (`/id/N/<šablóna>`) – pri názve nodu aj v hlavičke každej odpovede. Kyberia ho
+     * ukáže len tomu, kto smie príspevok upravovať – jeho prítomnosť je teda právo na úpravu. Šablóna sa líši podľa
+     * nastavení používateľa, preto nie natvrdo. [scope] = stránka alebo hlavička odpovede. Null = odkaz nie je.
      */
-    fun confTemplate(document: Document, nodeId: Long): Long? {
+    fun confTemplate(scope: Element, nodeId: Long): Long? {
         val path = Regex("""/id/$nodeId/(\d+)""")
-        return document.select("a[href]")
+        return scope.select("a[href]")
             .firstOrNull { it.text().trim().equals("conf", ignoreCase = true) && path.containsMatchIn(it.attr("href")) }
             ?.let { path.find(it.attr("href"))?.groupValues?.get(1)?.toLongOrNull() }
     }

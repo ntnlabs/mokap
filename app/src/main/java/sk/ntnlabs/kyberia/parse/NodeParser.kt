@@ -18,6 +18,8 @@ data class NodeChild(
     /** Kyberia ju označila „New“ – pribudla od tvojej poslednej návštevy. */
     val isNew: Boolean,
     val content: List<ContentBlock>,
+    /** Šablóna „conf“ z hlavičky odpovede – je = smieš ju upravovať ([NodeActionsParser.confTemplate]). */
+    val confTemplate: Long? = null,
 )
 
 /** Jeden node (príspevok, fórum, log…) s prvou stránkou odpovedí. */
@@ -109,6 +111,7 @@ object NodeParser {
             isNew = header.selectFirst("span.node_header_new") != null,
             // „mood“ je podpis pod príspevkom, nie jeho obsah.
             content = body?.let { ContentParser.parse(it) { el -> el.normalName() == "small" && el.hasClass("mood") } }.orEmpty(),
+            confTemplate = NodeActionsParser.confTemplate(header, id),
         )
     }
 }

@@ -107,4 +107,22 @@ druhý riadok</textarea>
         assertEquals(null, NodeActionsParser.confTemplate(document, 5100))
         assertEquals(null, NodeActionsParser.confTemplate(Jsoup.parse("<a href='/id/5101/7777'>edit</a>"), 5101))
     }
+
+    @Test
+    fun confInReplyHeaderMarksEditableReply() {
+        val html = """<html><head><title>Téma :: motto</title></head><body>
+            <ul class='node_children'>
+              <li id='sub5101' class='level1 lvl'><div class='node_content'><div class='node_header'>
+                <a href='/id/602' class='node_login'>beta</a>
+                <a class='childVector' href='/id/5001' title='parent'>UP</a> <a href='/id/5101/7777'>conf</a>
+              </div><div class='node_body'>text</div></div></li>
+              <li id='sub5102' class='level1 lvl'><div class='node_content'><div class='node_header'>
+                <a href='/id/601' class='node_login'>alfa</a>
+              </div><div class='node_body'>iný text</div></div></li>
+            </ul></body></html>"""
+        val page = NodeParser.parse(Jsoup.parse(html, "https://kyberia.sk/id/5001/"), 5001)
+        assertEquals(listOf(7777L, null), page.children.map { it.confTemplate })
+        // Conf odpovede nie je conf samotného nodu.
+        assertNull(page.confTemplate)
+    }
 }

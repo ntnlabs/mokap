@@ -102,9 +102,9 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   `formular`) → `anticsrf` + `event=K`. Odpoveď: `formular` + presne jedno `node_chosen[]` + `event=K` (`K.inc` dá K
   každému zaškrtnutému). Chyby („datanode uz si k udelil“, „nemas k“) v hlavičke; úspech = počet K narástol. K sebe
   appka ponúka tiež (kyberia to dovolí, používateľ to chce – aj v Top K). Na stránke je jeden `anticsrf` pre celú session – chýba vo formulári → vezme sa z inej časti stránky.
-- **Úprava vlastného príspevku**: node sa smie upravovať, keď je pri jeho názve odkaz **„conf“** (`/id/N/<šablóna>`,
-  `NodeActionsParser.confTemplate`) – kyberia ho ukáže len tomu, kto smie; záloha `ownerId` = vlastné ID z /id/19/
-  (odkaz SELF – nie každá šablóna /id/19/ ho má). Odpoveď: `authorId` = vlastné ID. Šablóna „conf“ sa **líši podľa
+- **Úprava vlastného príspevku**: príspevok sa smie upravovať, keď má odkaz **„conf“** (`/id/N/<šablóna>`,
+  `NodeActionsParser.confTemplate`) – node pri názve, odpoveď v hlavičke (vedľa „UP“); kyberia ho ukáže len tomu, kto
+  smie. Záloha: vlastné ID z /id/19/ (odkaz SELF – nie každá šablóna ho má) = `ownerId`/`authorId`. Šablóna „conf“ sa **líši podľa
   používateľa** – berie sa z odkazu (1961033 bola len zo vzorky jedného používateľa, ostáva ako náhradná). „conf“
   stránka (`KyberiaUrls.configure`) má formulár s pôvodným textom (`textarea[name=node_content]`) a
   `event=configure_content` → POST len `anticsrf`, `node_content`, `event`. Ak formulár chýba, kyberia úpravu
