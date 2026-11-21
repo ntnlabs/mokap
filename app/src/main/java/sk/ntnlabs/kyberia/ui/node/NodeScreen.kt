@@ -570,7 +570,8 @@ private fun Topic(page: NodePage, onLink: (String) -> Unit, externalImages: Imag
                 page.k?.let { Text(stringResource(R.string.node_k, it), color = MaterialTheme.colorScheme.primary) }
             }
             if (page.content.isNotEmpty()) TopicContent(page, onLink, externalImages)
-            val own = actions.me != null && page.ownerId == actions.me
+            // Odkaz „conf“ pri názve = kyberia ti úpravu dovolí; ID z hlavičky /id/19/ je len záloha (nie každá šablóna ho má).
+            val own = page.confTemplate != null || (actions.me != null && page.ownerId == actions.me)
             val kNode = actions.kNode
             val kDone = page.kGiven || actions.kGiven(page.id)
             if (kNode != null || own || kDone) {

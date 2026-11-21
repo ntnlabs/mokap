@@ -39,8 +39,9 @@ class NodeRepository(private val client: KyberiaClient) {
         return NodeOutcomes.k(page, childId, response)
     }
 
-    /** Pôvodný text nodu [id] z jeho „conf“ stránky; null = kyberia úpravu neponúkla (nie je tvoj). */
-    suspend fun editSource(id: Long): EditForm? = NodeActionsParser.edit(client.loggedInPage(KyberiaUrls.configure(id)))
+    /** Pôvodný text nodu [id] z jeho „conf“ stránky ([template] z odkazu „conf“); null = kyberia úpravu neponúkla. */
+    suspend fun editSource(id: Long, template: Long? = null): EditForm? =
+        NodeActionsParser.edit(client.loggedInPage(KyberiaUrls.configure(id, template)))
 
     /**
      * Uloží nový text (`event=configure_content`). Kyberia vráti stránku upraveného nodu; ak sa upravovala odpoveď
