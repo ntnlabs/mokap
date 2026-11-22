@@ -51,6 +51,9 @@ class MailParserTest {
         assertNull(UserInfoParser.parse(org.jsoup.Jsoup.parse(html)).userId)
         assertEquals(777L, noSelf.selfId)
         assertEquals(602L to "beta gama", noSelf.counterpart(noSelf.mails[1]))
+        // ID zistené pri prihlásení má prednosť pred hádaním zo správ, SELF na stránke pred ním.
+        assertEquals(778L, MailParser.parse(org.jsoup.Jsoup.parse(html, "https://kyberia.sk/id/24/"), knownSelf = 778).selfId)
+        assertEquals(777L, MailParser.parse(Fixtures.load("mail.html", "https://kyberia.sk/id/24/"), knownSelf = 778).selfId)
     }
 
     @Test

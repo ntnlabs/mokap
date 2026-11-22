@@ -37,6 +37,7 @@ class BookmarksRepository(
     private val client: KyberiaClient,
     private val presence: Presence? = null,
     private val tokens: SessionTokenStore? = null,
+    private val ownIds: OwnIdStore? = null,
 ) {
 
     /**
@@ -55,11 +56,19 @@ class BookmarksRepository(
             replies = RepliesParser.parse(document),
             friends = FriendsParser.parse(document),
             last = LastParser.parse(document),
-            user = UserInfoParser.parse(document),
+            user = user(document),
             myK = MyKParser.parse(document),
             myKHours = catchUp?.first ?: 1,
             anticsrf = token,
         )
+    }
+
+    /** Vlastné ID z odkazu SELF (a uloží sa so session); šablóna bez SELF = ID zistené pri prihlásení ([OwnId]). */
+    private fun user(document: Document): UserInfo {
+        val user = UserInfoParser.parse(document)
+        val self = user.userId ?: return user.copy(userId = ownIds?.readOwnId())
+        if (ownIds != null && ownIds.readOwnId() != self) ownIds.writeOwnId(self)
+        return user
     }
 
     /** /id/19/ s blokom K za [hours] hodín; null = odpoveď nie je /id/19/ s blokom K (napr. zmena na kyberii). */

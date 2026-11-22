@@ -24,7 +24,8 @@ identifikátory zariadenia, diagnostika appky…) appka z telefónu neposiela.
 - Processed ephemerally: **No**
 - Required or optional: **Required** (bez prihlásenia appka nefunguje)
 - Purposes: **App functionality**, **Account management**
-- Poznámka: nick alebo ID (a heslo) pri prihlásení na kyberia.sk. Heslo sa v appke neukladá.
+- Poznámka: nick alebo ID (a heslo) pri prihlásení na kyberia.sk. Heslo ani nick sa v appke neukladajú; číslo vlastného
+  profilu drží appka v telefóne šifrovane so session (na rozlíšenie vlastných príspevkov a správ), nikam ho neposiela.
 
 ### App activity → **Other user-generated content**
 - Collected: **Yes** · Shared: **No**

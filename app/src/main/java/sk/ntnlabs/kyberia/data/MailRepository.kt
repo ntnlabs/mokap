@@ -32,7 +32,7 @@ object MailOutcomes {
      * [byId] = číslo profilu, inak nick). Adresát stačí aj bez vlastného ID – prichádzajúca má za adresáta teba.
      */
     fun send(before: MailPage, response: Document, to: String, byId: Boolean): SendResult {
-        val page = MailParser.parse(response)
+        val page = MailParser.parse(response, before.selfId)
         PageError.of(response)?.let { return SendResult.Rejected(page, it) }
         return recheck(before, page, to, byId)
     }
@@ -56,13 +56,13 @@ object MailOutcomes {
  * Pošta. Počet nových cez ľahký AJAX endpoint (kontrola v pozadí, pár bajtov); samotná pošta (`/id/24/`) len pri
  * otvorení záložky – kyberia ju tým, ako na webe, označí ako prečítanú. Správy appka drží len v pamäti.
  */
-class MailRepository(private val client: KyberiaClient) {
+class MailRepository(private val client: KyberiaClient, private val ownIds: OwnIdStore? = null) {
 
     /** null = nečakaná odpoveď; pri sieťovej chybe IOException. */
     suspend fun check(): MailCheck? = MailCheckParser.parse(client.getText(KyberiaUrls.MAIL_CHECK))
 
     /** O odhlásení rozhoduje [loggedInPage]. */
-    suspend fun load(): MailPage = MailParser.parse(client.loggedInPage(KyberiaUrls.MAIL))
+    suspend fun load(): MailPage = MailParser.parse(client.loggedInPage(KyberiaUrls.MAIL), ownIds?.readOwnId())
 
     /**
      * Pošle správu – jednorazový POST (OkHttp ho po chybe spojenia neopakuje), appka ho nikdy neposiela znova sama;
