@@ -99,10 +99,10 @@ class AppContainer(context: Context) {
     val scheduler = CheckScheduler(context, settings, diagnostics)
     val newsTracker = NewsTracker(context)
     val latestPage = LatestPage()
-    val auth = AuthRepository(client, cookieJar, newsTracker, scheduler, latestPage)
+    val auth = AuthRepository(client, cookieJar, newsTracker, scheduler, latestPage, ownIds = sessionStore)
     private val presence = Presence(client) { settings.current.showPresence }
-    val bookmarks = BookmarksRepository(client, presence, tokens = sessionStore)
-    val mail = MailRepository(client)
+    val bookmarks = BookmarksRepository(client, presence, tokens = sessionStore, ownIds = sessionStore)
+    val mail = MailRepository(client, ownIds = sessionStore)
     val people = PeopleRepository(client, presence)
     val nodes = NodeRepository(client)
     val topK = TopKRepository(client, presence)

@@ -1,6 +1,6 @@
 # Zásady ochrany súkromia – mokap
 
-*Platné od 14. 11. 2026* · [English version below](#privacy-policy--mokap)
+*Platné od 22. 11. 2026* · [English version below](#privacy-policy--mokap)
 
 **mokap** je neoficiálny Android klient pre [kyberia.sk](https://kyberia.sk), ktorý vyvíja **ntnlabs**
 (zdrojový kód: <https://github.com/ntnlabs/mokap>). Nie je to oficiálna aplikácia kyberia.sk.
@@ -31,9 +31,9 @@
 
 ## Čo appka ukladá v telefóne
 
-- prihlásenie do kyberie (session cookies a bezpečnostný token tej istej session), šifrované kľúčom z Android Keystore;
-  odhlásením zanikne;
-- nastavenia appky a voľbu, či sa prihlasuješ nickom alebo ID (nie samotný nick či ID);
+- prihlásenie do kyberie (session cookies, bezpečnostný token tej istej session a číslo tvojho profilu na kyberii, aby
+  appka spoznala tvoje príspevky a správy), šifrované kľúčom z Android Keystore; odhlásením zanikne;
+- nastavenia appky a voľbu, či sa prihlasuješ nickom alebo ID (nick sa neukladá nikdy);
 - stav pre notifikácie: čísla nodov z bookmarkov a odpovedí a ich počty, čísla (ID) priateľov online,
   počet neprečítanej pošty, počty K pri tvojich príspevkoch a čas, kedy sa K naposledy kontrolovali;
 - diagnostiku kontrol (čas, výsledok, stav siete) – bez osobných údajov, slúži na zistenie, prečo appku odhlásilo;
@@ -88,7 +88,7 @@ otvorí túto stránku v prehliadači; appka sama nič neposiela). Issues sú ve
 
 # Privacy policy – mokap
 
-*Effective 14 November 2026*
+*Effective 22 November 2026*
 
 **mokap** is an unofficial Android client for [kyberia.sk](https://kyberia.sk), developed by **ntnlabs**
 (source code: <https://github.com/ntnlabs/mokap>). It is not an official kyberia.sk app.
@@ -119,9 +119,9 @@ otvorí túto stránku v prehliadači; appka sama nič neposiela). Issues sú ve
 
 ## What the app stores on the phone
 
-- your kyberia login (session cookies and the security token of the same session), encrypted with a key from the
-  Android Keystore; logging out removes it;
-- app settings and whether you log in by nick or by ID (not the nick or ID itself);
+- your kyberia login (session cookies, the security token of the same session and your kyberia profile number, so the
+  app recognizes your own posts and mail), encrypted with a key from the Android Keystore; logging out removes it;
+- app settings and whether you log in by nick or by ID (the nick is never stored);
 - notification state: node numbers from your bookmarks and replies with their counts, IDs of friends online,
   the number of unread mails, K counts of your posts and when K were last checked;
 - check diagnostics (time, result, network state) – no personal data, used to find out why you were logged out;

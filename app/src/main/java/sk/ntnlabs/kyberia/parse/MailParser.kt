@@ -53,9 +53,10 @@ object MailParser {
     private val TIME = Regex("""\d{1,2}:\d{2}:\d{2}\s*-\s*\d{1,2}\.\d{1,2}\.\d{4}""")
     private val SPACES = Regex("""\s+""")
 
-    fun parse(document: Document): MailPage {
+    /** [knownSelf] = vlastné ID zistené inde (pri prihlásení); odkaz SELF na stránke má prednosť. */
+    fun parse(document: Document, knownSelf: Long? = null): MailPage {
         val mails = document.select("div.message").mapNotNull(::mail)
-        return MailPage(mails, form(document), UserInfoParser.parse(document).userId ?: selfFromMails(mails))
+        return MailPage(mails, form(document), UserInfoParser.parse(document).userId ?: knownSelf ?: selfFromMails(mails))
     }
 
     /**

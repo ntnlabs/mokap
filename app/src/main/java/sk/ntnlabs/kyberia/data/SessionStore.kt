@@ -11,10 +11,19 @@ interface SessionTokenStore {
 }
 
 /**
- * Session cookies a token session (`anticsrf`, jeden pre celú session) šifrované kľúčom z Android Keystore,
- * uložené v SharedPreferences. Token zaniká so session: koniec cookies ho zmaže tiež.
+ * Vlastné ID (číslo profilu) prihláseného – kým platí session; null = nevieme. Počas session sa nemení, preto stačí
+ * zistiť ho raz ([OwnId]): odkaz SELF ho dáva len v niektorých šablónach hlavičky.
  */
-class SessionStore(context: Context) : CookieStorage, SessionTokenStore {
+interface OwnIdStore {
+    fun readOwnId(): Long?
+    fun writeOwnId(value: Long?)
+}
+
+/**
+ * Session cookies, token session (`anticsrf`, jeden pre celú session) a vlastné ID šifrované kľúčom z Android Keystore,
+ * uložené v SharedPreferences. Token aj ID zanikajú so session: koniec cookies ich zmaže tiež.
+ */
+class SessionStore(context: Context) : CookieStorage, SessionTokenStore, OwnIdStore {
 
     private val prefs = context.getSharedPreferences("session", Context.MODE_PRIVATE)
     private val cipher = KeystoreCipher("mokap_session")
@@ -26,8 +35,9 @@ class SessionStore(context: Context) : CookieStorage, SessionTokenStore {
         prefs.edit {
             if (encoded == null) {
                 remove(KEY_COOKIES)
-                // Bez cookies niet session – ani jej tokenu.
+                // Bez cookies niet session – ani jej tokenu a vlastného ID.
                 remove(KEY_TOKEN)
+                remove(KEY_OWN_ID)
             } else {
                 putString(KEY_COOKIES, encoded)
             }
@@ -39,6 +49,13 @@ class SessionStore(context: Context) : CookieStorage, SessionTokenStore {
     override fun writeToken(value: String?) {
         val encoded = encrypted(value)
         prefs.edit { if (encoded == null) remove(KEY_TOKEN) else putString(KEY_TOKEN, encoded) }
+    }
+
+    override fun readOwnId(): Long? = decrypted(KEY_OWN_ID)?.toLongOrNull()
+
+    override fun writeOwnId(value: Long?) {
+        val encoded = encrypted(value?.toString())
+        prefs.edit { if (encoded == null) remove(KEY_OWN_ID) else putString(KEY_OWN_ID, encoded) }
     }
 
     private fun decrypted(key: String): String? {
@@ -65,5 +82,6 @@ class SessionStore(context: Context) : CookieStorage, SessionTokenStore {
     private companion object {
         const val KEY_COOKIES = "cookies"
         const val KEY_TOKEN = "anticsrf"
+        const val KEY_OWN_ID = "own_id"
     }
 }

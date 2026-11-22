@@ -30,7 +30,12 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
 - Prihlásená stránka má vždy tlačidlo `event=logout`; hlavička obsahuje odkaz SELF (vlastné ID).
 - Prihlásenie: odhlásený `/id/19/` vráti „nemáš práva“ s čistým formulárom (multipart POST,
   `login`, `password`, rádio `login_type` = `name`|`id`, `event=login`). Hlavná stránka sa na login
-  nepoužíva. Appka ponúka Nick/ID (niektoré nicky sa napísať nedajú); pamätá si len voľbu, nie nick/ID.
+  nepoužíva. Appka ponúka Nick/ID (niektoré nicky sa napísať nedajú); na prihlasovanie si pamätá len voľbu, nie nick/ID.
+- **Vlastné ID** (`OwnId`, `OwnIdStore`): odkaz SELF v hlavičke nemá každá šablóna. ID sa počas session nemení → zistí
+  sa **raz pri prihlásení** a drží šifrovane so session (`SessionStore`, koniec cookies ho zmaže): prihlásenie cez ID =
+  napísané ID; nickom = SELF, inak people (/id/27/) podľa nicku (+1 požiadavka len pri prihlásení, jediný zhodný riadok).
+  SELF na stránke má vždy prednosť a uložené ID obnoví. Nick sa neukladá. Session spred tejto zmeny bez SELF ID nemá,
+  kým sa neprihlási znova (pošta si ho domyslí zo správ, úprava z „conf“).
 - `/id/19/` obsahuje aj blok „Last 10 user submissions children“ (`div.user_sub_child`): avatar
   autora odpovede, odkaz na **tvoj** príspevok (nie na odpoveď) a úryvok textu. Počítadlá pred `<br>`:
   `[<span>1K</span>]` = počet K, `[<span>2</span>]` (bez K) = počet odpovedí pod odpoveďou. Odpoveď novšia ako
@@ -104,7 +109,7 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   appka ponúka tiež (kyberia to dovolí, používateľ to chce – aj v Top K). Na stránke je jeden `anticsrf` pre celú session – chýba vo formulári → vezme sa z inej časti stránky.
 - **Úprava vlastného príspevku**: príspevok sa smie upravovať, keď má odkaz **„conf“** (`/id/N/<šablóna>`,
   `NodeActionsParser.confTemplate`) – node pri názve, odpoveď v hlavičke (vedľa „UP“); kyberia ho ukáže len tomu, kto
-  smie. Záloha: vlastné ID z /id/19/ (odkaz SELF – nie každá šablóna ho má) = `ownerId`/`authorId`. Šablóna „conf“ sa **líši podľa
+  smie. Záloha: vlastné ID (SELF alebo zistené pri prihlásení) = `ownerId`/`authorId`. Šablóna „conf“ sa **líši podľa
   používateľa** – berie sa z odkazu (1961033 bola len zo vzorky jedného používateľa, ostáva ako náhradná). „conf“
   stránka (`KyberiaUrls.configure`) má formulár s pôvodným textom (`textarea[name=node_content]`) a
   `event=configure_content` → POST len `anticsrf`, `node_content`, `event`. Ak formulár chýba, kyberia úpravu
@@ -126,8 +131,8 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   a číslo). Správa = `div.message`: `img.mail_avatar` (odosielateľ), `div.header` s odkazmi
   `javascript:chngto('nick','ID')` odosielateľa a adresáta („-->“), voliteľne `[location:: …]`, checkbox `message[ID]`,
   čas a `span.most_important` **NEW** (prichádzajúca nevidená) / **UNREAD** (tvoja, adresát ešte nečítal); text v
-  `div.content`. Prvá stránka = 32 správ, staršie na webe. Vlastné ID (smer správy, komu odpovedať) z odkazu SELF; nie
-  každá šablóna hlavičky ho má → zo správ (`MailParser.selfFromMails`: UNREAD = tvoja, NEW = tebe, inak ten, kto je pri
+  `div.content`. Prvá stránka = 32 správ, staršie na webe. Vlastné ID (smer správy, komu odpovedať) z odkazu SELF, inak
+  zistené pri prihlásení, inak zo správ (`MailParser.selfFromMails`: UNREAD = tvoja, NEW = tebe, inak ten, kto je pri
   každej správe). Nič z toho nie je natvrdo – appka nesmie fungovať len pre jeden účet. Odoslanie: `formular` (multipart) → POST **len** `anticsrf`,
   `mail_to`, `mail_to_type` (`id` pri odpovedi – ID druhej strany, `name` pri novej správe s nickom), `mail_text`,
   voliteľne `no_html=yes` a `event=send` (formulár má aj `delete_mail`, stránkovanie…). `oneShot`, nikdy znova samo;
