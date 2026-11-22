@@ -5,4 +5,5 @@ Codename: Capable Capybara
 • Úprava vlastných príspevkov aj odpovedí v diskusii funguje každému
 • Odoslaná pošta sa správne potvrdí a odpoveď na vlastnú správu ide adresátovi
 • Appka si pri prihlásení zistí, kto si, a spozná tvoje príspevky aj poštu – po aktualizácii sa raz odhlás a znova prihlás
+• Diagnostiku v Pokročilých nastaveniach ide označiť a tlačidlom celú skopírovať
 </sk>
