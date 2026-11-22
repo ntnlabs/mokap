@@ -1,29 +1,40 @@
 package sk.ntnlabs.kyberia.ui.settings
 
+import android.content.ClipData
+import android.os.Build
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import kotlinx.coroutines.launch
 import sk.ntnlabs.kyberia.AppContainer
 import sk.ntnlabs.kyberia.BuildConfig
 import sk.ntnlabs.kyberia.R
@@ -63,46 +74,74 @@ fun DiagnosticsScreen(container: AppContainer, onBack: () -> Unit) {
     }
 }
 
-/** Verzia, posledné kontroly, cookies a história – v nastaveniach aj na prihlasovacej obrazovke. */
+/**
+ * Verzia, posledné kontroly, cookies a história – v nastaveniach aj na prihlasovacej obrazovke. Text sa dá označiť
+ * a „Kopírovať diagnostiku“ ho celý vloží do schránky (do hlásenia chyby); appka ho nikam neposiela.
+ */
 @Composable
 fun DiagnosticsRows(container: AppContainer) {
     val diagnostics by container.diagnostics.diagnostics.collectAsStateWithLifecycle()
     // „Verzia: 0.7.0114“ a pod tým kódové meno v zátvorke.
     val version = if (BuildConfig.DEBUG) "${BuildConfig.APP_VERSION} · debug" else BuildConfig.APP_VERSION
-    InfoRow(
-        stringResource(R.string.settings_version, version),
-        stringResource(R.string.settings_version_codename, BuildConfig.CODENAME),
-    )
     val never = stringResource(R.string.diag_never)
-    InfoRow(stringResource(R.string.diag_last_check), diagnostics.last?.let { "${time(it.atMillis)} – ${describe(it)}" } ?: never)
-    InfoRow(stringResource(R.string.diag_last_ok), diagnostics.lastOkMillis?.let(::time) ?: never)
-    InfoRow(
-        stringResource(R.string.diag_last_logout),
-        diagnostics.lastExpired?.let { expired ->
-            val before = diagnostics.okBeforeExpiredMillis?.let { ok ->
-                "\n" + stringResource(R.string.diag_ok_before, time(ok), Durations.short((expired.atMillis - ok) / 1000))
-            }.orEmpty()
-            "${time(expired.atMillis)} – ${describe(expired)}$before"
-        } ?: never,
-    )
     val cookies = remember(diagnostics) { container.cookieExpiry() }
-    InfoRow(
-        stringResource(R.string.diag_cookie),
-        when {
-            cookies.count == 0 -> stringResource(R.string.diag_cookie_none)
-            cookies.earliestMillis == null -> stringResource(R.string.diag_cookie_session)
-            else -> stringResource(R.string.diag_cookie_until, time(cookies.earliestMillis))
+    val lastLogout = diagnostics.lastExpired?.let { expired ->
+        val before = diagnostics.okBeforeExpiredMillis?.let { ok ->
+            "\n" + stringResource(R.string.diag_ok_before, time(ok), Durations.short((expired.atMillis - ok) / 1000))
+        }.orEmpty()
+        "${time(expired.atMillis)} – ${describe(expired)}$before"
+    } ?: never
+    val rows = buildList {
+        add(stringResource(R.string.settings_version, version) to stringResource(R.string.settings_version_codename, BuildConfig.CODENAME))
+        add(stringResource(R.string.diag_last_check) to (diagnostics.last?.let { "${time(it.atMillis)} – ${describe(it)}" } ?: never))
+        add(stringResource(R.string.diag_last_ok) to (diagnostics.lastOkMillis?.let(::time) ?: never))
+        add(stringResource(R.string.diag_last_logout) to lastLogout)
+        add(
+            stringResource(R.string.diag_cookie) to when {
+                cookies.count == 0 -> stringResource(R.string.diag_cookie_none)
+                cookies.earliestMillis == null -> stringResource(R.string.diag_cookie_session)
+                else -> stringResource(R.string.diag_cookie_until, time(cookies.earliestMillis))
+            },
+        )
+        if (diagnostics.history.isNotEmpty()) {
+            // Najnovšie hore; „+X“ = koľko času ubehlo od predchádzajúcej kontroly.
+            val lines = diagnostics.history.mapIndexed { index, entry ->
+                val gap = diagnostics.history.getOrNull(index - 1)?.let { previous ->
+                    " · +" + Durations.short((entry.atMillis - previous.atMillis) / 1000)
+                }.orEmpty()
+                "${time(entry.atMillis)} – ${describe(entry)}$gap"
+            }.asReversed()
+            add(stringResource(R.string.diag_history) to lines.joinToString("\n"))
+        }
+    }
+    CopyButton(rows.joinToString("\n\n") { (label, value) -> "$label\n$value" })
+    SelectionContainer {
+        Column {
+            rows.forEach { (label, value) -> InfoRow(label, value) }
+        }
+    }
+}
+
+/** Celá diagnostika do schránky; Android 13+ to potvrdí sám, staršie krátkou hláškou. */
+@Composable
+private fun CopyButton(text: String) {
+    val clipboard = LocalClipboard.current
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val label = stringResource(R.string.diag_copy)
+    val copied = stringResource(R.string.diag_copied)
+    OutlinedButton(
+        onClick = {
+            scope.launch {
+                clipboard.setClipEntry(ClipEntry(ClipData.newPlainText(label, text)))
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                    Toast.makeText(context, copied, Toast.LENGTH_SHORT).show()
+                }
+            }
         },
-    )
-    if (diagnostics.history.isNotEmpty()) {
-        // Najnovšie hore; „+X“ = koľko času ubehlo od predchádzajúcej kontroly.
-        val lines = diagnostics.history.mapIndexed { index, entry ->
-            val gap = diagnostics.history.getOrNull(index - 1)?.let { previous ->
-                " · +" + Durations.short((entry.atMillis - previous.atMillis) / 1000)
-            }.orEmpty()
-            "${time(entry.atMillis)} – ${describe(entry)}$gap"
-        }.asReversed()
-        InfoRow(stringResource(R.string.diag_history), lines.joinToString("\n"))
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+    ) {
+        Text(label)
     }
 }
 

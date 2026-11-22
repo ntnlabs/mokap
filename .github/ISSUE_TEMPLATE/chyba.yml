@@ -39,8 +39,8 @@ body:
     attributes:
       label: Diagnostika
       description: >-
-        Pri odhlasovaní a notifikáciách pomôže Nastavenia → Pokročilé (posledná kontrola, posledné odhlásenie,
-        história) – stačí screenshot, osobné údaje tam nie sú.
+        Pri odhlasovaní a notifikáciách pomôže Nastavenia → Pokročilé → „Kopírovať diagnostiku“ a vložiť sem
+        (posledná kontrola, posledné odhlásenie, história) – osobné údaje tam nie sú.
   - type: checkboxes
     id: privacy
     attributes:

@@ -196,7 +196,8 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
 - Session sa zahodí **len** pri `PageKind.LOGGED_OUT` (prihlasovací formulár na stránke);
   `UNKNOWN` stránka je dočasná chyba. Výsledky kontrol ide do `DiagnosticsStore` (bez osobných údajov).
   `LogoutDetail`: odhlásenie pri nečinnosti kyberia robí presmerovaním na `/` (`logout.inc`), zmiznutá session
-  ukáže login bez presmerovania. Diagnostika sa nemaže a je dostupná aj z prihlasovacej obrazovky.
+  ukáže login bez presmerovania. Diagnostika sa nemaže a je dostupná aj z prihlasovacej obrazovky;
+  text sa dá označiť a „Kopírovať diagnostiku“ ju celú vloží do schránky (na hlásenie chyby – appka nič neposiela).
 - Cookie jar zahadzuje `jabber_login` a `jabber_password` (web ich nastavuje pri prihlásení, druhá je MD5 z hesla).
   Po konci session (`endSession`) neprijíma cookies až do ďalšieho prihlásenia (`clear`) – odpoveď súbežnej
   požiadavky by inak session po reštarte „oživila“.
