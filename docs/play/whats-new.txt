@@ -1,11 +1,8 @@
 <sk>
-Beta verzia, dvanásty push na Google Play Developer Konzole
+Beta verzia, trinásty push na Google Play Developer Konzole
 Codename: Capable Capybara
 
-• Lišta záložiek aj pri čítaní nodov – vysunie sa pri rolovaní hore
-• Po návrate z nodov sa bookmarky samé obnovia
-• Notifikácia odpovede otvorí príspevok rovno pri tej odpovedi
-• Odkaz na kyberiu alebo číslo nodu vložené do hľadania v bookmarkoch otvorí node
-• Zo skladby zdieľanej z YouTube Music zmizne „Check out“
-• Prehľadnejšie Pokročilé nastavenia
+• Úprava vlastných príspevkov aj odpovedí v diskusii funguje každému
+• Odoslaná pošta sa správne potvrdí a odpoveď na vlastnú správu ide adresátovi
+• Appka si pri prihlásení zistí, kto si, a spozná tvoje príspevky aj poštu – po aktualizácii sa raz odhlás a znova prihlás
 </sk>
