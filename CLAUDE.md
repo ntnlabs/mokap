@@ -90,7 +90,7 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   a `node_chosen[]` (odpoveď na odpoveď) a `event=add` – nikdy celý formulár: obsahuje aj tlačidlá K/put/delete_hardlink,
   výber bookmarkov a zaškrtávacie `node_chosen[]` pri odpovediach. Text ide ako na webe (HTML cez kyberiin `htmlparse`, nové riadky cez `nl2br`). Chyba („Chyba HTML
   syntaxe!“, prázdny obsah) je v hlavičke `center > span.most_important`. Úspech = na vrátenej stránke je nová odpoveď
-  od teba; inak „nepotvrdené“. POST je `oneShot` (OkHttp ho po chybe spojenia neopakuje) a appka ho nikdy neposiela
+  od teba (autor = vlastné ID alebo „conf“ v jej hlavičke); inak „nepotvrdené“. POST je `oneShot` (OkHttp ho po chybe spojenia neopakuje) a appka ho nikdy neposiela
   znova sama – pri chybe siete nevieme, či prešiel. Text v editore sa zahodí len po potvrdenom odoslaní.
   Po potvrdenom odoslaní zoznam odroluje na novú odpoveď (`NodeUiState.newReply`) – pre istotu; v node sa nová
   odpoveď podľa používateľa ukazovala aj tak (na rozdiel od pošty, kde pribudne nad prvú viditeľnú).
@@ -126,10 +126,13 @@ appka sťahuje stránky kyberie, parsuje ich (Jsoup) a zobrazuje dáta vlastným
   a číslo). Správa = `div.message`: `img.mail_avatar` (odosielateľ), `div.header` s odkazmi
   `javascript:chngto('nick','ID')` odosielateľa a adresáta („-->“), voliteľne `[location:: …]`, checkbox `message[ID]`,
   čas a `span.most_important` **NEW** (prichádzajúca nevidená) / **UNREAD** (tvoja, adresát ešte nečítal); text v
-  `div.content`. Prvá stránka = 32 správ, staršie na webe. Odoslanie: `formular` (multipart) → POST **len** `anticsrf`,
+  `div.content`. Prvá stránka = 32 správ, staršie na webe. Vlastné ID (smer správy, komu odpovedať) z odkazu SELF; nie
+  každá šablóna hlavičky ho má → zo správ (`MailParser.selfFromMails`: UNREAD = tvoja, NEW = tebe, inak ten, kto je pri
+  každej správe). Nič z toho nie je natvrdo – appka nesmie fungovať len pre jeden účet. Odoslanie: `formular` (multipart) → POST **len** `anticsrf`,
   `mail_to`, `mail_to_type` (`id` pri odpovedi – ID druhej strany, `name` pri novej správe s nickom), `mail_text`,
   voliteľne `no_html=yes` a `event=send` (formulár má aj `delete_mail`, stránkovanie…). `oneShot`, nikdy znova samo;
-  úspech = v vrátenej pošte je nová správa od teba, chyba v hlavičke. Odpoveď na odoslanie novú správu niekedy neukáže
+  úspech = v vrátenej pošte je nová správa od teba alebo adresovaná tomu, komu si písal (stačí aj bez vlastného ID),
+  chyba v hlavičke. Odpoveď na odoslanie novú správu niekedy neukáže
   → appka raz počká 3 s a poštu načíta znova (`MailOutcomes.recheck`, 1 GET, len pri nepotvrdenom –
   používateľ chce len jedno). Keď sa zmení najnovšia správa (odoslaná, obnovenie), zoznam vyroluje hore – nová
   správa pribudne nad prvú viditeľnú a bez toho by ju nebolo vidieť (to bol hlavný dôvod zmätku pri odosielaní – tester

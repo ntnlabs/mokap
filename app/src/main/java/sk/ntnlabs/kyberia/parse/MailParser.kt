@@ -26,7 +26,10 @@ class MailForm(val action: String, val anticsrf: String, val multipart: Boolean)
     override fun toString(): String = "MailForm(action=$action)"
 }
 
-/** Prvá stránka pošty (kyberia ukáže 32 správ, najnovšie hore) a vlastné ID na rozlíšenie odoslaných. */
+/**
+ * Prvá stránka pošty (kyberia ukáže 32 správ, najnovšie hore) a vlastné ID na rozlíšenie odoslaných – z odkazu SELF,
+ * a keď ho šablóna hlavičky nemá, zo samotných správ ([MailParser.selfFromMails]).
+ */
 class MailPage(val mails: List<Mail>, val form: MailForm?, val selfId: Long?) {
     /** Druhá strana konverzácie – pri prichádzajúcej odosielateľ, pri odoslanej adresát. */
     fun counterpart(mail: Mail): Pair<Long?, String> =
@@ -50,11 +53,22 @@ object MailParser {
     private val TIME = Regex("""\d{1,2}:\d{2}:\d{2}\s*-\s*\d{1,2}\.\d{1,2}\.\d{4}""")
     private val SPACES = Regex("""\s+""")
 
-    fun parse(document: Document): MailPage = MailPage(
-        mails = document.select("div.message").mapNotNull(::mail),
-        form = form(document),
-        selfId = UserInfoParser.parse(document).userId,
-    )
+    fun parse(document: Document): MailPage {
+        val mails = document.select("div.message").mapNotNull(::mail)
+        return MailPage(mails, form(document), UserInfoParser.parse(document).userId ?: selfFromMails(mails))
+    }
+
+    /**
+     * Vlastné ID bez odkazu SELF (nie každá šablóna hlavičky ho má): „UNREAD“ je len pri tvojej odoslanej, „NEW“ len pri
+     * prichádzajúcej; inak ten, kto je pri každej správe (odosielateľ alebo adresát). Null = nedá sa povedať (napr. všetky
+     * správy sú jedna konverzácia bez značiek).
+     */
+    fun selfFromMails(mails: List<Mail>): Long? {
+        mails.firstNotNullOfOrNull { mail -> mail.fromId.takeIf { mail.unreadByRecipient } }?.let { return it }
+        mails.firstNotNullOfOrNull { mail -> mail.toId.takeIf { mail.isNew } }?.let { return it }
+        if (mails.isEmpty()) return null
+        return mails.map { setOfNotNull(it.fromId, it.toId) }.reduce { common, ids -> common intersect ids }.singleOrNull()
+    }
 
     /**
      * Len polia na odoslanie – nie celý formulár (má aj `delete_mail`, stránkovanie, hľadanie). [byId] = adresát je
