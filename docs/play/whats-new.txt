@@ -1,5 +1,5 @@
 <sk>
-Beta verzia, trinásty push na Google Play Developer Konzole
+Beta verzia, dvanásty push na Google Play Developer Konzole
 Codename: Capable Capybara
 
 • Úprava vlastných príspevkov aj odpovedí v diskusii funguje každému
