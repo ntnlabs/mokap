@@ -42,6 +42,31 @@ class MailParserTest {
     }
 
     @Test
+    fun selfWithoutSelfLink() {
+        // Šablóna hlavičky bez odkazu SELF: vlastné ID zo správ, smer a odpoveď ostanú správne.
+        val raw = requireNotNull(javaClass.getResourceAsStream("/fixtures/mail.html")).use { it.readBytes().toString(Charsets.UTF_8) }
+        val html = raw.replace(Regex("""<a name="SELF[^>]*>self</a>"""), "")
+        assertTrue(html != raw)
+        val noSelf = MailParser.parse(org.jsoup.Jsoup.parse(html, "https://kyberia.sk/id/24/"))
+        assertNull(UserInfoParser.parse(org.jsoup.Jsoup.parse(html)).userId)
+        assertEquals(777L, noSelf.selfId)
+        assertEquals(602L to "beta gama", noSelf.counterpart(noSelf.mails[1]))
+    }
+
+    @Test
+    fun selfFromMails() {
+        fun mail(fromId: Long, toId: Long, isNew: Boolean = false, unread: Boolean = false) =
+            Mail(fromId * 10 + toId, fromId, "", toId, "", null, isNew, unread, null, emptyList())
+        assertEquals(777L, MailParser.selfFromMails(listOf(mail(777, 601, unread = true))))
+        assertEquals(777L, MailParser.selfFromMails(listOf(mail(601, 777, isNew = true))))
+        // Bez značiek: ten, kto je pri každej správe.
+        assertEquals(777L, MailParser.selfFromMails(listOf(mail(601, 777), mail(777, 602))))
+        // Jedna konverzácia bez značiek – nedá sa povedať, kto je kto.
+        assertNull(MailParser.selfFromMails(listOf(mail(601, 777), mail(777, 601))))
+        assertNull(MailParser.selfFromMails(emptyList()))
+    }
+
+    @Test
     fun sendOnlyNeededFields() {
         val form = requireNotNull(page.form)
         assertEquals("https://kyberia.sk/id/24/", form.action)

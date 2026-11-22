@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets
 import kotlinx.coroutines.delay
 import org.jsoup.nodes.Document
 import sk.ntnlabs.kyberia.KyberiaUrls
+import sk.ntnlabs.kyberia.parse.Mail
 import sk.ntnlabs.kyberia.parse.MailCheck
 import sk.ntnlabs.kyberia.parse.MailCheckParser
 import sk.ntnlabs.kyberia.parse.MailPage
@@ -26,19 +27,29 @@ sealed interface SendResult {
 }
 
 object MailOutcomes {
-    /** Odoslaná = v pošte je nová správa od teba, ktorá predtým nebola. */
-    fun send(before: MailPage, response: Document): SendResult {
+    /**
+     * Odoslaná = v pošte je nová správa, ktorá predtým nebola: od teba, alebo adresovaná tomu, komu si písal ([to],
+     * [byId] = číslo profilu, inak nick). Adresát stačí aj bez vlastného ID – prichádzajúca má za adresáta teba.
+     */
+    fun send(before: MailPage, response: Document, to: String, byId: Boolean): SendResult {
         val page = MailParser.parse(response)
         PageError.of(response)?.let { return SendResult.Rejected(page, it) }
-        return recheck(before, page)
+        return recheck(before, page, to, byId)
     }
 
     /** Overenie na čerstvo načítanej pošte (po odoslaní kyberia novú správu niekedy hneď neukáže). */
-    fun recheck(before: MailPage, page: MailPage): SendResult {
+    fun recheck(before: MailPage, page: MailPage, to: String, byId: Boolean): SendResult {
         val known = before.mails.mapTo(HashSet()) { it.id }
-        val sent = page.mails.firstOrNull { it.id !in known && page.outgoing(it) }
+        val recipient = to.trim()
+        val sent = page.mails.firstOrNull { mail ->
+            mail.id !in known && (page.outgoing(mail) || mail.unreadByRecipient || sentTo(mail, recipient, byId))
+        }
         return if (sent != null) SendResult.Sent(page, sent.id) else SendResult.Unconfirmed(page)
     }
+
+    private fun sentTo(mail: Mail, recipient: String, byId: Boolean): Boolean =
+        if (byId) recipient.toLongOrNull()?.let { it == mail.toId } == true
+        else recipient.isNotEmpty() && mail.to.trim().equals(recipient, ignoreCase = true)
 }
 
 /**
@@ -71,12 +82,12 @@ class MailRepository(private val client: KyberiaClient) {
             PageKind.LOGGED_OUT -> throw SessionExpiredException(LogoutDetail.of(form.action, response.url))
             PageKind.UNKNOWN -> throw UnexpectedPageException(response.code)
         }
-        var result = MailOutcomes.send(page, response.document)
+        var result = MailOutcomes.send(page, response.document, to, byId)
         // Kyberia chybu nehlásila, ale novú správu v odpovedi nevidno. Raz počkať a poštu načítať znova – len
         // v tomto prípade, jedna požiadavka navyše (rozhodnutie používateľa). Nikdy znova neposielať.
         if (result is SendResult.Unconfirmed) {
             delay(RECHECK_DELAY_MILLIS)
-            result = MailOutcomes.recheck(page, load())
+            result = MailOutcomes.recheck(page, load(), to, byId)
         }
         return result
     }

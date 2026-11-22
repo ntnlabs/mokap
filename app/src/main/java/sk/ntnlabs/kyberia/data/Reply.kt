@@ -25,14 +25,17 @@ sealed interface ReplyResult {
 object Replies {
 
     /**
-     * Porovná odpovede pred a po odoslaní. Za novú berie odpoveď, ktorá predtým nebola – od [me], ak ho poznáme
-     * (súbežná odpoveď niekoho iného tak nepotvrdí tú našu).
+     * Porovná odpovede pred a po odoslaní. Za novú berie odpoveď, ktorá predtým nebola – od [me] alebo s odkazom „conf“
+     * (tvoja), aby súbežná odpoveď niekoho iného nepotvrdila tú našu. Bez vlastného ID (šablóna bez SELF) a bez
+     * „conf“ stačí prvá nová.
      */
     fun outcome(before: NodePage, response: Document, me: Long?): ReplyResult {
         val page = NodeParser.parse(response, before.id)
         ReplyFormParser.error(response)?.let { return ReplyResult.Rejected(page, it) }
         val known = before.children.mapTo(HashSet()) { it.id }
-        val added = page.children.firstOrNull { it.id !in known && (me == null || it.authorId == me) }
+        val fresh = page.children.filter { it.id !in known }
+        val added = fresh.firstOrNull { (me != null && it.authorId == me) || it.confTemplate != null }
+            ?: fresh.firstOrNull().takeIf { me == null }
         return if (added != null) ReplyResult.Added(page, added.id) else ReplyResult.Unconfirmed(page)
     }
 }
